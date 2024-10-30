@@ -77,8 +77,6 @@ public function admin_update_verify_status($verified, $adminID) {
         $admin_id = $data['id'];
         $admin_UNIQUEid = $data['uniqueID'];
         $pword = $data['admin_password'];
-        $longitude = $data['longitude'];
-        $latitude = $data['latitude'];
         $verifystatus = $data['verify_status'];
     }
 
@@ -106,9 +104,7 @@ public function admin_update_verify_status($verified, $adminID) {
             $_SESSION['auth'] = true;
             $_SESSION['auth_user'] = [
                 'admin_id' => $admin_id,
-                'admin_uniqueID' => $admin_UNIQUEid,
-                'longitude' => $longitude,
-                'latitude' => $latitude,
+                'admin_uniqueID' => $admin_UNIQUEid
             ];
 
             $_SESSION['alert'] = "Success";
@@ -365,7 +361,7 @@ public function SELECT_ALL_ARCHIVE_RESEARCH(){
   $stmt = $connection->prepare("SELECT *, archive_research.id AS archiveID, archive_research.archive_id as aid FROM archive_research 
   LEFT JOIN departments ON departments.id = archive_research.department_id
   LEFT JOIN course ON course.id = archive_research.course_id 
-  LEFT JOIN plagiarism_summary ON plagiarism_summary.archive_id = archive_research.id");
+  LEFT JOIN plagiarism_summary ON plagiarism_summary.archive_id = archive_research.id ORDER BY archive_research.date_published DESC");
   $stmt->execute();
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -388,9 +384,11 @@ public function SELECT_ALL_ARCHIVE_RESEARCH_WHERE_PUBLISH(){
   $connection = $this->getConnection();
   $status = 'Accepted';
 
-  $stmt = $connection->prepare("SELECT *, archive_research.id AS archiveID FROM archive_research 
+  $stmt = $connection->prepare("SELECT *, archive_research.id AS archiveID,
+(SELECT COUNT(id) FROM archive_research_views WHERE archive_research_views.archive_research_id = archive_research.archive_id) AS view_count
+	FROM archive_research 
   LEFT JOIN departments ON departments.id = archive_research.department_id
-  LEFT JOIN course ON course.id = archive_research.course_id WHERE archive_research.document_status = ?");
+  LEFT JOIN course ON course.id = archive_research.course_id WHERE archive_research.document_status = ? ORDER BY view_count DESC");
   $stmt->execute([$status]);
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -433,20 +431,158 @@ public function SELECT_COUNT_ALL_ARCHIVE_RESEARCH_WHERE_UNPUBLISH(){
   return $result;
 }
 
-public function SELECT_COUNT_ALL_PLAGIARIZED_RESEARCH(){
+public function SELECT_COUNT_ALL_ARCHIVE_RESEARCH(){
   $connection = $this->getConnection();
 
-  $stmt = $connection->prepare("SELECT COUNT(*) FROM plagiarism_summary");
+  $stmt = $connection->prepare("SELECT COUNT(*) FROM archive_research WHERE 1=1");
   $stmt->execute();
   $result = $stmt->fetchColumn();
 
   return $result;
 }
+
+public function SELECT_RECENT_RESEARCH_PAPER(){
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT archive_research.date_published, archive_research.project_title as project_title, archive_research.archive_id as aid FROM archive_research LEFT JOIN archive_research_views ON archive_research.archive_id = archive_research_views.archive_research_id GROUP BY archive_research_id ORDER BY archive_research.id DESC LIMIT 5;");
+  $stmt->execute();
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+
+public function SELECT_TOP_RESEARCH_CONTRIBUTOR(){
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT *, COUNT(*) as count, students_data.student_id as studID FROM archive_research LEFT JOIN students_data ON student_email = research_owner_email GROUP BY archive_research.research_owner_email ORDER BY count DESC LIMIT 5;");
+  $stmt->execute();
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+
+public function SELECT_PLAGIARIZED_RESEARCH_CONTENT(){
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT *, plagiarism_summary.archive_id as plagiarism_id, archive_research.archive_id as aid FROM plagiarism_summary LEFT JOIN archive_research ON archive_research.id = plagiarism_summary.archive_id ORDER BY plagiarism_summary.id DESC LIMIT 5;");
+  $stmt->execute();
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+
+public function SELECT_TOP_10_VIEWS_RESEARCH_PAPER(){
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT COUNT(*) as count, archive_research.project_title as project_title, archive_research.archive_id as aid FROM archive_research LEFT JOIN archive_research_views ON archive_research.archive_id = archive_research_views.archive_research_id GROUP BY archive_research_id ORDER BY count DESC LIMIT 10;");
+  $stmt->execute();
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+
+public function SELECT_RESEARCH_PUBLISHED_PER_WEEK(){
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT date_published, COUNT(id) as count FROM `archive_research` WHERE document_status = 'Accepted' GROUP BY WEEK(date_published) ORDER BY date_published ASC LIMIT 5");
+  $stmt->execute();
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+
+public function SELECT_COUNT_ALL_RESEARCH(){
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT COUNT(*) as count FROM archive_research ");
+  $stmt->execute();
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+
+public function SELECT_COUNT_ALL_PUBLISHED_RESEARCH(){
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT COUNT(*) as count FROM archive_research WHERE document_status = 'Accepted'");
+  $stmt->execute();
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+
+public function SELECT_COUNT_ALL_UNPUBLISHED_RESEARCH(){
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT COUNT(*) as count FROM archive_research WHERE document_status = 'Not Accepted'");
+  $stmt->execute();
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+
+public function SELECT_COUNT_ALL_PLAGIARIZED_RESEARCH(){
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT COUNT(*) as count FROM plagiarism_summary");
+  $stmt->execute();
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+
+public function SELECT_COUNT_ALL_COURSES(){
+  $connection = $this->getConnection();
+  
+  $stmt = $connection->prepare("SELECT COUNT(*) as total_count FROM course");
+  $stmt->execute();
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+
+public function SELECT_COUNT_ALL_ACTIVE_COURSES(){
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT COUNT(*) as count FROM course WHERE course_status = 'Active'");
+  $stmt->execute();
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+public function SELECT_COUNT_ALL_DEPARTMENT(){
+  $connection = $this->getConnection();
+  
+  $stmt = $connection->prepare("SELECT COUNT(*) as total_count FROM departments");
+  $stmt->execute();
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+
+public function SELECT_COUNT_ALL_ACTIVE_DEPARTMENT(){
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT COUNT(*) as count FROM departments WHERE department_status = 'Active'");
+  $stmt->execute();
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+
 public function SELECT_ARCHIVE_RESEARCH($archiveID){
   $connection = $this->getConnection();
-  $stmt = $connection->prepare("SELECT *, archive_research.archive_id AS archiveID, archive_research.id AS aid FROM archive_research 
-  LEFT JOIN departments ON departments.id = archive_research.department_id
-  LEFT JOIN course ON course.id = archive_research.course_id WHERE archive_research.archive_id = ?");
+  $stmt = $connection->prepare("SELECT 
+    archive_research.*,
+    archive_research.archive_id AS archiveID,
+    archive_research.id AS aid,
+    departments.*,
+    course.*,
+    (SELECT COUNT(id) FROM archive_research_views WHERE archive_research_views.archive_research_id = archive_research.archive_id) AS view_count
+    FROM archive_research
+    LEFT JOIN departments ON departments.id = archive_research.department_id
+    LEFT JOIN course ON course.id = archive_research.course_id
+    WHERE archive_research.archive_id = ?");
   $stmt->execute([$archiveID]);
   $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -504,11 +640,10 @@ public function SELECT_COUNT_ALL_ARCHIVE_RESEARCH_FROM_STUDENT($student_email){
 }
 
 
-public function insert_Research_Views($archiveID, $student_id, $date){
+public function insert_Research_Views($archive_research_id, $student_id, $date){
   $connection = $this->getConnection();
-  
   $sql = $connection->prepare("INSERT INTO archive_research_views(archive_research_id, student_id, date_of_views) VALUES (?, ?, ?)");
-  $sql->execute([$archiveID, $student_id, $date]);
+  $sql->execute([$archive_research_id, $student_id, $date]);
   
 }
 
@@ -682,15 +817,6 @@ public function SELECT_ALL_COURSES(){
   return $result;
 }
 
-public function SELECT_COUNT_ALL_COURSES(){
-  $connection = $this->getConnection();
-  $stmt = $connection->prepare("SELECT COUNT(*) FROM course ");
-  $stmt->execute();
-  $result = $stmt->fetchColumn();
-
-  return $result;
-}
-
 public function insert_Course($department, $course_name){
   $connection = $this->getConnection();
 
@@ -742,15 +868,23 @@ return $result;
 
 public function Archive_Research_BasedOn_Department(){
   $connection = $this->getConnection();
+  $stmt = $connection->prepare("SELECT dept_code, name, COUNT(*) as count FROM archive_research 
+  LEFT JOIN departments ON departments.id = archive_research.department_id GROUP BY department_id ORDER BY count DESC");
+  $stmt->execute();
 
-$stmt = $connection->prepare("SELECT name, COUNT(*) as count FROM archive_research 
-LEFT JOIN departments ON departments.id = archive_research.department_id GROUP BY department_id");
-$stmt->execute();
-
-$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-return $result;
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  return $result;
 }
 
+public function SELECT(){
+  $connection = $this->getConnection();
+  $stmt = $connection->prepare("SELECT dept_code, name, COUNT(*) as count FROM archive_research 
+  LEFT JOIN departments ON departments.id = archive_research.department_id GROUP BY department_id ORDER BY count DESC");
+  $stmt->execute();
+
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  return $result;
+}
 
 public function Archive_Research_Views_BasedOn_Course(){
   $connection = $this->getConnection();
@@ -773,9 +907,9 @@ public function Archive_Research_Views_BasedOn_Departments(){
 
   $stmt = $connection->prepare("SELECT departments.name, archive_research_views.date_of_views, COUNT(*) as count 
   FROM archive_research_views 
-  LEFT JOIN archive_research ON archive_research.id = archive_research_views.archive_research_id 
-  LEFT JOIN departments ON departments.id = archive_research.department_id 
-  GROUP BY archive_research_views.date_of_views, departments.name");
+  LEFT JOIN archive_research ON archive_research.archive_id = archive_research_views.archive_research_id 
+  LEFT JOIN departments ON departments.id = archive_research.department_id WHERE departments.name IS NOT NULL
+  GROUP BY archive_research_views.date_of_views, departments.name;");
   $stmt->execute();
   
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -792,6 +926,32 @@ public function student_profile($student_id) {
   LEFT JOIN departments ON departments.id = students_data.department_id 
   LEFT JOIN course ON course.id = students_data.course_id WHERE students_data.id = ? ");
 	$stmt->execute([$student_id]);
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+
+}
+
+public function student_profile_by_sno($student_no) {
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT * FROM students_data 
+  LEFT JOIN departments ON departments.id = students_data.department_id 
+  LEFT JOIN course ON course.id = students_data.course_id WHERE students_data.student_id = ? ");
+	$stmt->execute([$student_no]);
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+
+}
+
+public function student_profile_by_email($email) {
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT *, students_data.id AS studID FROM students_data 
+  LEFT JOIN departments ON departments.id = students_data.department_id 
+  LEFT JOIN course ON course.id = students_data.course_id WHERE students_data.student_email = ? ");
+	$stmt->execute([$email]);
   $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
   return $result;
@@ -861,17 +1021,43 @@ public function view_owner_profile($student_email) {
 public function student_update_verify_status($verified, $student_id) {
   $connection = $this->getConnection();
 
-  $stmt = $connection->prepare("UPDATE students_data SET verify_status=? WHERE id=?");
+  $stmt = $connection->prepare("UPDATE students_data SET verify_status=? WHERE student_id=?");
   $stmt->execute([$verified, $student_id]);
 
 }
-
-
-public function student_register_select_phoneNumber($PhoneNumber) {
+public function student_forgot_account($email, $verification_code) {
   $connection = $this->getConnection();
 
-  $stmt = $connection->prepare("SELECT * FROM students_data WHERE phone_number = ?");
-  $stmt->execute([$PhoneNumber]);
+  $stmt = $connection->prepare("UPDATE students_data SET verification_code= ? WHERE student_email=?");
+  $stmt->execute([$verification_code, $email]);
+
+}
+public function recover_code_with_email($email, $verification_code) {
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("UPDATE students_data SET verification_code= ? WHERE student_email=?");
+  $stmt->execute([$verification_code, $email]);
+
+}
+public function student_change_password($email, $password) {
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("UPDATE students_data SET student_password = ? WHERE student_email=?");
+  $stmt->execute([md5($password), $email]);
+
+}
+public function student_login_log($student_id, $logs, $date, $time) {
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("INSERT INTO system_notification(student_id, logs, logs_date, logs_time) VALUES (?, ?, ?, ?)");
+  $stmt->execute([$student_id, $logs, $date, $time]);
+
+}
+public function student_register_select_StudentNumber($studentNumber) {
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT * FROM students_data WHERE student_id = ?");
+  $stmt->execute([$studentNumber]);
   $result = $stmt->fetch(); # get user data
 
   return $result;
@@ -887,27 +1073,29 @@ public function student_register_select_email($email) {
   return $result;
 }
 
-public function student_register_INSERT_Info($department, $department_course, $student_number, $first_name, $middle_name, $last_name, $PhoneNumber, $email, $pword, $imagePath, $verification_code) {
+public function student_register_INSERT_Info($department, $department_course, $student_number, $first_name, $last_name, $PhoneNumber, $email, $pword, $imagePath, $verification_code) {
   $connection = $this->getConnection();
 	
   
   
-  $sql = $connection->prepare("INSERT INTO students_data(department_id, course_id, student_id, first_name, middle_name, last_name, phone_number, student_email, student_password, profile_picture, verification_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-  $sql->execute([$department, $department_course, $student_number, $first_name, $middle_name, $last_name, $PhoneNumber, $email, $pword, $imagePath, $verification_code]);
+  $sql = $connection->prepare("INSERT INTO students_data(department_id, course_id, student_id, first_name, last_name, phone_number, student_email, student_password, profile_picture, verification_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+  $sql->execute([$department, $department_course, $student_number, $first_name, $last_name, $PhoneNumber, $email, md5($pword), $imagePath, $verification_code]);
 
 }
 
 
 
 public function studentLogin($email, $password, $redirect_to) {
+  session_start();
   $connection = $this->getConnection();
 
-  $stmt = $connection->prepare("SELECT * FROM students_data WHERE student_email=? AND student_password=? ");
-  $stmt->execute([$email, $password]);
+  $stmt = $connection->prepare("SELECT * FROM students_data WHERE student_email=? AND student_password= ? ");
+  $stmt->execute([$email, md5($password)]);
 
   while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
       $student_id = $data['id'];
       $student_email = $data['student_email'];
+      $student_no = $data['student_id'];
       $department_id = $data['department_id'];
       $course_id = $data['course_id'];
       $pword = $data['student_password'];
@@ -915,13 +1103,13 @@ public function studentLogin($email, $password, $redirect_to) {
       $school_verify = $data['school_verify'];
   }
 
-  if ($pword == $password) {
+  if ($pword == md5($password)) {
       if ($verifystatus == 'Not Verified') {
           // Handle account verification if needed
           $_SESSION['alert'] = "Account Verification";
           $_SESSION['status'] = "Verify your Account";
           $_SESSION['status-code'] = "info";
-          header("location: ../student/student_verify_account.php?id=$student_id");
+          header("location: ../student/student_verify_account.php?student_no=$student_no");
       } else if ($school_verify == 'For Approval') {
         // Handle account verification if needed
         $_SESSION['alert'] = "Account Confirmation";
@@ -960,6 +1148,7 @@ public function studentLogin($email, $password, $redirect_to) {
       }
   } else {
       // Handle incorrect login details
+      
       $_SESSION['alert'] = "Oppss...";
       $_SESSION['status'] = "Incorrect Log In Details";
       $_SESSION['status-code'] = "info";
@@ -1089,7 +1278,7 @@ public function SELECT_ALL_STUDENT_ARCHIVE_RESEARCH($student_email){
   return $result;
 }
 
-public function SELECT_FILTERED_ARCHIVE_RESEARCH($searchInput, $department, $course, $keywords, $fromYear, $toYear){
+public function SELECT_FILTERED_ARCHIVE_RESEARCH($searchInput, $department, $course, $keywords, $fromYear, $toYear, $research_date){
   $connection = $this->getConnection();
   $query = 'SELECT *, archive_research.id AS archiveID FROM archive_research 
   LEFT JOIN departments ON departments.id = archive_research.department_id
@@ -1121,6 +1310,10 @@ public function SELECT_FILTERED_ARCHIVE_RESEARCH($searchInput, $department, $cou
   if (!empty($toYear)) {
       $query .= " AND YEAR(date_published) <= :toYear";
   }
+  if (!empty($research_date)) {
+    $orderDirection = $research_date === 'newest' ? 'DESC' : 'ASC';
+    $query .= " ORDER BY date_published " . $orderDirection;
+  }
 
   
   $stmt = $connection->prepare($query);
@@ -1146,6 +1339,7 @@ public function SELECT_FILTERED_ARCHIVE_RESEARCH($searchInput, $department, $cou
   if (!empty($toYear)) {
       $stmt->bindValue(':toYear', $toYear, PDO::PARAM_INT);
   }
+
   $stmt->execute();
 
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -1153,7 +1347,7 @@ public function SELECT_FILTERED_ARCHIVE_RESEARCH($searchInput, $department, $cou
   return $result;
 }
 
-public function SELECT_OWNED_ARCHIVE_RESEARCH($owner_email, $searchInput, $fromYear, $toYear, $documentStatus){
+public function SELECT_OWNED_ARCHIVE_RESEARCH($owner_email, $searchInput, $fromYear, $toYear, $documentStatus, $research_date){
   $connection = $this->getConnection();
   $query = 'SELECT *, archive_research.id AS archiveID FROM archive_research 
   LEFT JOIN departments ON departments.id = archive_research.department_id
@@ -1174,7 +1368,11 @@ public function SELECT_OWNED_ARCHIVE_RESEARCH($owner_email, $searchInput, $fromY
   if (!empty($toYear) || $toYear !== '') {
       $query .= " AND YEAR(date_published) <= :toYear";
   }
-
+  if (!empty($research_date)) {
+    $orderDirection = $research_date === 'newest' ? 'DESC' : 'ASC';
+    $query .= " ORDER BY date_published " . $orderDirection;
+  }
+  
   $stmt = $connection->prepare($query);
 
   if (!empty($searchInput)) {

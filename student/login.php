@@ -4,97 +4,118 @@ include '../connection/config.php';
 error_reporting(0);
 
 session_start();
+
+if(isset($_SESSION['auth_user']['student_id']))
+header("location:all_project_list.php");
+
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>Student Login - EARIST Research Archiving System</title>
-
-    <!-- ================= Favicon ================== -->
-    <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo1.png">
-    <!-- Retina iPad Touch Icon-->
-    <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
-    <!-- Retina iPhone Touch Icon-->
-    <link rel="apple-touch-icon" sizes="114x114" href="http://placehold.it/114.png/000/fff">
-    <!-- Standard iPad Touch Icon-->
-    <link rel="apple-touch-icon" sizes="72x72" href="http://placehold.it/72.png/000/fff">
-    <!-- Standard iPhone Touch Icon-->
-    <link rel="apple-touch-icon" sizes="57x57" href="http://placehold.it/57.png/000/fff">
-
-    <!-- Styles -->
-    <link href="css/lib/font-awesome.min.css" rel="stylesheet">
-    <link href="css/lib/sweetalert/sweetalert.css" rel="stylesheet">
-    <link href="css/lib/themify-icons.css" rel="stylesheet">
-    <link href="css/lib/bootstrap.min.css" rel="stylesheet">
-    <link href="css/lib/helper.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EARIST Research Archiving System</title>
+  <link rel="shortcut icon" href="images/logo1.png">
+  <link rel="stylesheet" href="../css/login-sign-up.css">
+  <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link href="css/lib/themify-icons.css" rel="stylesheet">
+  <link href="css/lib/sweetalert/sweetalert.css" rel="stylesheet">
+  
+  <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+  <script src="js/lib/sweetalert/sweetalert.min.js"></script>
+  <script src="js/lib/sweetalert/sweetalert.init.js"></script>
 </head>
-
-<body class="bg-primary" style="background-color: #BB0505 !important;">
-
-    <div class="unix-login">
-        <div class="container-fluid">
-            <div class="row justify-content-center">
-                <div class="col-lg-6">
-                    <div class="login-content">
-                        <div class="login-logo">
-                            <a href="../index.html"><span>EARIST Research Archiving System</span></a>
-                        </div>
-                        <div class="login-form" >
-                            <h4>Student Login</h4>
-                            <form action="../php/student_loginCode.php" method="POST">
-                                <input type="hidden" name="redirect_to" value="<?= isset($_GET['redirect_to']) ? $_GET['redirect_to'] : '' ?>">
-                                <div class="form-group">
-                                    <label>Email address</label>
-                                    <input type="email" class="form-control" name="studentEmail" placeholder="Email">
-                                </div>
-                                <div class="form-group">
-                                    <label>Password</label>
-                                    <input type="password" class="form-control" name="studentPword" placeholder="Password">
-                                </div>
-                                    
-                                    <label class="pull-right">
-										<!-- <a href="#">Forgotten Password?</a> -->
-									</label>
-                                <button name="LogIn" class="btn btn-primary btn-flat m-b-30 m-t-30" style="background: #d34848;">Log In</button>
-                                <div class="register-link m-t-15 text-center">
-                                    <p>Don't have account ? <a href="student_register.php"> Sign Up Here</a></p>
-                                    <p><a href="../index.html"> Go Back</a></p>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<body>  
+  <!-- Header-->
+  <div class="header">
+    <div class="nav-header">
+      <div class="logo">
+        <a href="../index.html">
+          <img src="images/logo2.png">
+        </a>
+      </div>
+      <div class="nav-side">
+        <div class="search-bar m-r-16">
+            <input id="searchInput" name="searchInput" type="text" class="form-control" placeholder="Search...">
+            <button class="search-btn" id="search-btn"><i class="ti-search"></i></button>
         </div>
+        <div class="nav-signup">
+            <a href="sign_up.php" class="signup-btn">Sign up</a>
+        </div>
+      </div>
     </div>
+  </div>
+  <!-- Index Content -->
+  <main>
+    <div class="content-wrapper h-100">
+      <div class="col-xl-12 col-md-12-col sm-12">
+        <div class="row p-4">
+          <div class="col-sm-12 col-md-4 col-xl-6">
+              <div class="intro">
+                <h2>Archive with Ease</h2>
+                <p>Access a full of research resources and manage your work efficiently.</p>
+              </div>
+          </div>
+          <div class="col-sm-12 col-md-8 col-xl-6">
+            <div class="log-in-container">
+              <form class="form-container" action="../php/student_loginCode.php" method="POST">
+                <input type="hidden" name="redirect_to" value="<?= isset($_GET['redirect_to']) ? $_GET['redirect_to'] : '' ?>">
+                <h4>Login</h4>
+                <div class="row">
+                  <div class="col-xl-12 col-md-12 col-sm-12">
+                    <div class="form-input">
+                      <label for="email">Email</label>
+                      <input type="email" name="email" id="email" required>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-xl-12 col-md-12 col-sm-12">
+                    <div class="form-input">
+                      <label for="password">Password</label>
+                      <input type="password" name="password" id="password" required>
+                    </div>
+                    <a href="forgot_password.php" style="color: #666; font-size: 11px; text-align:end ">Forgot password</a>
+                  </div>
+                </div>
+                <div class="row mt-4">
+                  <div class="col-xl-12 col-md-12 col-sm-12">
+                    <div class="flex align-items-center">
+                      <button name="submit" type="submit" class="login-btn">Log in</button>
+                      <p class="m-0 ml-4">Don't have an account? <a class="signup-link" href="sign_up.php">Sign up</a></p>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+<script>
+    const searchInput = document.getElementById("searchInput");
+    const searchButton = document.getElementById("search-btn");
 
-    <script src="js/lib/sweetalert/sweetalert.min.js"></script>
-    <script src="js/lib/sweetalert/sweetalert.init.js"></script>
-    <script src="js/lib/bootstrap.min.js"></script>
-	<script src="js/scripts.js"></script>
+    searchButton.addEventListener("click", () => {
+        if(searchInput.value) {
+            window.location.href = `all_project_list.php?searchInput=${encodeURIComponent(searchInput.value)}`;
+        } else {
+            alert("Please enter a research title");
+        }
+    });
+</script>
 
-    <?php 
-if (isset($_SESSION['status']) && $_SESSION['status'] != '') {
-
+<?php 
+  if (isset($_SESSION['status']) && $_SESSION['status'] != '') {
 ?>
-    <script>
-    sweetAlert("<?php echo $_SESSION['alert']; ?>", "<?php echo $_SESSION['status']; ?>", "<?php echo $_SESSION['status-code']; ?>");
-    </script>
+<script>
+  sweetAlert("<?php echo $_SESSION['alert']; ?>", "<?php echo $_SESSION['status']; ?>", "<?php echo $_SESSION['status-code']; ?>");
+</script>
 <?php
-unset($_SESSION['status']);
+  unset($_SESSION['status']);
 }
 ?>
-
-
 </body>
-
 </html>

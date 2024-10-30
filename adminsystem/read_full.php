@@ -14,18 +14,18 @@ if($_SESSION['auth_user']['admin_id']==0){
   exit();
 }
 
-if(isset($_GET['archiveID'])){
+// if(isset($_GET['archiveID'])){
 
-    date_default_timezone_set('Asia/Manila');
-    $date = date('Y-m-d');
+//     date_default_timezone_set('Asia/Manila');
+//     $date = date('Y-m-d');
     
-      $archiveID = $_GET['archiveID'];
-      $student_id = $_SESSION['auth_user']['admin_id'];
-    
-    
-      $data = $db->insert_Research_Views($archiveID, $student_id, $date);
+//     $archiveID = $_GET['archiveID'];
+//     $student_id = $_SESSION['auth_user']['admin_id'];
+  
+  
+//     $data = $db->insert_Research_Views($archiveID, $student_id, $date);
         
-    }
+// }
 
 ?>
 
@@ -103,7 +103,7 @@ require_once 'templates/admin_navbar.php';
             <p class="detail-font"><?php echo $data['project_members']; ?></p>
             <?php if (!empty($data['date_published'])) {
               $first_published = DateTime::createFromFormat("Y-m-d", $data['date_published'])->format("d F Y");
-              echo '<p class="detail-font">Published: '.$first_published.' | '. $data['archive_id'] .'</p>'; }
+              echo '<p class="detail-font">Published: '.$first_published.' | Archive ID: '. $data['archive_id'] .'<span class="float-right"><i class="ti-eye m-r-4 "></i>'.$data['view_count'].'</span></p>'; }
               else {
                 echo '<p class="detail-font">Not yet published</p>';
               }
@@ -170,8 +170,31 @@ require_once 'templates/admin_navbar.php';
         echo '<div class="info-container">
                 <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Results</p>
                 <ul>
-                  <li class="info-meta"><label>Plagiarism Match:</label><span style="color: #a33333; font-size: 32px;">'.round($percentage, 1).'%</span></li>
+                  <li class="info-meta">
+                    <label>Plagiarism Match:</label>
+                    <div class="d-flex align-items-center">
+                      <div class="progress w-100" style="height: 10px">
+                        <div class="progress-bar-danger progress-bar" role="progressbar" style="width: '.round($percentage, 1).'%" aria-valuenow="'.round($percentage, 1).'" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                      <span style="color: #a33333; font-size: 16px; margin-left: .75rem !important;">'.round($percentage, 1).'%</span>
+                    </div>
+                  </li>
                   <li class="info-meta"><label class="see-more"><a href="plagiarism_result.php?archiveID='.$data['archiveID'].'">See more</a></label></li>
+                </ul>
+              </div>';
+      } else { 
+        echo '<div class="info-container">
+                <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Results</p>
+                <ul>
+                  <li class="info-meta">
+                    <label>Plagiarism Match:</label>
+                    <div class="d-flex align-items-center">
+                      <div class="progress w-100" style="height: 10px">
+                        <div class="progress-bar-danger progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                      <span style="color: #a33333; font-size: 20px; margin-left: .75rem !important;">0%</span>
+                    </div>
+                  </li>
                 </ul>
               </div>';
       }

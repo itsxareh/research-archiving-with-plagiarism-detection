@@ -7,8 +7,9 @@ $searchInput = $_POST['searchInput'];
 $documentStatus = $_POST['documentStatus'];
 $fromYear = $_POST['fromYear'];
 $toYear = $_POST['toYear'];
+$research_date = $_POST['research_date'];
 
-$resp = $db->SELECT_OWNED_ARCHIVE_RESEARCH($owner_email, $searchInput, $fromYear, $toYear, $documentStatus);
+$resp = $db->SELECT_OWNED_ARCHIVE_RESEARCH($owner_email, $searchInput, $fromYear, $toYear, $documentStatus, $research_date);
 
 ob_start();
 

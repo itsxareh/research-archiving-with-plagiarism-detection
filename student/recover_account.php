@@ -8,6 +8,14 @@ session_start();
 if(isset($_SESSION['auth_user']['student_id']))
 header("location:all_project_list.php");
 
+
+if (!isset($_SESSION['email'])){
+  header("location: login.php");
+  exit();
+} else {
+  $email = $_SESSION['email'];
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -41,7 +49,7 @@ header("location:all_project_list.php");
             <button class="search-btn" id="search-btn"><i class="ti-search"></i></button>
         </div>
         <div class="nav-signup">
-            <a href="#" class="signup-btn" onclick="logout();">Log out</a>
+            <a href="login.php" class="signup-btn">Log in</a>
         </div>
       </div>
     </div>
@@ -59,28 +67,22 @@ header("location:all_project_list.php");
           </div>
           <div class="col-sm-12 col-md-8 col-xl-6">
             <div class="log-in-container">
-              <form class="form-container" action="../php/student_verifyAccountCode.php" method="POST">
-                <?php
-                    if(isset($_GET['student_no'])){
-                        $student_no = $_GET['student_no']; 
-                    }
-                ?>
-                <input type="hidden" name="redirect_to" value="<?= isset($_GET['redirect_to']) ? $_GET['redirect_to'] : '' ?>">
-                <input type="hidden" name="student_no" value="<?= $student_no ?>">
-                <h4>Account Verification</h4>
+              <form class="form-container" action="../php/student_recoverAccount.php" method="POST">
+                
+                <input type="hidden" name="email" value="<?php echo htmlspecialchars($email);?>">
+                <h4>Recover my account</h4>
                 <div class="row">
                   <div class="col-xl-12 col-md-12 col-sm-12">
                     <div class="form-input">
-                      <label for="verification_number">OTP Code</label>
-                      <input type="number" name="verification_number" id="verification_number" required>
+                      <label for="code">OTP Code</label>
+                      <input type="number" name="code" id="code" minlength="6" maxlength="6" required>
                     </div>
                   </div>
                 </div>
                 <div class="row mt-4">
                   <div class="col-xl-12 col-md-12 col-sm-12">
                     <div class="flex align-items-center">
-                      <button name="verify" type="submit" class="login-btn">Verify now</button>
-                      <p class="m-0 ml-4">Create an account instead? <a class="signup-link" href="sign_up.php">Sign up</a></p>
+                      <button name="recover" type="submit" class="login-btn">Recover</button>
                     </div>
                   </div>
                 </div>
@@ -102,10 +104,6 @@ header("location:all_project_list.php");
             alert("Please enter a research title");
         }
     });
-    
-    function logout() {
-    window.location.href = 'student_logout.php ';
-  }
 </script>
 
 <?php 

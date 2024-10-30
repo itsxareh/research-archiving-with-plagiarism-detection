@@ -208,13 +208,13 @@ require_once 'templates/admin_navbar.php';
                     </div>
                 </div>
                 <section class="project-page-content">
-                <div class="col-md-2">
+                <div class="col-md-12">
                     <div class="add-research">
                         <button type="button" class="add-research-button item-meta" data-toggle="modal" data-target="#modelId">
                         <i class="ti-plus m-r-4"></i> Add New Research
                         </button>
                     </div>
-                    <div class="advance-filter-search">
+                    <!-- <div class="advance-filter-search">
                         <p class="font-black bold">Filter</p>
                         <div class="mb-3 mb-sm-0">
                             <label for="" class="item-meta">Select Department</label>
@@ -274,78 +274,89 @@ require_once 'templates/admin_navbar.php';
                             </div>
                         </fieldset>
                     </div>
-                </div>
-                <div class="col-md-10 list-container">
-                <table id="datatablesss" class="table list-table" style="width:100%">
-                <colgroup>
-                    <col style="width: 10%;">
-                    <col style="width: 10%;">
-                    <col style="width: 32%;">
-                    <col style="width: 10%;">
-                    <col style="width: 10%;">
-                    <col style="width: 8%;">
-                    <col style="width: 10%;">
-                    <col style="width: 6%;">
-                </colgroup>
-        <thead>
-            <tr>
-                <th class="list-th">Date Created</th>
-                <th class="list-th">Archive Code</th>
-                <th class="list-th">Research Title</th>
-                <th class="list-th">College</th>
-                <th class="list-th">Course</th>
-                <th class="list-th">Plagiarized</th>
-                <th class="list-th">Status</th>
-                <th class="list-th text-center">Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php
-            
-            
-            $data = $db->SELECT_ALL_ARCHIVE_RESEARCH();
+                </div> -->
+                <div class="list-container">
+                    <table id="datatablesss" class="table list-table" style="width:100%">
+                        <colgroup>
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 32%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 8%;">
+                            <col style="width: 10%;">
+                            <col style="width: 6%;">
+                        </colgroup>
+                            <thead>
+                                <tr>
+                                    <th class="list-th">Date Created</th>
+                                    <th class="list-th">Archive Code</th>
+                                    <th class="list-th">Research Title</th>
+                                    <th class="list-th">College</th>
+                                    <th class="list-th">Course</th>
+                                    <th class="list-th">Plagiarized</th>
+                                    <th class="list-th">Status</th>
+                                    <th class="list-th text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                
+                                
+                                $data = $db->SELECT_ALL_ARCHIVE_RESEARCH();
 
-            foreach ($data as $result) {
-            ?>
-            <tr>
-                <td class="list-td"><?= DateTime::createFromFormat("Y-m-d", $result['dateOFSubmit'])->format("F d Y"); ?></td>
-                <td class="list-td"><?= $result['aid'] ?></td>
-                <td class="list-td text-ellipsis"><?= $result['project_title'] ?></td>
-                <td class="list-td"><?= $result['name'] ?></td>
-                <td class="list-td"><?= $result['course_name'] ?></td>
-                <td class="list-td"><?php echo $result['plagiarism_percentage'] !== NULL ? 'Yes' : 'No'?></td>
-                <td class="list-td">
-                    <?php 
-                        $status = $result['document_status'];
-                        $badgeColor = ($status === 'Accepted') ? 'badge-success' : 'badge-danger';
-                    ?>
-                    <span class="badge <?= $badgeColor ?>" style="border-radius: 15px; font-size: 0.875rem">
-                        <?= $status == 'Accepted' ? 'Published' : 'Not Published'?>
-                    </span>
-                </td>
-                
-                <td class="list-td">
-                    <a href="view_archive_research.php?archiveID=<?= $result['aid'] ?>" class="btn"><i class="ti-eye" title="View Research"></i></a>
-                    <a href="publish_research.php?archiveID=<?= $result['archiveID'] ?>" class="btn"><i class="ti-check" title="Accept Now"></i></a>
-                    <a href="unpublish_research.php?archiveID=<?= $result['archiveID'] ?>" class="btn"><i class="ti-close" title="Don't Accept"></i></a>
-                    <a href="delete_research.php?archiveID=<?= $result['archiveID'] ?>" class="btn"><i class="ti-trash" title="Delete Research"></i></a>
-                </td>
-            </tr>
-            <?php
-            }
-            ?>
-        </tbody>
-    </table>
+                                foreach ($data as $result) {
+                                ?>
+                                <tr>
+                                    <td class="list-td"><?= DateTime::createFromFormat("Y-m-d", $result['dateOFSubmit'])->format("F d Y"); ?></td>
+                                    <td class="list-td"><?= $result['aid'] ?></td>
+                                    <td class="list-td text-ellipsis"><?= $result['project_title'] ?></td>
+                                    <td class="list-td"><?= $result['name'] ?></td>
+                                    <td class="list-td"><?= $result['course_name'] ?></td>
+                                    <td class="list-td"><?php echo $result['plagiarism_percentage'] !== NULL ? 'Yes' : 'No'?></td>
+                                    <td class="list-td">
+                                        <?php 
+                                            $status = $result['document_status'];
+                                            $badgeColor = ($status === 'Accepted') ? 'badge-success' : 'badge-danger';
+                                        ?>
+                                        <span class="badge <?= $badgeColor ?>" style="border-radius: 15px; font-size: 0.875rem">
+                                            <?= $status == 'Accepted' ? 'Published' : 'Not Published'?>
+                                        </span>
+                                    </td>
+                                    
+                                    <td class="list-td">
+                                        <a href="view_archive_research.php?archiveID=<?= $result['aid'] ?>" class="btn"><i class="ti-eye" style="font-weight: 800" title="View Research"></i></a>
+                                        <a href="publish_research.php?archiveID=<?= $result['archiveID'] ?>" class="btn"><i class="ti-check" style="color: green; font-weight: 800" title="Accept Now"></i></a>
+                                        <a href="unpublish_research.php?archiveID=<?= $result['archiveID'] ?>" class="btn"><i class="ti-close" style="color: #a33333; font-weight: 800" title="Don't Accept"></i></a>
+                                        <a href="delete_research.php?archiveID=<?= $result['archiveID'] ?>" class="btn"><i class="ti-trash" style="color: #a33333; font-weight: 800" title="Delete Research"></i></a>
+                                    </td>
+                                </tr>
+                                <?php
+                                }
+                                ?>
+                            </tbody>
+                    </table>
                 </div>
-                </section>
-            </div>
+            </section>
         </div>
     </div>
 
 
-<!-- <script>
+<script>
     new DataTable('#datatablesss');
-</script> -->
+    $('#datatablesss_filter label input').removeClass('form-control form-control-sm');
+    $('#datatablesss_wrapper').children('.row').eq(1).find('.col-sm-12').css({
+    'padding-left': 0,
+    'padding-right': 0
+    });
+    // $('#datatablesss_wrapper').children('.row').eq(1).children('.col-sm-12').children('.dataTables_wrapper').find('.dataTables_length, .dataTables_filter').css({
+    // 'display': 'none'
+    // });
+    $('#inputDepartment_search').change(function() {
+        var department = $(this).val();
+        table.columns(3).search(department).draw(); // 3 is the column index of "Department"
+    });
+</script>
 
 <!-- Add this script after including the DataTables and jQuery libraries -->
 <script>
@@ -370,26 +381,6 @@ require_once 'templates/admin_navbar.php';
 //             }
 
 //     });
-</script>
-<script>
-$(document).ready(function() {
-    var table = new DataTable('#datatablesss');
-
-//     $('#selectdate_published_from, #selectdate_published_to').change(function() {
-//     var fromDate = $('#selectdate_published_from').val();
-//     var toDate = $('#selectdate_published_to').val();
-
-//     // Apply date range filtering
-//     table.column(5).search(fromDate + '|' + toDate, true, false).draw(); // 5 is the column index of "Date Published"
-// });
-
-    // Add event listener to "Department" dropdown
-    $('#inputDepartment_search').change(function() {
-        var department = $(this).val();
-        table.columns(3).search(department).draw(); // 3 is the column index of "Department"
-    });
-});
-
 </script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
@@ -473,50 +464,9 @@ $(document).ready(function() {
         filteredData();
     }
     });
-    let minDate, maxDate;
-
-    // DataTables initialisation
-    let table = new DataTable('#datatablesss');
-
-    // Create date inputs
-    minDate = $('#min').on('change', function () {
-        table.draw();
-    });
-
-    maxDate = $('#max').on('change', function () {
-        table.draw();
-    });
-
-    // Custom filtering function which will search data in column five between two values
-    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-        let min = minDate.val();
-        let max = maxDate.val();
-        let date = moment(data[5], 'YYYY'); // Assuming the date format is 'YYYY-MM-DD'
-
-        if ((min === '' || date.isSameOrAfter(min)) && (max === '' || date.isSameOrBefore(max))) {
-            return true;
-        }
-        return false;
-    });
-
-    // Refilter the table
-    $('#min, #max').on('change', function () {
-        table.draw();
-    });
 </script>
 
     <!-- Common -->
-    <script src="js/lib/jquery.min.js"></script>
-    <script src="js/lib/jquery.nanoscroller.min.js"></script>
-    <script src="js/lib/menubar/sidebar.js"></script>
-    <script src="js/lib/preloader/pace.min.js"></script>
-    <script src="js/lib/bootstrap.min.js"></script>
-    <script src="js/scripts.js"></script>
-
-
-    <!-- Sweet Alert -->
-    <script src="js/lib/sweetalert/sweetalert.min.js"></script>
-    <script src="js/lib/sweetalert/sweetalert.init.js"></script>
 
 <?php 
 if (isset($_SESSION['status']) && $_SESSION['status'] != '') {

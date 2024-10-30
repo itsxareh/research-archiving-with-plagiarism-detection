@@ -54,6 +54,8 @@ if($_SESSION['auth_user']['admin_id']==0){
     <link href="css/lib/helper.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
     <link href="css/lib/sweetalert/sweetalert.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 
 <body>
@@ -74,683 +76,631 @@ require_once 'templates/admin_navbar.php';
                     </div>
                 </div>
                 <!-- /# row -->
-                <section id="main-content">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="card">
-                                <div class="stat-widget-one">
-                                    <div class="stat-icon dib"><i class="ti-files color-primary border-primary"></i>
-                                    </div>
-                                    <div class="stat-content dib">
-                                        <div class="stat-text">Departments</div>
-                                        <?php
-                                        $totalDepartments = $db->SELECT_COUNT_ALL_DEPARTMENTS();
-                                        $activeDepartments = $db->SELECT_COUNT_ACTIVE_DEPARTMENTS();
-                                        $inactiveDepartments = $totalDepartments - $activeDepartments;
-                                        
-                                        // Calculate the percentage
-                                        $activePercentage = ($activeDepartments / $totalDepartments) * 100;
-                                        $inactivePercentage = ($inactiveDepartments / $totalDepartments) * 100;
+                <section class="col-md-12 col-xl-12">
+                    <div class="b-row">
 
-                                        ?>
-                                        <div class="stat-digit"><?php echo $totalDepartments ?></div>
-                                    </div>
-                                    <!-- <canvas id="departmentChart" style="max-height: 300px;"></canvas> -->
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card">
-                                <div class="stat-widget-one">
-                                    <div class="stat-icon dib"><i class="ti-list color-success border-success"></i>
-                                    </div>
-                                    <div class="stat-content dib">
-                                        <div class="stat-text">Courses</div>
-                                        <?php
-                                        $count = $db->SELECT_COUNT_ALL_COURSES();
-
-                                        ?>
-                                        <div class="stat-digit"><?php echo $count ?></div>
+                        <div class="col-md-12 col-xl-8">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h4 class="card-title mb-3">Published Research/Month</h4>
+                                    <div class="chart-container">
+                                        <canvas id="publishedResearchPerMonthChart" width="400" height="500"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="card">
-                                <div class="stat-widget-one">
-                                    <div class="stat-icon dib"><i class="ti-user color-primary border-primary"></i></div>
-                                    <div class="stat-content dib">
-                                        <div class="stat-text">Students</div>
-                                        <?php
-                                        $count = $db->SELECT_COUNT_ALL_StudentsData_WHERE_VERIFIED();
-
-                                        ?>
-                                        <div class="stat-digit"><?php echo $count ?></div>
+                        <div class="col-md-12 col-xl-4">
+                            <div class="b-row nested-row h-100">
+                            <div class="col-md-6 col-xl-6">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <div class="avatar flex-shrink-0 mb-4" style="width:50px; height:50px">
+                                                <img src="../adminsystem/images/paper.png" alt="paper">
+                                            </div>
+                                            <p class="card-title mb-3">Research Papers</p>
+                                            <div class="card-text">
+                                            <?php
+                                                $rows = $db->SELECT_COUNT_ALL_ARCHIVE_RESEARCH();
+                                                
+                                                echo "<h1>{$rows}</h1>";
+                                            ?>
+                                            </div>
+                                            <p class="mb-0" style="font-size: 18px">Total</p>
+                                            
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card">
-                                <div class="stat-widget-one">
-                                    <div class="stat-icon dib"><i class="ti-user color-danger border-danger"></i></div>
-                                    <div class="stat-content dib">
-                                        <div class="stat-text">For Approval Students</div>
-                                        <?php
-                                        $count = $db->SELECT_COUNT_ALL_StudentsData_WHERE_NOT_VERIFIED();
+                                <div class="col-md-6 col-xl-6">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <p class="card-title mb-3">Published Research</p>
+                                            <div class="card-text">
+                                            <?php
+                                                $row = $db->SELECT_COUNT_ALL_RESEARCH();
+                                                $rows = $db->SELECT_COUNT_ALL_PUBLISHED_RESEARCH();
 
-                                        ?>
-                                        <div class="stat-digit"><?php echo $count ?></div>
+                                                echo "<h1 class='mb-4'>{$rows['count']}</h1>";
+                                            ?>
+                                            </div>
+                                            <div class="avatar flex-shrink-0 mb-2" style="width:50px; height:50px">
+                                                <img src="../adminsystem/images/publishing.png" alt="publish">
+                                            </div>
+                                            <?php 
+                                                
+                                                $published_percentage = ($rows['count'] / $row['count']) * 100;
+                                                echo '<p class="mb-0" style="font-size: 18px">'.round($published_percentage, 1).'%</p>';  
+                                            ?>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card">
-                                <div class="stat-widget-one">
-                                    <div class="stat-icon dib"><i class="ti-archive color-success border-success"></i></div>
-                                    <div class="stat-content dib">
-                                        <div class="stat-text">Accepted Research</div>
-                                        <?php
-                                        $count = $db->SELECT_COUNT_ALL_ARCHIVE_RESEARCH_WHERE_PUBLISH();
-
-                                        ?>
-                                        <div class="stat-digit"><?php echo $count ?></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card">
-                                <div class="stat-widget-one">
-                                    <div class="stat-icon dib"><i class="ti-archive color-danger border-danger"></i></div>
-                                    <div class="stat-content dib">
-                                        <div class="stat-text">Not Accepted Research</div>
-                                        <?php
-                                        $count = $db->SELECT_COUNT_ALL_ARCHIVE_RESEARCH_WHERE_UNPUBLISH();
-
-                                        ?>
-                                        <div class="stat-digit"><?php echo $count ?></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card">
-                                <div class="stat-widget-one">
-                                    <div class="stat-icon dib"><i class="ti-folder color-warning border-warning"></i></div>
-                                    <div class="stat-content dib">
-                                        <div class="stat-text">Plagiarized Research</div>
-                                        <?php
-                                        $count = $db->SELECT_COUNT_ALL_PLAGIARIZED_RESEARCH();
-
-                                        ?>
-                                        <div class="stat-digit"><?php echo $count ?></div>
+                                <div class="col-md-12 col-xl-12">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h4 class="card-title mb-3">Research Papers/Department</h4>
+                                            <div class="card-text">
+                                            <?php
+                                                $rows = $db->Archive_Research_BasedOn_Department();
+                                                $data = json_encode($rows);
+                                                
+                                                if (is_array($rows) || is_object($rows)) {
+                                                    foreach ($rows as $row) {
+                                                        echo "<div class='b-row justify-content-between '>
+                                                                <p class='no-wrap b-text-ellipsis p-0'>{$row['name']} ({$row['dept_code']})</p>
+                                                                <strong>{$row['count']}</strong>
+                                                            </div>";
+                                                    }
+                                                } else {
+                                                    echo "<p>No data available.</p>";
+                                                }
+                                            ?>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <!-----------CHART-------------->
-                    
-
-                    <!-- <div class="row">
-                    <?php
-                        $rows = $db->Archive_Research_BasedOn_Department();
-
-                        $department_name = array_column($rows, 'name');
-                        $department_counts = array_column($rows, 'count');
-
-                        // Display course IDs and counts side by side
-                        for ($i = 0; $i < count($department_name); $i++) {
-                            // echo "Total Research of " . $department_name[$i] . ": " . $department_counts[$i] . "<br>";
-                    ?>
-                        <div class="col-lg-6">
-                            <div class="card">
-                                <div class="stat-widget-one">
-                                    <div class="stat-icon dib"><i class="ti-files color-primary border-primary"></i>
+                    <div class="b-row">
+                        <div class="col-md-12 col-xl-6">
+                            <div class="card h-100">
+                                <div class="card-body" style="overflow-x: hidden;">
+                                    <div class="flex align-items-center justify-content-between mb-3" style="gap: 15px">
+                                        <h4 class="card-title ">Top Views Research Paper</h4>
+                                        <div class="avatar flex-shrink-0" style="width:50px; height:50px">
+                                            <img src="../adminsystem/images/top.png" alt="publish">
+                                        </div>
                                     </div>
-                                    <div class="stat-content dib">
-                                        <div class="stat-text"><?php echo "" . $department_name[$i] ?></div>
-                                        
-                                        <div class="stat-digit"><?php echo $department_counts[$i] ?></div>
+                                    <div class="card-text">
+                                        <div class="chart-container" style="position: relative; height:400px; width:100%;">
+                                            <canvas id="topViewsChart"></canvas>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    <?php
-                    }
-                    ?>
-                    </div> -->
-                    <!-----------CHART-------------->
-                    <div class="row">
-
-                        <div class="col-lg-12">
-                            <div class="card">
-                            <div class="card-title">
-                                <h4>Research Per College </h4>
-            
-                            </div>
-                            <div class="sales-chart">
-                                <canvas id="barChart2"></canvas>
-                            </div>
-                            </div>
-                            <!-- /# card -->
-                        </div>
-
-                        <div class="col-lg-12">
-                            <div class="card">
-                            <div class="card-title">
-                                <h4>Research Per Course</h4>
-            
-                            </div>
-                            <div class="sales-chart">
-                                <canvas id="barChart"></canvas>
-                            </div>
-                            </div>
-                            <!-- /# card -->
-                        </div>
-
-                        <div class="col-lg-12">
-                            <div class="card">
-                            <div class="card-title">
-                                <h4>Research Views Per College </h4>
-
-                            </div>
-                            <div class="sales-chart">
-                                <canvas id="sales-chart2"></canvas>
-                            </div>
+                        <div class="col-md-12 col-xl-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h4 class="card-title mb-3">Research Views/Department</h4>
+                                    <div class="chart-container">
+                                    <canvas id="viewsPerDepartmentChart" width="400" height="500"></canvas>
+                                </div>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="b-row">
+                        <div class="col-md-12 col-xl-4">
+                                <!-- <div class="col-md-6 col-xl-6">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <i class="float-right ti-angle-double-right"></i>
+                                            <div class="avatar flex-shrink-0 mb-2" style="width:50px; height:50px">
+                                                <img src="../adminsystem/images/file.png" alt="unpublish">
+                                            </div>
+                                            <div class="card-text mb-4">
+                                            <?php 
+                                                $row = $db->SELECT_COUNT_ALL_UNPUBLISHED_RESEARCH();
+                                                echo '<h1>'.$row['count'].' paper/s</h1>';  
+                                                
+                                            ?>
+                                            </div>
+                                            <h4 class="card-title mb-3">Unpublished Research</h4>
+                                            <?php 
+                                                $rows = $db->SELECT_COUNT_ALL_PUBLISHED_RESEARCH();
+                                                $unpublished_percentage = ($row['count'] / $rows['count']) * 100;
+                                                echo '<p class="mb-0" style="font-size: 18px">'.round($unpublished_percentage, 1).'%</p>';  
+                                            ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-xl-6">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <i class="float-right ti-angle-double-right"></i>
+                                            <h4 class="card-title mb-3">Plagiarized Research</h4>
+                                            <div class="card-text mb-4">
+                                            <?php 
+                                                $rows = $db->SELECT_COUNT_ALL_PLAGIARIZED_RESEARCH();
+                                                echo '<h1>'.$rows['count'].' paper/s</h1>';  
+                                            ?>
+                                            </div>
+                                            <div class="avatar flex-shrink-0" style="width:50px; height:50px">
+                                                    <img src="../adminsystem/images/plagiarism.png" alt="plagiarism">
+                                                </div>
+                                        </div>
+                                    </div>
+                                </div> -->
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="card-text">
+                                        <div class="card-list-container">
+                                            <h4 class="card-title mb-3">Recent Published Research</h4>
+                                            <div class="card-text mt-4">
+                                                <ul>
+                                                <?php 
+                                                    $rows = $db->SELECT_RECENT_RESEARCH_PAPER();
+                                                    foreach ($rows as $row) {
+                                                        echo '
+                                                        <li>
+                                                            <p class="mb-0 badge badge-danger" style="font-size: 12px;">'.$row['aid'].'</p>
+                                                            <p class="mb-0"><a href="view_archive_research.php?archiveID='.$row['aid'].'" style="color: #333; font-size: 14px; font-weight:700">'.$row['project_title'].'</a></p>
+                                                            <p class="" style=" font-size: 12px;">'.DateTime::createFromFormat("Y-m-d", $row['date_published'])->format("d F Y").'</p>
+                                                        </li>
 
-                        <div class="col-lg-12">
-                            <div class="card">
-                            <div class="card-title">
-                                <h4>Research Views Per Course </h4>
-
-                            </div>
-                            <div class="sales-chart">
-                                <canvas id="sales-chart"></canvas>
-                            </div>
+                                                        
+                                                        ';
+                                                    }
+                                                ?>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
+                        <div class="col-md-6 col-xl-4 autoShow">
+                            <div class="card h-100">
+                                <h4 class="card-title mb-3">Departments</h4>
+                                <div class="chart-container">
+                                    <canvas id="departmentStatusChart" width="300" height="440"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-4 autoShow">
+                            <div class="card h-100">
+                                <h4 class="card-title mb-3">Courses</h4>
+                                <div class="chart-container">
+                                    <canvas id="courseStatusChart" width="300" height="440"></canvas>
+                                </div>  
+                            </div>
+                        </div>
+                    </div>
+                    <div class="b-row">
+                        <div class="col-md-12 col-xl-8">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h4 class="card-title mb-3">Plagiarized Research Content </h4>
+                                    <div class="card-text">
+                                        <ul>
+                                        <?php 
+                                            $rows = $db->SELECT_PLAGIARIZED_RESEARCH_CONTENT();
+                                            if (!empty($rows)){
+                                                foreach ($rows as $row) {
+                                                    $percentage = $row['plagiarism_percentage'];
+                                                    echo '
+                                                    <li class="flex justify-content-between">
+                                                        <div class="w-100">
+                                                            <p class="mb-0"><a href="view_archive_research.php?archiveID='.$row['aid'].'" style="color: #333; font-size: 14px; font-weight:700">'.$row['project_title'].'</a></p>
+                                                            <p class="" style=" font-size: 12px;">'.DateTime::createFromFormat("Y-m-d", $row['dateOFSubmit'])->format("d F Y").'</p>
+                                                        </div>
+                                                        <div class="d-flex align-items-center w-100">
+                                                            <div class="progress w-100" style="height: 10px">
+                                                                <div class="progress-bar-danger progress-bar" role="progressbar" style="width: '.round($percentage, 1).'%" aria-valuenow="'.round($percentage, 1).'" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            </div>
+                                                            <span style="color: #a33333; font-size: 16px; margin-left: .75rem !important;">'.round($percentage, 1).'%</span>
+                                                        </div>
+                                                    </li>
+    
+                                                    
+                                                    ';
+                                                }
+                                            } else {
+                                                 echo '<p class="text-center" style="color: #333; font-size: 14px; font-weight:700">No plagiarized research content found.</p>';
+ 
+                                            }
+                                        ?>
+                                        </ul>                   
+                                    </div>
+                                </div>
+                            </div>                                    
+                        </div>
+                        <div class="col-md-12 col-xl-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h4 class="card-title mb-3">Top Contributor</h4>
+                                    <div class="card-text">
+                                    <div class='b-row justify-content-between'>
+                                                        <p class='no-wrap b-text-ellipsis p-0' style='color: #333; font-size: 14px; font-weight:700'>Name</p>
+                                                        <p class='no-wrap b-text-ellipsis p-0' style='color: #333; font-size: 14px; font-weight:700'>Email Address</p>
+                                                        <strong style='color: #333; font-size: 14px; font-weight:700'>Total</strong>
+                                                    </div>
+                                    <?php
+                                        $rows = $db->SELECT_TOP_RESEARCH_CONTRIBUTOR();
+                                        $data = json_encode($rows);
+                                        
+                                        if (is_array($rows) || is_object($rows)) {
+                                            foreach ($rows as $row) {
+                                                echo "<div class='b-row justify-content-between'>
+                                                        <p class='no-wrap b-text-ellipsis p-0' style='color: #333; font-size: 14px; font-weight:700'>{$row['first_name']} {$row['middle_name']} {$row['last_name']}</p>
+                                                        <p class='no-wrap b-text-ellipsis p-0'><a href='view_profile.php?studID={$row['studID']}'> {$row['research_owner_email']}<i class='ti-arrow-top-right'></i></a></p>
+                                                        <strong>{$row['count']}</strong>
+                                                    </div>";
+                                            }
+                                        } else {
+                                            echo "<p class='text-center' style='color: #333; font-size: 14px; font-weight:700'>No data available.</p>";
+                                        }
+                                    ?>
+                                    </div>
+                                </div>
+                            </div>  
+                        </div>                                       
                     </div>
                 </section>
             </div>
         </div>
     </div>
-
-    <!-- jquery vendor -->
-    <script src="js/lib/jquery.min.js"></script>
-    <script src="js/lib/jquery.nanoscroller.min.js"></script>
-    <!-- nano scroller -->
-    <script src="js/lib/menubar/sidebar.js"></script>
-    <script src="js/lib/preloader/pace.min.js"></script>
-    <!-- sidebar -->
-
-    <script src="js/lib/bootstrap.min.js"></script>
-    <script src="js/scripts.js"></script>
     <!-- bootstrap -->
 
-    <script src="js/lib/calendar-2/moment.latest.min.js"></script>
-    <script src="js/lib/calendar-2/pignose.calendar.min.js"></script>
-    <script src="js/lib/calendar-2/pignose.init.js"></script>
-
-    <script src="js/lib/chart-js/Chart.bundle.js"></script>
-    <!-- <script src="js/lib/chart-js/chartjs-init.js"></script> -->
-
-    <!-- scripit init-->
-    <script src="js/dashboard2.js"></script>
-
-    
-    <script src="js/lib/sweetalert/sweetalert.min.js"></script>
-    <script src="js/lib/sweetalert/sweetalert.init.js"></script>
-
-
-
-    
-    <?php
-
-
-$rows = $db->Archive_Research_BasedOn_Course();
-
-$course_id = array_column($rows, 'course_name');
-$course_counts = array_column($rows, 'count');
-?>
-
+<script src="js/lib/calendar-2/moment.latest.min.js"></script>
+<script src="js/lib/calendar-2/pignose.calendar.min.js"></script>
+<script src="js/lib/calendar-2/pignose.init.js"></script>
 <script>
-    (function($) {
-        "use strict";
-
-        
-        var course_id = <?= json_encode($course_id) ?>;
-        var course_counts = <?= json_encode($course_counts) ?>;
-
-
-        var ctx = document.getElementById("barChart");
-        ctx.height = 180;
-
-        // Assuming department_name and department_counts are arrays containing department names and counts
-        // Define an array of 20 colors (one for each department)
-        var colors = [
-            "rgba(156, 39, 176, 0.8)",
-            "rgba(0, 150, 136, 0.8)",
-            "rgba(76, 175, 80, 0.8)",
-            "rgba(121, 85, 72, 0.8)",
-            "rgba(244, 67, 54, 0.8)",
-            "rgba(255, 152, 0, 0.8)",
-            "rgba(63, 81, 181, 0.8)",
-            "rgba(0, 123, 255, 0.8)",
-            "rgba(255, 99, 132, 0.8)",
-            "rgba(54, 162, 235, 0.8)",
-            "rgba(255, 206, 86, 0.8)",
-            "rgba(75, 192, 192, 0.8)",
-            "rgba(153, 102, 255, 0.8)",
-            "rgba(255, 159, 64, 0.8)",
-            "rgba(255, 87, 34, 0.8)",
-            "rgba(3, 169, 244, 0.8)",
-            "rgba(233, 30, 99, 0.8)",
-            "rgba(33, 150, 243, 0.8)",
-            "rgba(255, 193, 7, 0.8)",
-            "rgba(255, 235, 59, 0.8)"
-        ];
-
-        var datasets = [];
-
-        for (var i = 0; i < course_id.length; i++) {
-            datasets.push({
-                label: course_id[i],
-                data: [course_counts[i]],
-                backgroundColor: colors[i % colors.length], // Set color based on index, repeating colors if needed
-                borderColor: colors[i % colors.length],
-                borderWidth: 1
-            });
-        }
-
-        var myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                datasets: datasets
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
-                }
-            }
-        });
-
-
-
-
-<?php
-$rows = $db->Archive_Research_BasedOn_Department();
-
-$department_name = array_column($rows, 'name');
-$department_counts = array_column($rows, 'count');
+<?php 
+    $result = $db->Archive_Research_Views_BasedOn_Departments();
+    $data = json_encode($result);
 ?>
 
-        var department_name = <?= json_encode($department_name) ?>;
-        var department_counts = <?= json_encode($department_counts) ?>;
+    const departmentViewsData = <?php echo $data; ?>;
+    const departmentLabels = departmentViewsData.map(item => item.name);
+    const viewCounts = departmentViewsData.map(item => item.count);
 
-    //bar chart
-    var ctx = document.getElementById("barChart2");
-    ctx.height = 120;
-
-    // Assuming department_name and department_counts are arrays containing department names and counts
-    // Define an array of 20 colors (one for each department)
-    var colors = [
-        "rgba(0, 123, 255, 0.8)",
-        "rgba(255, 99, 132, 0.8)",
-        "rgba(54, 162, 235, 0.8)",
-        "rgba(255, 206, 86, 0.8)",
-        "rgba(75, 192, 192, 0.8)",
-        "rgba(153, 102, 255, 0.8)",
-        "rgba(255, 159, 64, 0.8)",
-        "rgba(255, 87, 34, 0.8)",
-        "rgba(3, 169, 244, 0.8)",
-        "rgba(233, 30, 99, 0.8)",
-        "rgba(33, 150, 243, 0.8)",
-        "rgba(255, 193, 7, 0.8)",
-        "rgba(156, 39, 176, 0.8)",
-        "rgba(0, 150, 136, 0.8)",
-        "rgba(76, 175, 80, 0.8)",
-        "rgba(121, 85, 72, 0.8)",
-        "rgba(244, 67, 54, 0.8)",
-        "rgba(255, 152, 0, 0.8)",
-        "rgba(63, 81, 181, 0.8)",
-        "rgba(255, 235, 59, 0.8)"
+    const departmentColors = departmentLabels.map((_, index) => {
+    const colors = [
+        'rgba(255, 99, 132, 0.6)', // Red
+        'rgba(54, 162, 235, 0.6)', // Blue
+        'rgba(255, 206, 86, 0.6)', // Yellow
+        'rgba(75, 192, 192, 0.6)', // Green
+        'rgba(153, 102, 255, 0.6)', // Purple
+        'rgba(255, 159, 64, 0.6)',  // Orange
+        'rgba(201, 203, 207, 0.6)'  // Grey
     ];
-
-    var datasets = [];
-
-    for (var i = 0; i < department_name.length; i++) {
-        datasets.push({
-            label: department_name[i],
-            data: [department_counts[i]],
-            backgroundColor: colors[i % colors.length], // Set color based on index, repeating colors if needed
-            borderColor: colors[i % colors.length],
-            borderWidth: 1
-        });
-    }
-
-    var myChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            datasets: datasets
-        },
-        options: {
-            responsive: true,
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
-            }
-        }
-    });
-
-
-
-
-    <?php
-
-$result = $db->Archive_Research_Views_BasedOn_Course();
-
-$dates = [];
-$courseCounts = [];
-
-foreach ($result as $row) {
-$date = $row['date_of_views'];
-$course = $row['course_name'];
-$count = $row['count'];
-
-if (!array_key_exists($date, $dates)) {
-    $dates[$date] = [];
-}
-
-$dates[$date][$course] = $count;
-if (!in_array($course, $courseCounts)) {
-    $courseCounts[] = $course;
-}
-}
-
-?>
-
-var dates = <?= json_encode($dates) ?>;
-var courseCounts = <?= json_encode($courseCounts) ?>;
-
-// Extract labels and datasets dynamically from PHP data
-var labels = Object.keys(dates);
-var datasets = [];
-
-courseCounts.forEach(function(course) {
-    var dataPoints = [];
-    labels.forEach(function(date) {
-        if (dates[date][course] !== null) {  // Check for null values
-            dataPoints.push(dates[date][course]);
-        } else {
-            dataPoints.push(0);  // Set a default value for null entries
-        }
-    });
-
-    
-    datasets.push({
-        label: course,
-        data: dataPoints,
-        backgroundColor: 'transparent',
-        borderColor: getRandomColor(),
-        borderWidth: 4,
-        pointStyle: 'circle',
-        pointRadius: 6,
-        pointBorderColor: 'transparent',
-        pointBackgroundColor: getRandomColor(),
-    });
+    return colors[index % colors.length];
 });
 
-
-
-function getRandomColor() {
-    var letters = '0123456789ABCDEF';
-    var color = '#';
-    for (var i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-}
-
-// Sales chart
-var ctx = document.getElementById("sales-chart");
-ctx.height = 150;
-var myChart = new Chart(ctx, {
-    type: 'line',
+const ctx1 = document.getElementById('viewsPerDepartmentChart').getContext('2d');
+const viewsPerDepartmentChart = new Chart(ctx1, {
+    type: 'bar',
     data: {
-        labels: labels,
-        type: 'line',
-        defaultFontFamily: 'Montserrat',
-        datasets: datasets,
+        labels: departmentLabels,
+        datasets: [{
+            label: 'Research Views',
+            data: viewCounts,
+            backgroundColor: departmentColors,
+            borderColor: departmentColors.map(color => color.replace('0.6', '1')), // Make border color solid
+            borderWidth: 1,
+            hoverBackgroundColor: '#A33333',
+            hoverBorderColor: '#333333',
+            hoverBorderWidth: 1,
+        }]
     },
     options: {
         responsive: true,
-        tooltips: {
-            mode: 'index',
-            titleFontSize: 12,
-            titleFontColor: '#000',
-            bodyFontColor: '#000',
-            backgroundColor: '#fff',
-            titleFontFamily: 'Montserrat',
-            bodyFontFamily: 'Montserrat',
-            cornerRadius: 3,
-            intersect: false,
-        },
-        legend: {
-            display: true,
-            labels: {
-                usePointStyle: true,
-                fontFamily: 'Montserrat',
-            },
-        },
+        maintainAspectRatio: false,
         scales: {
-            xAxes: [{
-                display: true,
-                gridLines: {
-                    display: true,
-                    drawBorder: false
-                },
-                scaleLabel: {
-                    display: true,
-                    labelString: 'Dates'
-                }
-            }],
-            yAxes: [{
-                display: true,
-                gridLines: {
-                    display: true,
-                    drawBorder: false
-                },
-                scaleLabel: {
-                    display: true,
-                    labelString: 'Views'
-                }
-            }]
-        },
-        elements: {
-            line: {
-                tension: 0,  // Set tension to 0 to create a straight line
+            x: {
+                grid: { display: false },
+                ticks: { color: '#333', font: { size: 12, weight: 'bold' } }
+            },
+            y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(200, 200, 200, 0.3)' },
+                ticks: { color: '#666', font: { size: 12, weight: 'bold' } }
             }
         },
-        title: {
-            display: false,
-            text: 'Normal Legend'
+        plugins: {
+            legend: { display: true, labels: { color: '#333', font: { size: 14, weight: 'bold' } } },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                titleColor: '#ffffff',
+                bodyColor: '#ffffff',
+                displayColors: false
+            }
         }
     }
 });
-
-
 
 <?php
-    
-    $result = $db->Archive_Research_Views_BasedOn_Departments();
-    
-    $dates = [];
-    $departmentCounts = [];
-    
-    foreach ($result as $row) {
-    $date = $row['date_of_views'];
-    $department = $row['name'];
-    $count = $row['count'];
-    
-    if (!array_key_exists($date, $dates)) {
-        $dates[$date] = [];
-    }
-    
-    $dates[$date][$department] = $count;
-    if (!in_array($department, $departmentCounts)) {
-        $departmentCounts[] = $department;
-    }
-    }
-    
-    ?>
-    
-    var dates = <?= json_encode($dates) ?>;
-    var departmentCounts = <?= json_encode($departmentCounts) ?>;
-    
-    // Extract labels and datasets dynamically from PHP data
-    var labels = Object.keys(dates);
-    var datasets = [];
-    
-    departmentCounts.forEach(function(department) {
-    var dataPoints = [];
-    labels.forEach(function(date) {
-        if (dates[date][department] !== null) {  // Check for null values
-            dataPoints.push(dates[date][department]);
-        } else {
-            dataPoints.push(0);  // Set a default value for null entries
-        }
-    });
+    $rows = $db->SELECT_RESEARCH_PUBLISHED_PER_WEEK();
+    $data = json_encode($rows);
+?>
+    const dataFromPHP = <?php echo $data; ?>;
+    const labels = dataFromPHP.map(item => item.date_published); 
+    const values = dataFromPHP.map(item => item.count); 
 
-    datasets.push({
-        label: department,
-        data: dataPoints,
-        backgroundColor: 'transparent',
-        borderColor: getRandomColor(),
-        borderWidth: 3,
-        pointStyle: 'circle',
-        pointRadius: 5,
-        pointBorderColor: 'transparent',
-        pointBackgroundColor: getRandomColor(),
-    });
-});
-    
-    function getRandomColor() {
-        var letters = '0123456789ABCDEF';
-        var color = '#';
-        for (var i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 16)];
-        }
-        return color;
-    }
-    
-    var ctx = document.getElementById("sales-chart2");
-    ctx.height = 150;
-    var myChart = new Chart(ctx, {
+    const ctx = document.getElementById('publishedResearchPerMonthChart').getContext('2d');
+    const publishedResearchChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
-            type: 'line',
-            defaultFontFamily: 'Montserrat',
-            datasets: datasets,
-        },
-        options: {
-            responsive: true,
-            tooltips: {
-                mode: 'index',
-                titleFontSize: 12,
-                titleFontColor: '#000',
-                bodyFontColor: '#000',
-                backgroundColor: '#fff',
-                titleFontFamily: 'Montserrat',
-                bodyFontFamily: 'Montserrat',
-                cornerRadius: 3,
-                intersect: false,
-            },
-            legend: {
-                display: true,
-                labels: {
-                    usePointStyle: true,
-                    fontFamily: 'Montserrat',
-                },
-            },
-            scales: {
-                xAxes: [{
-                    display: true,
-                    gridLines: {
-                        display: true,
-                        drawBorder: false
-                    },
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Dates'
-                    }
-                }],
-                yAxes: [{
-                    display: true,
-                    gridLines: {
-                        display: true,
-                        drawBorder: false
-                    },
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Views'
-                    }
-                }]
-            },
-            elements: {
-            line: {
-                tension: 0,  // Set tension to 0 to create a straight line
-            }
-        },
-            title: {
-                display: false,
-                text: 'Normal Legend'
-            }
-        }
-    });
-
-    
-
-    })(jQuery);
-
-
-
-    var ctx = document.getElementById('departmentChart').getContext('2d');
-    var departmentChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Active Departments', 'Inactive Departments'],
             datasets: [{
-                label: 'Department Status',
-                data: [<?php echo $activePercentage; ?>, <?php echo $inactivePercentage; ?>],
-                backgroundColor: ['#4CAF50', '#FF6384'],
-                borderColor: ['#4CAF50', '#FF6384'],
-                borderWidth: 1
+                label: 'Research Published Per Month',
+                data: values,
+                borderColor: '#3a7bd5',
+                backgroundColor: 'rgba(58, 123, 213, 0.2)',
+                borderWidth: 2,
+                pointBackgroundColor: '#ffffff',
+                pointBorderColor: '#3a7bd5',
+                pointBorderWidth: 3,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                tension: 0.3
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: '#999999',
+                        font: {
+                            family: 'Segoe UI',
+                            size: 12,
+                            weight: 'bold'
+                        }
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(200, 200, 200, 0.2)',
+                        borderDash: [5, 5]
+                    },
+                    ticks: {
+                        color: '#666666',
+                        font: {
+                            family: 'Segoe UI',
+                            size: 12,
+                            weight: 'bold'
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        color: '#333333',
+                        font: {
+                            family: 'Segoe UI',
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    }
+                },
+                tooltip: {
+                    enabled: true,
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: '#3a7bd5',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    displayColors: false 
+                }
+            }
+        }
+    });
+<?php 
+    $totalCourses = $db->SELECT_COUNT_ALL_COURSES();
+    $activeCourses = $db->SELECT_COUNT_ALL_ACTIVE_COURSES();
+
+    $activePercentage = $activeCourses['count'] ;
+    $inactivePercentage = $totalCourses['total_count'] - $activePercentage;
+?>
+    const ctx2 = document.getElementById('courseStatusChart').getContext('2d');
+    const courseStatusChart = new Chart(ctx2, {
+        type: 'pie',
+        data: {
+            labels: ['Active', 'Inactive'],
+            datasets: [{
+                label: 'Course Status',
+                data: [<?php echo $activePercentage; ?>, <?php echo $inactivePercentage; ?>],
+                backgroundColor: ['rgba(153, 102, 255, 0.6)', 'rgba(255, 206, 86, 0.6)'],
+                borderColor: '#ffffff',
+                borderWidth: 2,
+                hoverBackgroundColor: '#A33333',
+                hoverBorderColor: '#333333',
+                hoverBorderWidth: 1,
+                barThickness: 30,
+                maxBarThickness: 50,
+                minBarLength: 5,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        color: '#333',
+                        font: {
+                            size: 14,
+                            weight: 'bold',
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    bodyColor: '#ffffff',
+                    borderColor: '#4CAF50',
+                    borderWidth: 1,
+                }
+            }
+        }
+    });
+    <?php 
+    $totalDepartment = $db->SELECT_COUNT_ALL_DEPARTMENT();
+    $activeDepartment = $db->SELECT_COUNT_ALL_ACTIVE_DEPARTMENT();
+
+    $activePercentage = $activeDepartment['count'] ;
+    $inactivePercentage = $totalDepartment['total_count'] - $activePercentage;
+?>
+    const ctx3 = document.getElementById('departmentStatusChart').getContext('2d');
+    const departmentStatusChart = new Chart(ctx3, {
+        type: 'doughnut',
+        data: {
+            labels: ['Active', 'Inactive'],
+            datasets: [{
+                label: 'Course Status',
+                data: [<?php echo $activePercentage; ?>, <?php echo $inactivePercentage; ?>],
+                backgroundColor: ['rgba(0, 104, 22, 0.4)', 'rgba(209, 102, 255, 0.6)'],
+                borderWidth: 2,
+                hoverBackgroundColor: '#A33333',
+                hoverBorderColor: '#333333',
+                hoverBorderWidth: 1,
+                barThickness: 30,
+                maxBarThickness: 50,
+                minBarLength: 5,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        color: '#333',
+                        font: {
+                            size: 14,
+                            weight: 'bold',
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    bodyColor: '#ffffff',
+                    borderColor: '#4CAF50',
+                    borderWidth: 1,
+                }
+            },
+            doughnutLabel: {
+                labels: [
+                    {
+                        text: 'Active/Inactives',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        }
+                    }
+                ]
+            }
+        },
+        cutout: '70%',
+    });    
+
+<?php
+    $rows = $db->SELECT_TOP_10_VIEWS_RESEARCH_PAPER();
+    $data = json_encode($rows);
+?>
+
+    const dataFromPHP1 = <?php echo $data; ?>;
+    const labels1 = dataFromPHP1.map(item => item.project_title);
+    const values1 = dataFromPHP1.map(item => item.count);
+    const backgroundColors = [
+        '#42A5F5', '#66BB6A', '#FFA726', '#AB47BC', '#EC407A', 
+        '#FF7043', '#26C6DA', '#FFCA28', '#8D6E63', '#78909C'
+    ];
+    const ctx4 = document.getElementById('topViewsChart').getContext('2d');
+    const myChart = new Chart(ctx4, {
+        type: 'bar',
+        data: {
+            labels: labels1,
+            datasets: [{
+                label: 'Views',
+                data: values1,
+                backgroundColor: backgroundColors,
+                borderColor: backgroundColors,
+                borderWidth: 1,
+                hoverBackgroundColor: '#A33333',
+                hoverBorderColor: '#333333',
+                hoverBorderWidth: 1,
+                barThickness: 30,
+                maxBarThickness: 50,
+                minBarLength: 5,
+            }]
+        },
+        options: {
+            indexAxis: 'y', // Ensures horizontal orientation
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#666',
+                        font: {
+                            family: 'Segoe UI',
+                            size: 12,
+                            weight: 'bold'
+                        }
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: '#333',
+                        font: {
+                            family: 'Segoe UI',
+                            size: 12,
+                            weight: 'bold'
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        color: '#333',
+                        font: {
+                            family: 'Segoe UI',
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    }
+                },
+                tooltip: {
+                    enabled: true,
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: '#1E88E5',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    displayColors: false
+                }
+            }
         }
     });
 </script>
-
-
+<script>
     <?php 
 if (isset($_SESSION['status']) && $_SESSION['status'] != '') {
 

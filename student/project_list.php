@@ -15,11 +15,11 @@ if($_SESSION['auth_user']['student_id']==0){
 
 $searchInput = isset($_GET['searchInput']) ? $_GET['searchInput'] : '';
 if ($searchInput) {
-    $projects = $db->SELECT_OWNED_ARCHIVE_RESEARCH($_SESSION['auth_user']['student_email'], $searchInput, '', '', '');
+    $projects = $db->SELECT_OWNED_ARCHIVE_RESEARCH($_SESSION['auth_user']['student_email'], $searchInput, '', '', '', '');
     $displaySearchInfo = true;
 } else {
     $projects = $db->SELECT_ALL_ARCHIVE_RESEARCH_WHERE_PUBLISH();
-    $displaySearchInfo = false;
+    $displaySearchInfo = true;
 }
 
 if(ISSET($_POST['add_research'])){
@@ -203,7 +203,7 @@ require_once 'templates/student_navbar.php';
                                     </div>
                                     <div class="item-detail">
                                         <label for="" class="info-label m-l-4">Project File (PDF)</label>
-                                        <input type="file" accept=".pdf" class="info-input" name="project_file" required>
+                                        <input type="file" accept=".pdf" class="info-input-file" name="project_file" required>
                                     </div>
                                 </div>
                             </div>
@@ -239,7 +239,14 @@ require_once 'templates/student_navbar.php';
                             
                             </select>
                         </div> -->
-                        <fieldset>
+                        <div class="mb-3">
+                        <label class="item-meta" for="research_date">Sort by</label>
+                            <select id="research_date" name="research_date" class="form-control item-meta" required>
+                                <option value="newest">Newest</option>
+                                <option value="oldest">Oldest</option>
+                            </select>
+                        </div>
+                        <fieldset class="mb-3">
                             <div class="input-filter-group">
                                 <label class="item-meta" for="info-label">Document Status:</label>
                                 <select class="item-meta" style="width: auto;" name="documentStatus" id="documentStatus">
@@ -248,7 +255,7 @@ require_once 'templates/student_navbar.php';
                                     <option value="Not Accepted">Not yet published</option>
                                 </select>
                         </fieldset>
-                        <fieldset>
+                        <fieldset class="mb-3">
                             <div class="input-filter-group">
                                 <label class="item-meta" for="info-label">From:</label>
                                 <select class="item-meta" name="fromYear" id="fromYear">
@@ -280,7 +287,7 @@ require_once 'templates/student_navbar.php';
                 </div>
                 <div class="col-md-9">
                     <?php if ($displaySearchInfo): ?>
-                        <div id="data-result">
+                        <div id="data-result" style="display:none">
                             <p><span id="resultNumber"><?= count($projects) ?></span> results for "<span id="inputSearch"><?= htmlspecialchars($searchInput) ?></span>"</span></p>
                         </div>
                     <?php endif; ?>
@@ -290,10 +297,10 @@ require_once 'templates/student_navbar.php';
                         $student_email = $_SESSION['auth_user']['student_email'];
                         
                         $data = $db->SELECT_ALL_STUDENT_ARCHIVE_RESEARCH($student_email);
-
+                        $i = 1;
                         foreach ($data as $result) {
                     ?>
-                        <li class="project-list">
+                        <li class="project-list item" style="--i: <?=$i; $i++;?>;">
                             <div class="item-body">
                                 <div class="project-tag">
                                     <?php 
@@ -377,6 +384,7 @@ require_once 'templates/student_navbar.php';
         var fromYear = $('#fromYear').val();
         var toYear = $('#toYear').val();
         var searchInput = $('#searchInput').val();
+        var research_date = $('#research_date').val();
 
         if (documentStatus === 'Not Accepted'){
             fromYear = '';
@@ -391,7 +399,8 @@ require_once 'templates/student_navbar.php';
                 searchInput: searchInput,
                 documentStatus: documentStatus,
                 fromYear: fromYear,
-                toYear: toYear
+                toYear: toYear,
+                research_date: research_date
             },
             success: function(response){
                 console.log(response);
@@ -414,7 +423,7 @@ require_once 'templates/student_navbar.php';
         });
     }
     
-    $('#documentStatus').change(filteredData);
+    $('#documentStatus, #research_date').change(filteredData);
     $('#fromYear, #toYear').change(filteredData);
     $('#searchInput').on('keyup', function() {
         if ($(this).val().length > 0) { 

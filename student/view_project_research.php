@@ -14,11 +14,8 @@ session_start();
 // }
 
   if(isset($_GET['archiveID'])){
-
     $archiveID = $_GET['archiveID'];
-
     $data = $db->SELECT_ARCHIVE_RESEARCH($archiveID);
-      
   } else {
     echo "<script>window.location.href='login.php'</script>";
   }
@@ -86,7 +83,7 @@ require_once 'templates/student_navbar.php';
               <p class="detail-font"><?php echo $data['project_members']; ?></p>
               <?php if (!empty($data['date_published'])) {
                   $first_published = DateTime::createFromFormat("Y-m-d", $data['date_published'])->format("d F Y");
-                  echo '<p class="detail-font">Published: '.$first_published.' | Archive ID: '. $data['archive_id'] .'</p>'; 
+                  echo '<p class="detail-font">Published: '.$first_published.' | Archive ID: '. $data['archive_id'] .'<span class="float-right"><i class="ti-eye m-r-4 "></i>'.$data['view_count'].'</span></p>'; 
                   } else {
                     echo '<p class="detail-font">Not yet published | Archive ID: '. $data['archive_id'] .'</p>';
                   }

@@ -41,7 +41,7 @@ header("location:all_project_list.php");
             <button class="search-btn" id="search-btn"><i class="ti-search"></i></button>
         </div>
         <div class="nav-signup">
-            <a href="#" class="signup-btn" onclick="logout();">Log out</a>
+            <a href="login.php" class="signup-btn">Log in</a>
         </div>
       </div>
     </div>
@@ -59,28 +59,26 @@ header("location:all_project_list.php");
           </div>
           <div class="col-sm-12 col-md-8 col-xl-6">
             <div class="log-in-container">
-              <form class="form-container" action="../php/student_verifyAccountCode.php" method="POST">
+              <form class="form-container" action="../php/student_forgotPassword.php" method="POST">
                 <?php
                     if(isset($_GET['student_no'])){
                         $student_no = $_GET['student_no']; 
                     }
                 ?>
-                <input type="hidden" name="redirect_to" value="<?= isset($_GET['redirect_to']) ? $_GET['redirect_to'] : '' ?>">
-                <input type="hidden" name="student_no" value="<?= $student_no ?>">
-                <h4>Account Verification</h4>
+                <h4>Forgot password</h4>
                 <div class="row">
                   <div class="col-xl-12 col-md-12 col-sm-12">
                     <div class="form-input">
-                      <label for="verification_number">OTP Code</label>
-                      <input type="number" name="verification_number" id="verification_number" required>
+                      <label for="email">Email address</label>
+                      <input type="email" name="email" id="email" required>
                     </div>
                   </div>
                 </div>
                 <div class="row mt-4">
                   <div class="col-xl-12 col-md-12 col-sm-12">
                     <div class="flex align-items-center">
-                      <button name="verify" type="submit" class="login-btn">Verify now</button>
-                      <p class="m-0 ml-4">Create an account instead? <a class="signup-link" href="sign_up.php">Sign up</a></p>
+                      <button name="recover-now" type="submit" class="login-btn">Recover now</button>
+                      <p class="m-0 ml-4">Remember now? <a class="signup-link" href="login.php">Log in</a></p>
                     </div>
                   </div>
                 </div>
@@ -102,10 +100,6 @@ header("location:all_project_list.php");
             alert("Please enter a research title");
         }
     });
-    
-    function logout() {
-    window.location.href = 'student_logout.php ';
-  }
 </script>
 
 <?php 

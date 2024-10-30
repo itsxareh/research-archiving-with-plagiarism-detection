@@ -127,8 +127,6 @@ if(isset($_SESSION['auth_user']['admin_id'])){
     <script src="js/lib/nestable/jquery.nestable.js"></script>
     <script src="js/lib/nestable/nestable.init.js"></script>
      -->
-    <script src="js/lib/sweetalert/sweetalert.min.js"></script>
-    <script src="js/lib/sweetalert/sweetalert.init.js"></script>
 
 
 

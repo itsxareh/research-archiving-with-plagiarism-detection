@@ -4,7 +4,7 @@ $db = new Database();
 
 if(ISSET($_POST['send_department_set'])){
 
-$department = $_POST['send_department'];
+    $department = $_POST['send_department'];
 
     if ($department){
         $stmt = $db->showCourse_WHERE_ACTIVE($department);

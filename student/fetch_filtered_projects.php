@@ -8,8 +8,9 @@ $course = $_POST['course'];
 $keywords = $_POST['keywords'];
 $fromYear = $_POST['fromYear'];
 $toYear = $_POST['toYear'];
+$research_date = $_POST['research_date'];
 
-$resp = $db->SELECT_FILTERED_ARCHIVE_RESEARCH($searchInput, $department, $course, $keywords, $fromYear, $toYear);
+$resp = $db->SELECT_FILTERED_ARCHIVE_RESEARCH($searchInput, $department, $course, $keywords, $fromYear, $toYear, $research_date);
 
 ob_start();
 
@@ -17,7 +18,7 @@ foreach ($resp as $row) {
     echo '<li>
             <div class="item-body">
                 <div class="item-title">
-                    <h3><a href="view_project_research.php?archiveID=' . $row['archive_id'] . '">' . $row['project_title'] . '</a></h3>
+                    <h3><a href="view_project_research.php?archiveID=' . $row['archive_id'] . '">' . ucwords($row['project_title']) . '</a></h3>
                 </div>
                 <div class="item-content">
                     <p>' . $row['project_members'] . '</p>

@@ -2,31 +2,40 @@
 $db = new Database();
 ?>
 
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tagify/4.9.3/tagify.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tagify/4.9.3/tagify.css">
 
-<div class="sidebar sidebar-hide-to-small sidebar-shrink sidebar-gestures">
-    <div class="nano">
-        <div class="nano-content">
-            <ul class="navbar">
-                <li><a href="project_list.php"><i class="ti-plus"></i> Create</a></li>
-                <li><a href="all_project_list.php"><i class="ti-folder"></i> Research </a></li>
-            </ul>
+<?php 
+if (isset($_SESSION['auth_user']['student_id'])){
+    echo '
+    <div class="sidebar sidebar-hide-to-small sidebar-shrink sidebar-gestures">
+        <div class="nano">
+            <div class="nano-content">
+                <ul class="navbar">
+                    <li><a href="project_list.php"><i class="ti-plus"></i> Create</a></li>
+                    <li><a href="all_project_list.php"><i class="ti-folder"></i> Research </a></li>
+                </ul>
+            </div>
         </div>
-    </div>
-</div>
+    </div>';
+}
+?>
     <!-- /# sidebar -->
 
     <div class="header">
         <div class="meta-header">
-            <div class="row w-100 justify-content-between align-items-center">
-                <div class="logo-home">
-                    <div class="hamburger sidebar-toggle">
-                        <span class="line"></span>
-                        <span class="line"></span>
-                        <span class="line"></span>
-                    </div>
+            <div class="w-100 justify-content-between align-items-center" style="display: flex;">
+                <div class="logo-home" style="flex:1">
+                    <?php 
+                        if (isset($_SESSION['auth_user']['student_id'])){
+                            echo '
+                            <div class="hamburger sidebar-toggle">
+                                <span class="line"></span>
+                                <span class="line"></span>
+                                <span class="line"></span>
+                            </div>';
+                        }
+                    ?>
                     <a href="all_project_list.php">
                         <div class="logo-w-name">
                             <div class="logo-img">
@@ -38,7 +47,7 @@ $db = new Database();
                         </div>
                     </a>
                 </div>
-                    <div class="" style="display: flex; flex-direction: row; align-items: center">
+                    <div style="display: flex; flex-direction: row; justify-content:end; align-items: center; flex:1">
                         <div class="search-bar m-r-16">
                             <input id="searchInput" name="searchInput" type="text" class="form-control" placeholder="Search...">
                             <button class="search-btn" id="search-btn"><i class="ti-search"></i></button>
@@ -131,7 +140,7 @@ $db = new Database();
                         </div>
                         <?php
                         } else {
-                           echo '<a class="item-meta" href="login.php" style="padding: 10px 32px;">Login</a>';
+                           echo '<a class="login-btn" href="login.php">Log in</a>';
                         }
                         ?>
                     </div>

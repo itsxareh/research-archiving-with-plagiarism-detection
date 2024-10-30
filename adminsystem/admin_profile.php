@@ -175,20 +175,6 @@ if(isset($_SESSION['auth_user']['admin_id'])){
   reader.readAsDataURL(event.target.files[0]);
 }
 </script>
-
-
-
-    <!-- Common -->
-    <script src="js/lib/jquery.min.js"></script>
-    <script src="js/lib/jquery.nanoscroller.min.js"></script>
-    <script src="js/lib/menubar/sidebar.js"></script>
-    <script src="js/lib/preloader/pace.min.js"></script>
-    <script src="js/lib/bootstrap.min.js"></script>
-    <script src="js/scripts.js"></script>
-
-    <script src="js/lib/sweetalert/sweetalert.min.js"></script>
-    <script src="js/lib/sweetalert/sweetalert.init.js"></script>
-
     <?php 
 if (isset($_SESSION['status']) && $_SESSION['status'] != '') {
 

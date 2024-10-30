@@ -1,0 +1,191 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+* {
+    margin: 0; padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+}
+
+body, html {
+    width: 100svw;
+    height: 100svh;
+}
+main {
+    height: 100%;
+    position: relative;
+}
+.content-wrapper {
+    background: url('../images/earistbg.jpg') no-repeat center center;
+    background-size: cover;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.content-wrapper::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Dark overlay with 50% opacity */
+    filter: blur(3px); /* Optional: Adjust blur level as needed */
+    z-index: 1;
+}
+
+.content-wrapper .col-xl-12 {
+    position: relative;
+    z-index: 2; /* Place content above the overlay */
+    color: #fff;
+    text-align: center;
+}
+.header {
+    position: fixed;
+    width: 100%;
+    height: 55px;
+    background: transparent;
+    padding: .4rem 1rem;
+    z-index: 999;
+}
+.nav-header {
+    display: flex;
+    align-items: center;
+    padding: 0 1.875rem;
+    justify-content: space-between;
+}
+.logo {
+    flex-shrink: 0;
+    width: 45px;
+    height: 45px;
+}
+.logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.nav-side {
+    display: flex;
+    align-items: center;
+    gap: 2.125rem;
+}
+.row {
+    margin: auto;
+}
+.flex {
+    display: flex;
+}
+.nav-search {
+    flex-shrink: 1;
+}
+.search-bar {
+    width: 100%;
+    padding: .225rem 1.25rem;
+    border-radius: 2.5rem;
+    border: 1px solid #cccccc;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+}
+.nav-login > .login-btn, .nav-signup > .signup-btn {
+    padding: .545rem 1.765rem;
+    color: #f8f9ff;
+    background-color: #a33333;
+    border-radius: .575rem;
+    border: none !important;
+    font-size: 12px;
+    font-family: 'Poppins';
+    transition: background-color 0.2s ease-in-out;
+}
+.nav-login a:hover{
+    text-decoration: none;
+}
+.nav-login >.login-btn:hover, .nav-signup >.signup-btn:hover, .nav-login >.login-btn:active, .nav-signup >.signup-btn:active {
+    background-color: #ca4949;
+}
+.nav-login >.login-btn:focus, .nav-signup >.signup-btn:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+.intro {
+    padding: 2.225rem 5.375rem; 
+}
+.intro h2 {
+    font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+    line-height: 60px;
+    font-size: 28px;
+    color: #f8f9ff;
+}
+.intro p {
+    font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+    line-height: 28px;
+    font-size: 20px;
+    color: #f8f9ff;
+    word-spacing: .225rem;
+}
+.search-description {
+    color: #f8f9ff;
+}
+.sign-up-container, .log-in-container {
+    background-color: #f8f9ff;
+    padding: 2.225rem 5.375rem; 
+    border-radius: 1.125rem;
+    margin: auto ;
+}
+.form-container {
+    display: flex;
+    flex-direction: column;
+}
+.form-container h4 {
+    line-height: 60px;
+    font-size: 22px;
+}
+.form-input {
+    margin-bottom: 1.125rem;
+}
+.form-input label, .form-input span{
+    display: block;
+    margin-bottom:.25rem;
+    color: #666;
+}
+.form-input span {
+    font-size: 11px;
+}
+.form-input input {
+    width: 100%;
+    border-radius: .575rem;
+    padding: .945rem 2.265rem;
+    border: #cccccc solid 1px;
+}
+.search-btn, .login-btn {
+    padding: .945rem 2.265rem;
+    color: #f8f9ff;
+    background-color: #a33333;
+    border-radius: 1.575rem;
+    border: none;
+    font-size: 14px;
+    font-family: 'Poppins';
+    transition: background-color 0.2s ease-in-out;
+}
+.search-btn:hover, .login-btn:hover, .signup-btn:active, .login-btn:active {
+    background-color: #ca4949;
+}
+.search-btn:focus, .login-btn:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+.login-link, .signup-link {
+    color: #000;
+}
+.login-link:hover, .signup-link:hover {
+    text-decoration: underline;
+    color: #333;
+}
+
+@media (min-width: 320px) and (max-width: 359px) {
+    .content-wrapper > .col-sm-12 {
+        padding: .5rem;
+    }
+}

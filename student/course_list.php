@@ -14,10 +14,6 @@ if($_SESSION['auth_user']['admin_id']==0){
     
 }
 
-
-
-
-
 if(ISSET($_POST['add_course'])){
 
     $admin_id = $_SESSION['auth_user']['admin_id'];
@@ -70,7 +66,6 @@ if(ISSET($_POST['add_course'])){
     <link href="css/lib/themify-icons.css" rel="stylesheet">
     <link href="css/lib/owl.carousel.min.css" rel="stylesheet" />
     <link href="css/lib/owl.theme.default.min.css" rel="stylesheet" />
-    <link href="css/lib/menubar/sidebar.css" rel="stylesheet">
     <link href="css/lib/bootstrap.min.css" rel="stylesheet">
     <link href="css/lib/helper.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
@@ -277,21 +272,6 @@ if(department != " "){
 
 
 </script>
-
-
-
-    <!-- Common -->
-    <script src="js/lib/jquery.min.js"></script>
-    <script src="js/lib/jquery.nanoscroller.min.js"></script>
-    <script src="js/lib/menubar/sidebar.js"></script>
-    <script src="js/lib/preloader/pace.min.js"></script>
-    <script src="js/lib/bootstrap.min.js"></script>
-    <script src="js/scripts.js"></script>
-
-
-    <!-- Sweet Alert -->
-    <script src="js/lib/sweetalert/sweetalert.min.js"></script>
-    <script src="js/lib/sweetalert/sweetalert.init.js"></script>
 
 
 <?php 

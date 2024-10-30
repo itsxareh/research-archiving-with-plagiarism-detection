@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 /*
     Template: Admin Board
     Author: Saiful
@@ -101,7 +102,7 @@
   font-size: 18px;
 }
 .card-title p {
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
   margin-bottom: 12px;
 }
 .card-header-right-icon {
@@ -481,7 +482,7 @@ a.dt-button.active:not(.disabled) {
   margin: 15px 0;
 }
 .panel-body {
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
 }
 .panel-primary {
   border-color: #5873fe;
@@ -988,7 +989,7 @@ option {
   width: 325px;
   height: 425px;
   border-radius: .525rem;
-  border: 2px solid #2c2a2a;
+  border: 1px solid #2c2a2a;
   margin: 0 auto;
 }
 .profile-row {
@@ -1123,7 +1124,7 @@ option {
 }
 .dropdown-content-heading span {
   font-size: 13px;
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
   color: #373757;
 }
 .dropdown-content-heading i {
@@ -1167,7 +1168,7 @@ option {
 }
 .notification-text {
   font-size: 12px;
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1213,7 +1214,7 @@ option {
   color: #373757;
 }
 .dropdown-profile li a span {
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
   font-size: 14px;
 }
 .dropdown-profile li a i {
@@ -1230,13 +1231,16 @@ option {
 }
 .search-bar {
   display: flex;
+  width: auto;
+  max-width: 100%; 
   align-items: center;
   position: relative;
   height: 40px;
-  width: 250px;
 }
 .search-bar input {
-  width: 100%;
+  flex: 1;
+  width: auto;
+  min-width: 0;
 }
 .search-bar .search-btn {
   width: 40px;
@@ -1272,6 +1276,20 @@ option {
 
 .project-list:hover .project-action .btn {
   display: inline-block;
+}
+
+#search-result .project-list{
+  transition: opacity 0.6s ease;
+}
+
+#search-result:hover > :not(:hover) {
+  opacity: 0.6;
+}
+
+#search-result .item {
+  opacity: 0;
+  animation: fade-in 500ms forwards;
+  animation-delay: calc(.1s * var(--i));
 }
 .project-tag{
   display: flex;
@@ -1375,6 +1393,35 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(26px);
 }
+.info-input-file {
+  position: relative;
+  margin: 0.675rem 0;
+  font-size: 12px;
+  line-height: 1.5;
+  transition: border-color 0.3s ease-in-out;
+
+  &::file-selector-button {
+    padding: .625rem .9375rem .625rem 2.125rem;
+    color: #fff;
+    background: #a33333;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  &::before {
+    content: "";
+    background-image: url("../images/upload.png");
+    background-size: 1.25rem 1.25rem;
+    position: absolute;
+    width: 1.25rem;
+    height: 1.25rem;
+    top: 50%;
+    color: #fff;
+    left: .5725rem;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+}
 
 /* Rounded slider */
 .slider.round {
@@ -1407,13 +1454,13 @@ input:checked + .slider:before {
   float: right;
 }
 .main .page-header .breadcrumb li.active {
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
   font-weight: normal;
   font-size: 14px;
 }
 .main .page-header .breadcrumb li a {
   font-size: 14px;
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
   display: block;
 }
 .dropdown-task .progress {
@@ -1448,16 +1495,16 @@ input:checked + .slider:before {
   transition: all 0.5s ease 0s;
 }
 .chat-sidebar .user-name {
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
 }
 .chat-sidebar .content {
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
 }
 .chat-sidebar .textarea {
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
 }
 .chat-sidebar .seen {
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
 }
 .chat-sidebar.is-active {
   right: 0;
@@ -1636,7 +1683,7 @@ input:checked + .slider:before {
   margin-bottom: 15px;
 }
 .testimonial-widget-one .testimonial-author-position {
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
   margin-right: 75px;
   position: relative;
   top: -5px;
@@ -1973,9 +2020,10 @@ footer p {
   margin: 10px 0;
   padding: .675rem 0;
   cursor: pointer;
+  color: white;
   border: 1px solid #d2d2d2;
   border-radius: 5px;
-  background-color: white;
+  background-color: #a33333;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2438,7 +2486,7 @@ footer p {
   right: 0;
   top: 0;
   color: #373757;
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
   font-size: 12px;
 }
 .comment-action {
@@ -2446,7 +2494,7 @@ footer p {
 }
 .comment-action .badge {
   text-transform: uppercase;
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
 }
 .comment-action i {
   padding: 0 5px;
@@ -2493,7 +2541,7 @@ footer p {
   border-radius: 0px;
   box-shadow: none;
   border-color: #e7e7e7;
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
 }
 .form-control-keyword {
   font-size: 1rem;
@@ -2501,7 +2549,7 @@ footer p {
   box-shadow: none;
   border-color: #e7e7e7;
   background-color: #fff;
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
 }
 .form-control:hover, .form-control-keyword:hover {
   box-shadow: none;
@@ -2807,7 +2855,7 @@ ul.inbox-nav li a {
   line-height: 45px;
   padding: 0 20px;
   width: 100%;
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
 }
 ul.inbox-nav li a:hover {
   background: #eef5f9;
@@ -2846,7 +2894,7 @@ ul.labels-info li h4 {
 ul.labels-info li a {
   border-radius: 0;
   color: #6a6a6a;
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
 }
 ul.labels-info li a:hover {
   background: #eef5f9;
@@ -2948,7 +2996,7 @@ ul.inbox-pagination li {
   background: #ffffff;
   border: 1px solid #e7e7e7;
   border-radius: 3px !important;
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
   color: #373757;
   display: inline-block;
   padding: 5px 10px;
@@ -3144,6 +3192,7 @@ ul {
 }
 .progress-bar-danger {
   background-color: #dc3545;
+  box-shadow: 0 2px 4px 0 rgba(255, 105, 105, 0.4);
 }
 .progress-bar-warning {
   background-color: #e7b63a;
@@ -3214,7 +3263,7 @@ ul {
 }
 .tdl-holder li span {
   margin-left: 30px;
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
   vertical-align: middle;
   -webkit-transition: all 0.2s linear;
   -moz-transition: all 0.2s linear;
@@ -3289,7 +3338,7 @@ ul {
 }
 .datamap-sales-hover-tooltip {
   background: #545454;
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
   padding: 5px 10px;
   color: #ffffff;
   font-weight: 400;
@@ -3306,11 +3355,11 @@ thead tr th:last-child {
 }
 tbody tr th {
   color: #373757;
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
   font-weight: normal;
 }
 tbody tr td {
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
   color: #868e96;
 }
 tbody tr td:last-child {
@@ -3393,6 +3442,28 @@ tbody tr td:last-child {
   line-height: 14px;
   font-size: 11px;
   box-shadow: none;
+}
+.nav-login a:hover, .nav-signup a:hover {
+  text-decoration: none;
+}
+.login-btn {
+  padding: .545rem 1.765rem;
+  color: #f8f9ff;
+  background-color: #a33333;
+  border-radius: .575rem;
+  border: none !important;
+  font-size: 12px;
+  font-family: 'Poppins';
+  text-wrap: nowrap;
+  transition: background-color 0.2s ease-in-out;
+}
+.signup-btn-btn:hover, .signup-btn:active, .login-btn:hover, .login-btn:active {
+  color: #f8f9ff;
+  background-color: #ca4949;
+}
+.login-btn:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 .login-logo {
   text-align: center;
@@ -3494,7 +3565,7 @@ tbody tr td:last-child {
   margin-bottom: 15px;
   padding: 5px 0px;
   border-bottom: 1px solid #e7e7e7;
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
 }
 .work-content {
   margin-bottom: 15px;
@@ -3516,7 +3587,7 @@ tbody tr td:last-child {
   display: inline-block;
   font-size: 12px;
   margin-left: 10px;
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
 }
 .user-Location i {
   font-size: 14px;
@@ -3562,7 +3633,7 @@ tbody tr td:last-child {
   text-transform: uppercase;
   padding-top: 10px;
   padding-bottom: 15px;
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
 }
 .contact-title {
   display: inline-block;
@@ -3578,7 +3649,7 @@ tbody tr td:last-child {
 .contact-skype,
 .birth-date,
 .gender {
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
   font-size: 16px;
   color: #373757;
 }
@@ -4268,7 +4339,7 @@ tbody tr td:last-child {
   fill: #e6a1f2;
 }
 body {
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
   background: rgba(88, 115, 254, 0.04);
   color: #868e96;
   font-size: 14px;
@@ -4298,7 +4369,7 @@ li {
   list-style: none;
 }
 p {
-  font-family:  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
   color: #868e96;
 }
 .h2,
@@ -5116,5 +5187,11 @@ h6.h1 {
   }
   .retina-logo {
     display: inline-block !important;
+  }
+}
+
+@keyframes fade-in {
+  to {
+    opacity: 1;
   }
 }

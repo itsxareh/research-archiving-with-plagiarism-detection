@@ -150,7 +150,12 @@ require_once 'templates/admin_navbar.php';
         }
         echo '<div class="info-container" style="display: flex; justify-content:space-between; align-items: center">
                 <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Plagiarized Content</p>
-                <span class="info-meta" style="font-size: 32px; margin-bottom: 0; font-weight: 500; color:#a33333">'.round($percentage, 1).'%</span>
+                <div class="d-flex align-items-center">
+                  <div class="progress w-100" style="height: 10px">
+                    <div class="progress-bar-danger progress-bar" role="progressbar" style="width: '.round($percentage, 1).'%" aria-valuenow="'.round($percentage, 1).'" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <span style="color: #a33333; font-size: 16px; margin-left: .75rem !important;">'.round($percentage, 1).'%</span>
+                </div>
               </div>';
       }
     } ?> 

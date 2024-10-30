@@ -9,18 +9,17 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 session_start();
-// if($_SESSION['auth_user']['student_id']==0){
-//     echo"<script>window.location.href='login.php'</script>";
-    
-// }
+
+
+// print_r($_SESSION['auth_user']['student_id']);
 
 $searchInput = isset($_GET['searchInput']) ? $_GET['searchInput'] : '';
 if ($searchInput) {
-    $projects = $db->SELECT_FILTERED_ARCHIVE_RESEARCH($searchInput, '', '', '', '', '');
+    $projects = $db->SELECT_FILTERED_ARCHIVE_RESEARCH($searchInput, '', '', '', '', '', '');
     $displaySearchInfo = true;
 } else {
     $projects = $db->SELECT_ALL_ARCHIVE_RESEARCH_WHERE_PUBLISH();
-    $displaySearchInfo = false;
+    $displaySearchInfo = true;
 }
 
 if(ISSET($_POST['add_research'])){
@@ -145,10 +144,18 @@ require_once 'templates/student_navbar.php';
                     </div>
                 </div>
             </div>
-            <section class="project-page-content">
-                <div class="col-md-3">
+            <section class="project-page-content row">
+                <div class="col-sm-12 col-md-3 ">
                     <div class="advance-filter-search">
                         <p class="font-black bold">Filter</p>
+                        <div class="mb-3">
+                            <label class="item-meta" for="research_date">Sort by</label>
+                            <select id="research_date" name="research_date" class="form-control item-meta" required>
+                                <option value=""></option>
+                                <option value="newest">Newest</option>
+                                <option value="oldest">Oldest</option>
+                            </select>
+                        </div>
                         <div class="mb-3">
                             <label for="" class="item-meta">Select Department</label>
                             <select id="inputDepartment_search" name="department" class="selectpicker form-control item-meta" required>
@@ -208,17 +215,17 @@ require_once 'templates/student_navbar.php';
                 </div>
                 <div class="col-md-9">
                     <?php if ($displaySearchInfo): ?>
-                        <div id="data-result">
+                        <div id="data-result" style="display: none;">
                             <p><span id="resultNumber"><?= count($projects) ?></span> results for "<span id="inputSearch"><?= htmlspecialchars($searchInput) ?></span>"</span></p>
                         </div>
                     <?php endif; ?>
                     
                     <ul id="search-result">
-                        <?php foreach ($projects as $result): ?>
-                            <li>
+                        <?php $i=1; foreach ($projects as $result): ?>
+                            <li class="item" style="--i: <?=$i?>;">
                                 <div class="item-body">
                                     <div class="item-title">
-                                        <h3><a href="view_project_research.php?archiveID=<?= $result['archive_id'] ?>"><?= $result['project_title']; ?></a></h3>
+                                        <h3><a href="view_project_research.php?archiveID=<?= $result['archive_id'] ?>"><?= ucwords($result['project_title']); ?></a></h3>
                                     </div>
                                     <div class="item-content">
                                         <p><?= $result['project_members']; ?></p>
@@ -242,7 +249,7 @@ require_once 'templates/student_navbar.php';
                                     </div>
                                 </div>
                             </li>
-                        <?php endforeach; ?>
+                        <?php $i++; endforeach; ?>
                     </ul>
                 </div>
             </section>
@@ -277,10 +284,11 @@ require_once 'templates/student_navbar.php';
         var department = $('#inputDepartment_search').val();
         var fromYear = $('#fromYear').val();
         var toYear = $('#toYear').val();
+        var research_date = $('#research_date').val();
         var searchInput = $('#searchInput').val();
         var course = $('#department_course').val();
         var keywords = getKeywords();
-
+        console.log(research_date);
         $.ajax({
             url: 'fetch_filtered_projects.php',
             type: 'POST',
@@ -291,7 +299,8 @@ require_once 'templates/student_navbar.php';
                 course: course,
                 keywords: keywords,
                 fromYear: fromYear,
-                toYear: toYear
+                toYear: toYear,
+                research_date: research_date
             },
             success: function(response){
                 console.log(response);  
@@ -313,7 +322,7 @@ require_once 'templates/student_navbar.php';
     }
     tagify.on('add', filteredData);
     tagify.on('remove', filteredData);
-    $('#department_course, #fromYear, #toYear').change(filteredData);
+    $('#department_course, #research_date, #fromYear, #toYear').change(filteredData);
     $('#searchInput').on('keyup', function() {
         console.log($(this).val);
         if ($(this).val().length > 0) { 

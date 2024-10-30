@@ -145,7 +145,7 @@ $db = new Database();
 </div>
 
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
         // Attach a click event handler to the bell icon
@@ -196,3 +196,16 @@ $db = new Database();
     window.location.href = 'admin_logout.php ';
   }
 </script>
+
+<script src="js/lib/jquery.min.js"></script>
+<script src="js/lib/jquery.nanoscroller.min.js"></script>
+<script src="js/lib/menubar/sidebar.js"></script>
+<script src="js/lib/preloader/pace.min.js"></script>
+<script src="js/lib/bootstrap.min.js"></script>
+<script src="js/scripts.js"></script>
+
+
+<!-- Sweet Alert -->
+<script src="js/lib/sweetalert/sweetalert.min.js"></script>
+<script src="js/lib/sweetalert/sweetalert.init.js"></script>
+

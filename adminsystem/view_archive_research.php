@@ -81,11 +81,11 @@ require_once 'templates/admin_navbar.php';
             ?>
           <div class="col-md-8">
             <div class="short-info">
-              <p><strong style="font-size: 24px; color:#313131"><?php echo $data['project_title']; ?> </strong><br></p>
+              <p><strong style="font-size: 24px; color:#313131"><?php echo ucwords($data['project_title']); ?> </strong><br></p>
               <p class="detail-font"><?php echo $data['project_members']; ?></p>
               <?php if (!empty($data['date_published'])) {
                   $first_published = DateTime::createFromFormat("Y-m-d", $data['date_published'])->format("d F Y");
-                  echo '<p class="detail-font">Published: '.$first_published.' | '. $data['archive_id'] .'</p>'; }
+                  echo '<p class="detail-font">Published: '.$first_published.' | Archive ID: '. $data['archive_id'] .'<span class="float-right"><i class="ti-eye m-r-4 "></i>'.$data['view_count'].'</span></p>'; }
                   else {
                     echo '<p class="detail-font">Not yet published</p>';
                   }

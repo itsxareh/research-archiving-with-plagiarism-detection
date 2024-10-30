@@ -9,7 +9,7 @@ ini_set('display_errors', 1);
 
 session_start();
 if($_SESSION['auth_user']['student_id']==0){
-  echo"<script>window.location.href='index.php'</script>";
+  echo"<script>window.location.href='login.php'</script>";
   
 }
 
@@ -137,7 +137,6 @@ if(isset($_GET['contact_email'])){
     } else {
         echo '<p>No profile data found.</p>';
     }
-  }
   ?>
   <div class="col-md-4 p-r-0">
     <div class="content">
@@ -163,6 +162,7 @@ if(isset($_GET['contact_email'])){
       } else {
           echo 'No works available';
       }
+    }
       ?>
   </div>
   </div>

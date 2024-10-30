@@ -4,6 +4,9 @@ include '../connection/config.php';
 error_reporting(0);
 
 session_start();
+if(isset($_SESSION['auth_user']['admin_id']))
+header("location:dashboard.php");
+
 ?>
 
 <!DOCTYPE html>
@@ -40,30 +43,33 @@ session_start();
 
 <body style="background-color: #a33333!important;">
     <div class="content-wrap">
-        <div class="login-ui">
-            <div class="login-form">
-                <h4>Admin Login</h4>
-                <form action="../php/admin_loginCode.php" method="POST">
-                    <div class="form-group">
-                        <label>Email address</label>
-                        <input type="email" class="form-control" name="adminEmail" placeholder="Email" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" class="form-control" name="adminPword" placeholder="Password" required>
-                    </div>
-                        
-                        <label class="pull-right">
-                            <!-- <a href="#">Forgotten Password?</a> -->
-                        </label>
-                    <button name="LogIn" class="btn btn-primary btn-flat m-b-30 m-t-30" style="background: #d34848;">Login</button>
-                    <div class="register-link m-t-15 text-center">
-                        <!-- <p>Don't have account ? <a href="admin_register.php"> Sign Up Here</a></p> -->
-                    </div>
-                </form>
-            </div>
-            <div class="login-title">
-                EARIST Research Archiving System
+        <div class="flex align-items-center justify-content-center h-100 w-100">
+            <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                <div class="login-title">
+                    EARIST Research Archiving System
+                </div>
+                <div class="p-0-sm login-form">
+                    <h4>Admin Login</h4>
+                    <form action="../php/admin_loginCode.php" method="POST">
+                        <div class="form-group">
+                            <label>Email address</label>
+                            <input type="email" class="form-control" name="adminEmail" placeholder="Email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" class="form-control" name="adminPword" placeholder="Password" required>
+                        </div>
+                            
+                            <label class="pull-right">
+                                <!-- <a href="#">Forgotten Password?</a> -->
+                            </label>
+                        <button name="LogIn" class="btn btn-primary btn-flat m-b-30 m-t-30" style="background: #d34848;">Login</button>
+                        <div class="register-link m-t-15 text-center">
+                            <!-- <p>Don't have account ? <a href="admin_register.php"> Sign Up Here</a></p> -->
+                        </div>
+                    </form>
+                </div>
+                
             </div>
         </div>
     </div>

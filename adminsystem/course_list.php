@@ -15,9 +15,6 @@ if($_SESSION['auth_user']['admin_id']==0){
 }
 
 
-
-
-
 if(ISSET($_POST['add_course'])){
 
     $admin_id = $_SESSION['auth_user']['admin_id'];
@@ -336,23 +333,6 @@ if(department != " "){
 
 
 </script>
-
-
-
-    <!-- Common -->
-    <script src="js/lib/jquery.min.js"></script>
-    <script src="js/lib/jquery.nanoscroller.min.js"></script>
-    <script src="js/lib/menubar/sidebar.js"></script>
-    <script src="js/lib/preloader/pace.min.js"></script>
-    <script src="js/lib/bootstrap.min.js"></script>
-    <script src="js/scripts.js"></script>
-
-
-    <!-- Sweet Alert -->
-    <script src="js/lib/sweetalert/sweetalert.min.js"></script>
-    <script src="js/lib/sweetalert/sweetalert.init.js"></script>
-
-
 <?php 
 if (isset($_SESSION['status']) && $_SESSION['status'] != '') {
 
