@@ -14,7 +14,7 @@ session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 		
-		if(isset($_POST['changePassword'])){
+		if(isset($_POST['changePassword']) && isset($_SESSION['email'])){
 			$email = isset($_POST['email']) ? $_POST['email'] : $_SESSION['email'] ;
 			$npassword = trim($_POST['npassword']);
 			$cnpassword = trim($_POST['cnpassword']);
@@ -34,6 +34,8 @@ ini_set('display_errors', 1);
 				$logs = 'You successfully recover your account.';
 				$sql1 = $db->student_login_log($student_id, $email, $date, $time);
 				
+				session_unset($_SESSION['email']);
+
 				$_SESSION['auth'] = true;
 				$_SESSION['auth_user'] = [
 					'student_id' => $student_id,
@@ -73,6 +75,12 @@ ini_set('display_errors', 1);
 				exit();
 			}
 
+		} else {
+			$_SESSION['alert'] = "Error!";
+            $_SESSION['status'] = "Invalid request";
+            $_SESSION['status-code'] = "error";
+            header("location:../student/login.php");
+            exit();
 		}
 
 ?>

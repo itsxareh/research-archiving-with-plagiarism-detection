@@ -60,11 +60,6 @@ header("location:all_project_list.php");
           <div class="col-sm-12 col-md-8 col-xl-6">
             <div class="log-in-container">
               <form class="form-container" action="../php/student_forgotPassword.php" method="POST">
-                <?php
-                    if(isset($_GET['student_no'])){
-                        $student_no = $_GET['student_no']; 
-                    }
-                ?>
                 <h4>Forgot password</h4>
                 <div class="row">
                   <div class="col-xl-12 col-md-12 col-sm-12">

@@ -9,9 +9,11 @@ if(isset($_SESSION['auth_user']['student_id']))
 header("location:all_project_list.php");
 
 $email = isset($_SESSION['email']) ? $_SESSION['email'] : '';
-if(!isset($email)) {
+if (!isset($_SESSION['email'])){
   header("location: login.php");
   exit();
+} else {
+  $email = $_SESSION['email'];
 }
 ?>
 
@@ -40,7 +42,7 @@ if(!isset($email)) {
           <img src="images/logo2.png">
         </a>
       </div>
-      <div class="nav-side">
+      <!-- <div class="nav-side">
         <div class="search-bar m-r-16">
             <input id="searchInput" name="searchInput" type="text" class="form-control" placeholder="Search...">
             <button class="search-btn" id="search-btn"><i class="ti-search"></i></button>
@@ -48,7 +50,7 @@ if(!isset($email)) {
         <div class="nav-signup">
             <a href="login.php" class="signup-btn">Log in</a>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
   <!-- Index Content -->

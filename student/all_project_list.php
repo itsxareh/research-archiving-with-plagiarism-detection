@@ -10,15 +10,28 @@ ini_set('display_errors', 1);
 
 session_start();
 
-
-// print_r($_SESSION['auth_user']['student_id']);
-
 $searchInput = isset($_GET['searchInput']) ? $_GET['searchInput'] : '';
-if ($searchInput) {
-    $projects = $db->SELECT_FILTERED_ARCHIVE_RESEARCH($searchInput, '', '', '', '', '', '');
+$department = isset($_GET['department']) ? $_GET['department'] : '';
+$course = isset($_GET['course']) ? $_GET['course'] : '';
+$keywords = isset($_GET['keywords']) ? $_GET['keywords'] : '';
+$fromYear = isset($_GET['fromYear']) ? $_GET['fromYear'] : '';
+$toYear = isset($_GET['toYear']) ? $_GET['toYear'] : '';
+$research_date = isset($_GET['research_date']) ? $_GET['research_date'] : '';
+$page = isset($_GET['page']) ? $_GET['page'] : 1;
+$limit = isset($_POST['limit']) ? $_POST['limit'] : 10;
+$offset = ($page - 1) * $limit;
+
+if ($searchInput || $department || $course || $keywords || $fromYear || $toYear || $research_date) {
+    $totalFilteredProjects = $db->COUNT_FILTERED_ARCHIVE_RESEARCH($searchInput, $department, $course, $keywords, $fromYear, $toYear, $research_date);
+    $totalPages = ceil($totalFilteredProjects / $limit);
+
+    $projects = $db->SELECT_FILTERED_ARCHIVE_RESEARCH($searchInput, $department, $course, $keywords, $fromYear, $toYear, $research_date, $limit, $offset);
     $displaySearchInfo = true;
 } else {
-    $projects = $db->SELECT_ALL_ARCHIVE_RESEARCH_WHERE_PUBLISH();
+    $totalProjects = count($db->SELECT_ALL_ARCHIVE_RESEARCH_WHERE_PUBLISH(PHP_INT_MAX, 0));
+    $totalPages = ceil($totalProjects / $limit);
+
+    $projects = $db->SELECT_ALL_ARCHIVE_RESEARCH_WHERE_PUBLISH($limit, $offset);
     $displaySearchInfo = true;
 }
 
@@ -162,10 +175,13 @@ require_once 'templates/student_navbar.php';
                             <option value="">All</option>
                             <?php 
                                 $res = $db->showDepartments_WHERE_ACTIVE();
-
+                                
                                 foreach ($res as $item) {
-                                echo '<option value="'.$item['id'].'">'.$item['name'].'</option>';
-                                }
+                                    if (isset($department)=== $item['id']){
+                                        echo '<option value="'.$item['id'].' selected ">'.$item['name'].'</option>';
+                                    }
+                                    echo '<option value="'.$item['id'].'">'.$item['name'].'</option>';
+                                } 
                             ?>
                             
                             </select>
@@ -208,18 +224,17 @@ require_once 'templates/student_navbar.php';
                         </div>
                         <div class="mb-3">
                             <label class="item-meta" for="keywords">Keywords</label>
-                            <input id="keywords" name="keywords" class="form-control-keyword" required> 
+                            <input id="keywords" name="keywords" class="form-control-keyword" value="" required> 
                             </input>    
                         </div>
                     </div>
                 </div>
-                <div class="col-md-9">
-                    <?php if ($displaySearchInfo): ?>
+                <div class="col-md-9 project-list-container">
                         <div id="data-result" style="display: none;">
+                        <?php if ($displaySearchInfo): ?>
                             <p><span id="resultNumber"><?= count($projects) ?></span> results for "<span id="inputSearch"><?= htmlspecialchars($searchInput) ?></span>"</span></p>
                         </div>
                     <?php endif; ?>
-                    
                     <ul id="search-result">
                         <?php $i=1; foreach ($projects as $result): ?>
                             <li class="item" style="--i: <?=$i?>;">
@@ -250,6 +265,13 @@ require_once 'templates/student_navbar.php';
                                 </div>
                             </li>
                         <?php $i++; endforeach; ?>
+                        <div class="pagination-container">
+                            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                                <a class="pagination" onclick="filteredData(<?= $i ?>)" href="?page=<?= $i ?>"
+                                <?= $i == $page ? 'id="active"' : '' ?>><?= $i ?></a>
+                            <?php endfor; ?>
+                        </div>
+                    
                     </ul>
                 </div>
             </section>
@@ -261,6 +283,9 @@ require_once 'templates/student_navbar.php';
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
 <script src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
 <script>
+    window.onpopstate = function(event) {
+        filteredData();
+    };
     $(".abstract-title").click(function(event){
         event.preventDefault();
         $(this).closest(".item-abstract").find(".abstract-group").slideToggle(200);
@@ -276,55 +301,78 @@ require_once 'templates/student_navbar.php';
         }
     });
 
+    function getURLParameter(name) {
+        return new URLSearchParams(window.location.search).get(name);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // Get parameters from the URL
+        const searchInput = getURLParameter('searchInput');
+        const researchDate = getURLParameter('research_date');
+        const department = getURLParameter('department');
+        const course = getURLParameter('department_course');
+        const fromYear = getURLParameter('fromYear');
+        const toYear = getURLParameter('toYear');
+        const keywords = getURLParameter('keywords');
+
+        // Set the values of inputs or selects based on the URL parameters
+        if (searchInput) document.getElementById('searchInput').value = searchInput;
+        if (researchDate) document.getElementById('research_date').value = researchDate;
+        if (department) document.getElementById('inputDepartment_search').value = department;
+        if (course) document.getElementById('department_course').value = course;
+        if (fromYear) document.getElementById('fromYear').value = fromYear;
+        if (toYear) document.getElementById('toYear').value = toYear;
+        if (keywords) document.getElementById('keywords').value = keywords;
+    });
     function getKeywords() {
         return tagify.value.map(tag => tag.value).join(',');
     }
 
-    function filteredData(){
-        var department = $('#inputDepartment_search').val();
-        var fromYear = $('#fromYear').val();
-        var toYear = $('#toYear').val();
-        var research_date = $('#research_date').val();
-        var searchInput = $('#searchInput').val();
-        var course = $('#department_course').val();
-        var keywords = getKeywords();
-        console.log(research_date);
-        $.ajax({
-            url: 'fetch_filtered_projects.php',
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                searchInput: searchInput,
-                department: department,
-                course: course,
-                keywords: keywords,
-                fromYear: fromYear,
-                toYear: toYear,
-                research_date: research_date
-            },
-            success: function(response){
-                console.log(response);  
-                $('#search-result').html(response.html);
-                $('#resultNumber').text(response.count);
+    function filteredData() {
+    var department = $('#inputDepartment_search').val();
+    var fromYear = $('#fromYear').val();
+    var toYear = $('#toYear').val();
+    var research_date = $('#research_date').val();
+    var searchInput = $('#searchInput').val();
+    var course = $('#department_course').val();
+    var keywords = getKeywords();
+    var page = <?= isset($_GET['page']) ? $_GET['page'] : 1 ?>;
+    var limit = <?= isset($limit) ? $limit : 10 ?>;
 
-                if (searchInput.length > 0 && response.count > 0 || searchInput.length > 0){
-                    $('#data-result').show();
-                } else {
-                    $('#data-result').hide();
-                }
-            },
-            error: function(xhr, status, error){
-                console.log(xhr);
-                console.log(status);
-                console.log(error);
+    $.ajax({
+        url: 'fetch_filtered_projects.php',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            searchInput: searchInput,
+            department: department,
+            course: course,
+            keywords: keywords,
+            fromYear: fromYear,
+            toYear: toYear,
+            research_date: research_date,
+            page: page,
+            limit: limit
+        },
+        success: function(response) {
+            $('#search-result').html(response.html);
+            $('#resultNumber').text(response.totalFilteredCount); 
+
+            if (searchInput.length > 0 && response.count > 0 || searchInput.length > 0) {
+                $('#data-result').show();
+            } else {
+                $('#data-result').hide();
             }
-        });
-    }
+        },
+        error: function(xhr, status, error) {
+            console.log(xhr, status, error);
+        }
+    });
+}
     tagify.on('add', filteredData);
     tagify.on('remove', filteredData);
     $('#department_course, #research_date, #fromYear, #toYear').change(filteredData);
     $('#searchInput').on('keyup', function() {
-        console.log($(this).val);
         if ($(this).val().length > 0) { 
             filteredData();
         } else {
@@ -337,7 +385,6 @@ require_once 'templates/student_navbar.php';
     $("#inputDepartment_search").change(function(){
     var department = $(this).val();
     filteredData();
-    console.log(department); 
     if(department != " "){
             $.ajax({
                 url:"show_course.php",
@@ -348,7 +395,6 @@ require_once 'templates/student_navbar.php';
 
                 },
                 success:function(data){
-                console.log(data);
                 if (data.trim() !== ""){
                     $("#department_course").html(data);
                     $("#department_course").css("display","block");

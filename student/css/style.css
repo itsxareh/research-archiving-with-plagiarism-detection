@@ -1009,6 +1009,26 @@ option {
 .project-work:hover {
   text-decoration: underline;
 }
+.pagination-container {
+  text-align: center;
+}
+.pagination-container > .pagination {
+  display: inline-block;
+  margin-left: 1rem;
+  padding: 1rem;
+  font-size: 10px;
+  background-color: transparent;
+  color: #000;
+  border-radius: 5px;
+  border: #ccc solid 1px;
+}
+.pagination-container > :first-child{
+  margin-left: 0;
+}
+.pagination-container > #active, .pagination-container > .pagination:hover  {
+  background-color: #9b9b9b;
+  color: #ffffff;
+}
 .title-system {
   font-size: 18px;
   font-weight: 400;
@@ -1283,7 +1303,7 @@ option {
 }
 
 #search-result:hover > :not(:hover) {
-  opacity: 0.6;
+  opacity: 0.75;
 }
 
 #search-result .item {

@@ -43,7 +43,7 @@ if (!isset($_SESSION['email'])){
           <img src="images/logo2.png">
         </a>
       </div>
-      <div class="nav-side">
+      <!-- <div class="nav-side">
         <div class="search-bar m-r-16">
             <input id="searchInput" name="searchInput" type="text" class="form-control" placeholder="Search...">
             <button class="search-btn" id="search-btn"><i class="ti-search"></i></button>
@@ -51,7 +51,7 @@ if (!isset($_SESSION['email'])){
         <div class="nav-signup">
             <a href="login.php" class="signup-btn">Log in</a>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
   <!-- Index Content -->

@@ -380,16 +380,24 @@ $stmt->execute([$department, $from_date, $to_date]);
   return $result;
 }
 
-public function SELECT_ALL_ARCHIVE_RESEARCH_WHERE_PUBLISH(){
+public function SELECT_ALL_ARCHIVE_RESEARCH_WHERE_PUBLISH($limit, $offset) {
   $connection = $this->getConnection();
   $status = 'Accepted';
 
   $stmt = $connection->prepare("SELECT *, archive_research.id AS archiveID,
-(SELECT COUNT(id) FROM archive_research_views WHERE archive_research_views.archive_research_id = archive_research.archive_id) AS view_count
-	FROM archive_research 
-  LEFT JOIN departments ON departments.id = archive_research.department_id
-  LEFT JOIN course ON course.id = archive_research.course_id WHERE archive_research.document_status = ? ORDER BY view_count DESC");
-  $stmt->execute([$status]);
+    (SELECT COUNT(id) FROM archive_research_views WHERE archive_research_views.archive_research_id = archive_research.archive_id) AS view_count
+    FROM archive_research 
+    LEFT JOIN departments ON departments.id = archive_research.department_id
+    LEFT JOIN course ON course.id = archive_research.course_id 
+    WHERE archive_research.document_status = :status 
+    ORDER BY view_count DESC 
+    LIMIT :limit OFFSET :offset");
+
+  $stmt->bindParam(':status', $status, PDO::PARAM_STR);
+  $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+  $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+
+  $stmt->execute();
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   return $result;
@@ -1277,13 +1285,10 @@ public function SELECT_ALL_STUDENT_ARCHIVE_RESEARCH($student_email){
 
   return $result;
 }
-
-public function SELECT_FILTERED_ARCHIVE_RESEARCH($searchInput, $department, $course, $keywords, $fromYear, $toYear, $research_date){
+public function COUNT_FILTERED_ARCHIVE_RESEARCH($searchInput, $department, $course, $keywords, $fromYear, $toYear, $research_date) {
   $connection = $this->getConnection();
-  $query = 'SELECT *, archive_research.id AS archiveID FROM archive_research 
-  LEFT JOIN departments ON departments.id = archive_research.department_id
-  LEFT JOIN course ON course.id = archive_research.course_id WHERE 1=1 AND document_status = "Accepted"';
-
+  $query = "SELECT COUNT(*) as total FROM archive_research WHERE document_status = 'Accepted'";
+  
   if (!empty($searchInput)) {
     $query .= " AND (project_title LIKE :searchInput OR project_abstract LIKE :searchInput OR archive_id LIKE :searchInput)";
   }
@@ -1340,6 +1345,82 @@ public function SELECT_FILTERED_ARCHIVE_RESEARCH($searchInput, $department, $cou
       $stmt->bindValue(':toYear', $toYear, PDO::PARAM_INT);
   }
 
+  $stmt->execute();
+  $row = $stmt->fetch(PDO::FETCH_ASSOC);
+  return $row['total'];
+}
+public function SELECT_FILTERED_ARCHIVE_RESEARCH($searchInput, $department, $course, $keywords, $fromYear, $toYear, $research_date, $limit, $offset){
+  $connection = $this->getConnection();
+  $query = 'SELECT *, archive_research.id AS archiveID FROM archive_research 
+  LEFT JOIN departments ON departments.id = archive_research.department_id
+  LEFT JOIN course ON course.id = archive_research.course_id WHERE 1=1 AND document_status = "Accepted"';
+
+  if (!empty($searchInput)) {
+    $query .= " AND (project_title LIKE :searchInput OR project_abstract LIKE :searchInput OR archive_id LIKE :searchInput)";
+  }
+  if (!empty($department)) {
+      $query .= " AND archive_research.department_id = :department";
+  }
+  if (!empty($course)) {
+    $query .= " AND archive_research.course_id = :course";
+  }
+  if (!empty($keywords)) {
+    $keywordArray = array_map('trim', explode(',', $keywords));
+    $keywordConditions = [];
+
+    foreach ($keywordArray as $index => $keyword) {
+        $param = ":keyword" . $index;
+        $keywordConditions[] = "archive_research.keywords LIKE $param";
+    }
+
+    $query .= " AND (" . implode(" OR ", $keywordConditions) . ")";
+  }
+  if (!empty($fromYear)) {
+      $query .= " AND YEAR(date_published) >= :fromYear";
+  }
+  if (!empty($toYear)) {
+      $query .= " AND YEAR(date_published) <= :toYear";
+  }
+  if (!empty($research_date)) {
+    $orderDirection = $research_date === 'newest' ? 'DESC' : 'ASC';
+    $query .= " ORDER BY date_published " . $orderDirection;
+  }
+  if (!empty($limit)) {
+    $query .= " LIMIT :limit";
+  }
+  if (!empty($offset)) {
+    $query .= " OFFSET :offset";
+  }
+  
+  $stmt = $connection->prepare($query);
+
+  if (!empty($searchInput)) {
+      $stmt->bindValue(':searchInput', '%' . $searchInput . '%', PDO::PARAM_STR);
+  }
+  if (!empty($department)) {
+      $stmt->bindValue(':department', $department, PDO::PARAM_STR);
+  }
+  if (!empty($course)) {
+    $stmt->bindValue(':course', $course, PDO::PARAM_STR);
+  }
+  if (!empty($keywords)) {
+    foreach ($keywordArray as $index => $keyword) {
+        $param = ":keyword" . $index;
+        $stmt->bindValue($param, '%' . trim($keyword) . '%', PDO::PARAM_STR);
+    }
+  }
+  if (!empty($fromYear)) {
+      $stmt->bindValue(':fromYear', $fromYear, PDO::PARAM_INT);
+  }
+  if (!empty($toYear)) {
+      $stmt->bindValue(':toYear', $toYear, PDO::PARAM_INT);
+  }
+  if (!empty($limit)) {
+    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+  }
+  if (!empty($offset)) {
+      $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+  }
   $stmt->execute();
 
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);

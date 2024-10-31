@@ -7,9 +7,9 @@ error_reporting(0);
 
 session_start();
 
-if(ISSET($_POST['recover'])){
+if(ISSET($_POST['recover']) && isset($_SESSION['email'])){
     $otp_num = trim($_POST['code']);
-    $email = $_POST['email'];
+    $email = $_SESSION['email'];
 
     $user = $db->student_profile_by_email($email);
 
@@ -23,6 +23,12 @@ if(ISSET($_POST['recover'])){
         exit();
     }
 
+} else {
+    $_SESSION['alert'] = "Error!";
+    $_SESSION['status'] = "Invalid request";
+    $_SESSION['status-code'] = "error";
+    header("location:../student/login.php");
+    exit();
 }
 
 ?>
