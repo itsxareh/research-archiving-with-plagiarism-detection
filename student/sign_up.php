@@ -66,7 +66,8 @@ session_start();
                   <div class="col-sm-12 col-md-4 col-xl-4">
                     <div class="form-input">
                       <label for="snumber">Student No.</label>
-                      <input type="text" name="snumber" id="snumber" required>
+                      <input type="text" name="snumber" id="snumber" minlength="10" maxlength="10" required>
+                      <span id="snumber-error" class="error-message" style="color: #a33333;"></span>
                     </div>
                   </div>
                 </div>
@@ -74,13 +75,15 @@ session_start();
                   <div class="col-sm-6 col-md-6 col-xl-6">
                     <div class="form-input">
                       <label for="firstname">First name</label>
-                      <input type="text" name="firstname" id="firstname" required>
+                      <input type="name" name="firstname" id="firstname" required>
+                      <span id="firstname-error" class="error-message" style="color: #a33333;"></span>
                     </div>
                   </div>
                   <div class="col-sm-6 col-md-6 col-xl-6">
                     <div class="form-input">
                       <label for="lastname">Last name</label>
-                      <input type="text" name="lastname" id="lastname" required>
+                      <input type="name" name="lastname" id="lastname" required>
+                      <span id="lastname-error" class="error-message" style="color: #a33333;"></span>
                     </div>
                   </div>
                 </div>
@@ -89,13 +92,14 @@ session_start();
                     <div class="form-input">
                       <label for="email">Email</label>
                       <input type="email" name="email" id="email" required>
+                      <span id="email-error" class="error-message" style="color: #a33333;"></span>
                     </div>
                   </div>
                   <div class="col-sm-12 col-md-6 col-xl-6">
                     <div class="form-input">
                       <label for="pnumber">Phone Number</label>
                       <input type="number" name="pnumber" id="pnumber" required>
-                      
+                      <span id="pnumber-error" class="error-message" style="color: #a33333;"></span>
                     </div>
                   </div>
                 </div>
@@ -103,7 +107,7 @@ session_start();
                 <div class="col-sm-12 col-md-6 col-xl-6">
                     <div class="form-input">
                       <label for="department">Department</label>
-                      <select name="department" id="department">
+                      <select name="department" id="department" required>
                         <option value=""></option>
                       <?php 
                         $res = $db->showDepartments_WHERE_ACTIVE();
@@ -118,7 +122,7 @@ session_start();
                   <div class="col-sm-12 col-md-6 col-xl-6">
                     <div class="form-input">
                       <label for="course">Course</label>
-                      <select name="course" id="course">
+                      <select name="course" id="course" required>
                         <option value=""></option>
                       </select>
                     </div>
@@ -128,16 +132,18 @@ session_start();
                   <div class="col-sm-12 col-md-6 col-xl-6">
                     <div class="form-input">
                       <label for="password">Password</label>
-                      <input type="password" name="password" id="password" required>
-                      <span class="m-t-2">Use 8 or more characters with a mix of letters, numbers, & symbols</span>
+                      <input type="password" name="password" id="password" minlength="8" required>
+                      <span  id="password-error" class="error-message m-t-2">Use 8 or more characters with a mix of letters, numbers, & symbols</span>
                     </div>
                   </div>
                 </div>
                 <div class="row mt-4">
                   <div class="col-xl-12 col-md-12 col-sm-12">
-                    <div class="flex align-items-center">
-                      <button type="submit" name="sign-up" class="sign-up-btn">Sign up</button>
-                      <p class="m-0 ml-4">Already have an account? <a class="login-link" href="login.php">Log in</a></p>
+                    <div class="form-input">
+                      <div class="flex align-items-center">
+                        <button type="submit" name="sign-up" class="sign-up-btn">Sign up</button>
+                        <p class="m-0 ml-4">Already have an account? <a class="login-link" href="login.php">Log in</a></p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -150,6 +156,65 @@ session_start();
   </main>
 
 <script>
+document.getElementById("snumber").addEventListener("input", validateStudentNo);
+
+function validateStudentNo() {
+  const studentNo = document.getElementById("snumber").value;
+  const errorMessage = document.getElementById("snumber-error");
+
+  errorMessage.textContent = "";
+
+  fetch("../php/checkStudentNo.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `snumber=${encodeURIComponent(studentNo)}`
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log(data);
+    if (data.exists === true) {
+      $('#snumber').css('background-image', 'url("../images/close.png")');
+      if (data.message !== null) {
+        errorMessage.textContent = data.message;
+      }
+    } else {
+      $('#snumber').css('background-image', 'url("../images/checked.png")');
+      errorMessage.textContent = "";
+    }
+  })
+  .catch(error => console.error("Error:", error));
+}
+document.getElementById("password").addEventListener("input", validatePassword);
+
+function validatePassword() {
+  const password = document.getElementById("password").value;
+  const errorMessage = document.getElementById("password-error");
+
+  errorMessage.textContent = "";
+
+  fetch("../php/checkStudentPassword.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `password=${encodeURIComponent(password)}`
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log(data);
+    if (data.valid === false) {
+      $('#password').css('background-image', 'url("../images/close.png")');
+      if (data.message !== null) {
+        errorMessage.textContent = data.message;
+      }
+    } else {
+      $('#password').css('background-image', 'url("../images/checked.png")');
+      errorMessage.textContent = "";
+    }
+  })
+  .catch(error => console.error("Error:", error));
+}
+
+
+
   const searchInput = document.getElementById("searchInput");
   const searchButton = document.getElementById("search-btn");
 

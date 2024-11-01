@@ -32,8 +32,22 @@ if (isset($_POST['sign-up'])) {
     $uniqueId = uniqid() . mt_rand(1000, 9999);
     $imagePath = '../imageFiles/default-profile.png';
 
-
-
+    $snumberPattern = '/^\d{3}-\d{5}[A-Za-z]$/';
+    $passwordPattern = '/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/';
+    if (!preg_match($snumberPattern, $_POST['snumber'])) {
+        $_SESSION['alert'] = "Oppss...";
+        $_SESSION['status'] = "Invalid student number.";
+        $_SESSION['status-code'] = "error";
+        header("location: ../student/sign_up.php");
+        exit();
+    }
+    if (!preg_match($passwordPattern, $pword)) {
+        $_SESSION['alert'] = "Oppss...";
+        $_SESSION['status'] = "Password must be at least 8 characters long and include a mix of letters, numbers, & symbols.";
+        $_SESSION['status-code'] = "error";
+        header("location: ../student/sign_up.php");
+        exit();
+    }
     $user = $db->student_register_select_email($email);
 
     if ($user) {

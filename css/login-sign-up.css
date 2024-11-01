@@ -136,6 +136,26 @@ main {
 .form-input span {
     font-size: 11px;
 }
+.form-input:focus-within input:invalid, .form-input:focus-within select:invalid {
+    border-color: #a33333;
+    background-image: url('../images/close.png');
+}
+.form-input input:valid {
+    background-image: url('../images/checked.png');
+}
+.form-input input:valid, .form-input input:invalid {
+    background-size: 12.5px;
+    background-repeat: no-repeat;
+    background-position: calc(100% - 10px);
+}
+.form-input select:valid, .form-input select:invalid {
+    background-size: 12.5px;
+    background-repeat: no-repeat;
+    background-position: calc(100% - 20px);
+}
+.form-input input:invalid span {
+    color: #a20e0e;
+}
 .form-input input, .form-input select {
     width: 100%;
     border-radius: .575rem;
