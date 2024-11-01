@@ -184,6 +184,34 @@ function validateStudentNo() {
   })
   .catch(error => console.error("Error:", error));
 }
+document.getElementById("email").addEventListener("input", validateEmailAddress);
+
+function validateEmailAddress() {
+  const emailNo = document.getElementById("email").value;
+  const errorMessage = document.getElementById("email-error");
+
+  errorMessage.textContent = "";
+
+  fetch("../php/checkEmailAddress.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `email=${encodeURIComponent(emailNo)}`
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log(data);
+    if (data.exists === true) {
+      $('#email').css('background-image', 'url("../images/close.png")');
+      if (data.message !== null) {
+        errorMessage.textContent = "Email address already in use.";
+      }
+    } else {
+      $('#email').css('background-image', 'url("../images/checked.png")');
+      errorMessage.textContent = "";
+    }
+  })
+  .catch(error => console.error("Error:", error));
+}
 document.getElementById("password").addEventListener("input", validatePassword);
 
 function validatePassword() {
