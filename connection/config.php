@@ -930,7 +930,7 @@ return $result;
 public function student_profile($student_id) {
   $connection = $this->getConnection();
 
-  $stmt = $connection->prepare("SELECT * FROM students_data 
+  $stmt = $connection->prepare("SELECT *, students_data.id as aid FROM students_data 
   LEFT JOIN departments ON departments.id = students_data.department_id 
   LEFT JOIN course ON course.id = students_data.course_id WHERE students_data.id = ? ");
 	$stmt->execute([$student_id]);
@@ -943,7 +943,7 @@ public function student_profile($student_id) {
 public function student_profile_by_sno($student_no) {
   $connection = $this->getConnection();
 
-  $stmt = $connection->prepare("SELECT * FROM students_data 
+  $stmt = $connection->prepare("SELECT *, students_data.id as aid FROM students_data 
   LEFT JOIN departments ON departments.id = students_data.department_id 
   LEFT JOIN course ON course.id = students_data.course_id WHERE students_data.student_id = ? ");
 	$stmt->execute([$student_no]);
@@ -1213,8 +1213,8 @@ public function student_Insert_NOTIFICATION($student_id, $logs, $date, $time) {
   $connection = $this->getConnection();
 
   $sql = $connection->prepare("INSERT INTO system_notification(student_id, logs, logs_date, logs_time) VALUES (?, ?, ?, ?)");
-  $sql->execute([$student_id, $logs, $date, $time]);
-
+  $success = $sql->execute([$student_id, $logs, $date, $time]);
+  return $success;
 }
 
 

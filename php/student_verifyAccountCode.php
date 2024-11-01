@@ -24,7 +24,7 @@ if(ISSET($_POST['verify'])){
 
         $_SESSION['auth'] = true;
         $_SESSION['auth_user'] = [
-            'student_id' => $user['id'],
+            'student_id' => $user['aid'],
             'student_email' => $user['student_email'],
             'department_id' => $user['department_id'],
             'course_id' => $user['course_id'],
@@ -38,7 +38,7 @@ if(ISSET($_POST['verify'])){
         }
     } else {
         $_SESSION['alert'] = "Error!";
-        $_SESSION['status'] = "Wrong Verification Number";
+        $_SESSION['status'] = "Invalid Verification Code";
         $_SESSION['status-code'] = "error"; 
         header("location: ../student/student_verify_account.php?student_no=$student_id");
     }

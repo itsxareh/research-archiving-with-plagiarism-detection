@@ -19,6 +19,7 @@ if (isset($_SESSION['auth_user']['student_id'])){
         </div>
     </div>';
 }
+// print_r(isset($_SESSION['auth_user']['student_id']));
 ?>
     <!-- /# sidebar -->
 
@@ -108,7 +109,7 @@ if (isset($_SESSION['auth_user']['student_id'])){
                                 if(isset($_SESSION['auth_user']['student_id'])) {
                                     $student_id = $_SESSION['auth_user']['student_id'];
 
-
+                                    
                                     $result = $db->student_profile($student_id);
 
                                 }   

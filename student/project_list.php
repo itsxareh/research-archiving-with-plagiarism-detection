@@ -14,11 +14,13 @@ if($_SESSION['auth_user']['student_id']==0){
 }
 
 $searchInput = isset($_GET['searchInput']) ? $_GET['searchInput'] : '';
+$student_email = isset($_SESSION['auth_user']['student_email']) ? $_SESSION['auth_user']['student_email'] : '';
+
 if ($searchInput) {
-    $projects = $db->SELECT_OWNED_ARCHIVE_RESEARCH($_SESSION['auth_user']['student_email'], $searchInput, '', '', '', '');
+    $projects = $db->SELECT_OWNED_ARCHIVE_RESEARCH($student_email, $searchInput, '', '', '', '');
     $displaySearchInfo = true;
 } else {
-    $projects = $db->SELECT_ALL_ARCHIVE_RESEARCH_WHERE_PUBLISH();
+    $projects = $db->SELECT_ALL_STUDENT_ARCHIVE_RESEARCH($student_email);
     $displaySearchInfo = true;
 }
 
@@ -298,7 +300,8 @@ require_once 'templates/student_navbar.php';
                         
                         $data = $db->SELECT_ALL_STUDENT_ARCHIVE_RESEARCH($student_email);
                         $i = 1;
-                        foreach ($data as $result) {
+                        if (count($data) > 0) {
+                            foreach ($data as $result) {
                     ?>
                         <li class="project-list item" style="--i: <?=$i; $i++;?>;">
                             <div class="item-body">
@@ -350,6 +353,9 @@ require_once 'templates/student_navbar.php';
                             </div>
                         </li>
                     <?php
+                        }
+                    } else {
+                        echo "<p style='text-align: center'>No uploaded research found.</p>";
                     }
                     ?>
                     </ul>

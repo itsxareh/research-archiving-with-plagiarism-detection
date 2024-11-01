@@ -11,36 +11,26 @@ if (isset($_POST['updateInfo'])) {
     $department = $_POST['department'];
     $course = $_POST['department_course'];
 
-    // Fetch the current data from the database
     $currentData = $db->student_profile($student_id);
 
-    // Check if the form data is different from the current data
     if ($fname !== $currentData['first_name'] ||
         $mname !== $currentData['middle_name'] ||
-        $lname !== $currentData['last_name']) {
+        $lname !== $currentData['last_name'] || 
+        $department !== $currentData['department_id'] ||
+        $course !== $currentData['course_id']) {
 
-        // Prepare and execute the SQL update query
         $stmt = $db->UPDATE_student_info_onSETTINGS($fname, $mname, $lname, $department, $course, $student_id);
 
-        // Check if the update was successful
         if ($stmt) {
-          date_default_timezone_set('Asia/Manila');
-          $date = date('F / d l / Y');
-          $time = date('g:i A');
-          $logs = 'You successfully updated your information.';
-
-          $sql2 = $db->student_Insert_NOTIFICATION($student_id, $logs, $date, $time);
-
             $_SESSION['alert'] = "Success";
-            $_SESSION['status'] = "Update Success";
+            $_SESSION['status'] = "Profile updated";
             $_SESSION['status-code'] = "success";
         } else {
             $_SESSION['alert'] = "Error";
-            $_SESSION['status'] = "Update Failed";
+            $_SESSION['status'] = "Update failed";
             $_SESSION['status-code'] = "error";
         }
     } else {
-        // Values have not changed
         $_SESSION['alert'] = "Info";
         $_SESSION['status'] = "Nothing has changed.";
         $_SESSION['status-code'] = "info";
@@ -126,7 +116,7 @@ if (isset($_FILES['img_student'])) {
         </div>
     </div>
     <div class="edit-info-details" style="display: none;">
-        <form action="" method="POST">
+        <form id="update-form" action="" method="POST">
             <div class="close-right">
                 <button class="close-button info-label">Close <span><i class="ti-close m-l-4"></i></span></button>
             </div>
@@ -162,7 +152,17 @@ if (isset($_FILES['img_student'])) {
                 </div>
                 <div class="item-detail">
                     <label class="info-label" for="course">Course:</label>
-                    <select id="department_course" name="department_course" class="selectpicker form-control" required> 
+                    <select id="department_course" name="department_course" class="selectpicker form-control" required>
+                        <?php 
+                            $res = $db->showCourse_WHERE_ACTIVE($data['department_id']);
+                            foreach ($res as $item) {
+                                if ($item['id'] == $data['course_id']) {
+                                    echo '<option value="' .$item['id'].'" selected>'.$item['course_name'].'</option>';
+                                } else {
+                                    echo '<option value="' .$item['id'].'" >'.$item['course_name'].'</option>';
+                                }
+                            }
+                        ?>
                     </select>
                 </div>
             </div>
@@ -188,8 +188,8 @@ if (isset($_FILES['img_student'])) {
 
 
 
-
 <script>
+
     $("#inputDepartment").change(function(){
     var department = $(this).val();
 
@@ -252,8 +252,8 @@ if (isset($_FILES['img_student'])) {
     <script src="js/lib/menubar/sidebar.js"></script>
     <script src="js/lib/preloader/pace.min.js"></script>
     <script src="js/lib/bootstrap.min.js"></script>
-    <script src="js/scripts.js"></script>
 -->
+    <!-- <script src="js/scripts.js"></script> -->
     <script src="js/lib/sweetalert/sweetalert.min.js"></script>
     <script src="js/lib/sweetalert/sweetalert.init.js"></script> 
 

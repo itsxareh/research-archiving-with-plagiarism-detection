@@ -171,7 +171,7 @@ require_once 'templates/student_navbar.php';
                         </div>
                         <div class="mb-3">
                             <label for="" class="item-meta">Select Department</label>
-                            <select id="inputDepartment_search" name="department" class="selectpicker form-control item-meta" required>
+                            <select id="inputDepartment_search" name="department" class="selectpicker form-control item-meta" onchange="filteredData()" required>
                             <option value="">All</option>
                             <?php 
                                 $res = $db->showDepartments_WHERE_ACTIVE();
@@ -230,10 +230,10 @@ require_once 'templates/student_navbar.php';
                     </div>
                 </div>
                 <div class="col-md-9 project-list-container">
-                        <div id="data-result" style="display: none;">
-                        <?php if ($displaySearchInfo): ?>
-                            <p><span id="resultNumber"><?= count($projects) ?></span> results for "<span id="inputSearch"><?= htmlspecialchars($searchInput) ?></span>"</span></p>
-                        </div>
+                    <div id="data-result" style="display: none;">
+                    <?php if ($displaySearchInfo): ?>
+                        <p><span id="resultNumber"></span> results found <span id="inputSearch" style="display: none; font-weight:400"></span></p>
+                    </div>
                     <?php endif; ?>
                     <ul id="search-result">
                         <?php $i=1; foreach ($projects as $result): ?>
@@ -266,18 +266,34 @@ require_once 'templates/student_navbar.php';
                             </li>
                         <?php $i++; endforeach; ?>
                         <div class="pagination-container">
-                            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                                <a class="pagination" onclick="filteredData(<?= $i ?>)" href="?page=<?= $i ?>"
+                            <?php
+                                $params = [
+                                    'department' => isset($_GET['department']) ? $_GET['department'] : '',
+                                    'fromYear' => isset($_GET['fromYear']) ? $_GET['fromYear'] : '',
+                                    'toYear' => isset($_GET['toYear']) ? $_GET['toYear'] : '',
+                                    'research_date' => isset($_GET['research_date']) ? $_GET['research_date'] : '',
+                                    'searchInput' => isset($_GET['searchInput']) ? $_GET['searchInput'] : '',
+                                    'course' => isset($_GET['course']) ? $_GET['course'] : '',
+                                    'keywords' => isset($_GET['keywords']) ? $_GET['keywords'] : ''
+                                ];
+
+                                // Filter out empty parameters
+                                $queryString = http_build_query(array_filter($params));
+
+                                for ($i = 1; $i <= $totalPages; $i++):
+                                    $pageUrl = "?page=$i" . ($queryString ? "&$queryString" : '');
+                            ?>
+                                <a class="pagination" onclick="filteredData()" href="<?= $pageUrl ?>"
                                 <?= $i == $page ? 'id="active"' : '' ?>><?= $i ?></a>
                             <?php endfor; ?>
                         </div>
-                    
                     </ul>
                 </div>
             </section>
         </div>
     </div>
 </div>
+
 
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
@@ -329,15 +345,16 @@ require_once 'templates/student_navbar.php';
     }
 
     function filteredData() {
-    var department = $('#inputDepartment_search').val();
-    var fromYear = $('#fromYear').val();
-    var toYear = $('#toYear').val();
-    var research_date = $('#research_date').val();
-    var searchInput = $('#searchInput').val();
-    var course = $('#department_course').val();
-    var keywords = getKeywords();
-    var page = <?= isset($_GET['page']) ? $_GET['page'] : 1 ?>;
-    var limit = <?= isset($limit) ? $limit : 10 ?>;
+        var department =  $('#inputDepartment_search').val();
+        var fromYear =  $('#fromYear').val();
+        var toYear =  $('#toYear').val();
+        var research_date =  $('#research_date').val();
+        var searchInput =  $('#searchInput').val();
+        var course = $('#department_course').val();
+        var keywords = getKeywords();  // Assuming getKeywords() is defined elsewhere and returns a value
+        var page = <?= isset($_GET['page']) ? $_GET['page'] : 1 ?>;
+        var limit = <?= isset($limit) ? $limit : 10 ?>;
+
 
     $.ajax({
         url: 'fetch_filtered_projects.php',
@@ -357,8 +374,15 @@ require_once 'templates/student_navbar.php';
         success: function(response) {
             $('#search-result').html(response.html);
             $('#resultNumber').text(response.totalFilteredCount); 
-
-            if (searchInput.length > 0 && response.count > 0 || searchInput.length > 0) {
+            console.log(response.totalFilteredCount + ' ' + searchInput );
+            if (searchInput.length > 0) {
+                $('#inputSearch').show();
+                $('#inputSearch').html('for "<strong>'+searchInput+'</strong>"');
+            } else {
+                $('#inputSearch').hide();
+            }
+            if (response.count > 0 || searchInput.length > 0) {
+                $('#resultNumber').html(response.totalFilteredCount);
                 $('#data-result').show();
             } else {
                 $('#data-result').hide();
@@ -371,6 +395,7 @@ require_once 'templates/student_navbar.php';
 }
     tagify.on('add', filteredData);
     tagify.on('remove', filteredData);
+
     $('#department_course, #research_date, #fromYear, #toYear').change(filteredData);
     $('#searchInput').on('keyup', function() {
         if ($(this).val().length > 0) { 

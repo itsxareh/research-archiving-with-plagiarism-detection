@@ -79,7 +79,7 @@ foreach ($resp as $row) {
     echo '<div class="pagination-container">';
     for ($i = 1; $i <= $totalPages; $i++) {
         $pageLink = '?page=' . $i . ($queryString ? '&' . $queryString : '');
-        echo "<a class='pagination' onclick='filteredData($i)' href='$pageLink'" 
+        echo "<a class='pagination' onclick='filteredData()' href='$pageLink'" 
             . ($i == $page ? ' id="active"' : '') . ">$i</a>";
     }
     echo '</div>';
