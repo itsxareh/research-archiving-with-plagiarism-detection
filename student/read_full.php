@@ -103,7 +103,7 @@ require_once 'templates/student_navbar.php';
             <p class="detail-font"><?php echo $data['project_members']; ?></p>
             <?php if (!empty($data['date_published'])) {
               $first_published = DateTime::createFromFormat("Y-m-d", $data['date_published'])->format("d F Y");
-              echo '<p class="detail-font">Published: '.$first_published.' | Archive ID: '. $data['archive_id'] .'<span class="float-right"><i class="ti-eye m-r-4 "></i>'.$data['view_count'].'</span></p>'; 
+              echo '<p class="detail-font">Published: '.$first_published.' | Archive ID: '. $data['archive_id'] .'</p>'; 
               } else {
                 echo '<p class="detail-font">Not yet published | Archive ID: '. $data['archive_id'] .'</p>';
               }

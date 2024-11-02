@@ -59,23 +59,28 @@ if (!isset($_SESSION['email'])){
     <div class="content-wrapper h-100">
       <div class="col-xl-12 col-md-12-col sm-12">
         <div class="row p-4">
-          <div class="col-sm-12 col-md-4 col-xl-6">
+          <div class="col-sm-12 col-md-6 col-xl-6">
               <div class="intro">
                 <h2>Archive with Ease</h2>
                 <p>Access a full of research resources and manage your work efficiently.</p>
               </div>
           </div>
-          <div class="col-sm-12 col-md-8 col-xl-6">
+          <div class="col-sm-12 col-md-6 col-xl-6">
             <div class="log-in-container">
               <form class="form-container" action="../php/student_recoverAccount.php" method="POST">
                 
                 <input type="hidden" name="email" value="<?php echo htmlspecialchars($email);?>">
                 <h4>Recover my account</h4>
+                <p>Please enter the code that we sent to you in your email address.</p>
                 <div class="row">
                   <div class="col-xl-12 col-md-12 col-sm-12">
                     <div class="form-input">
                       <label for="code">OTP Code</label>
                       <input type="number" name="code" id="code" minlength="6" maxlength="6" required>
+                      <span id="resend-container">
+                        <a href="../php/resend_code.php" onclick="startCountdown()" id="resend-link" style="color: #666; font-size: 11px; text-align:end">Resend</a>
+                        <span id="countdown-timer" style="color: #666; font-size: 11px; display: none;"></span>
+                    </span>
                     </div>
                   </div>
                 </div>
@@ -94,6 +99,47 @@ if (!isset($_SESSION['email'])){
     </div>
   </main>
 <script>
+const resendLink = document.getElementById("resend-link");
+const countdownTimer = document.getElementById("countdown-timer");
+
+const countdownDuration = 60;
+const expirationTimeKey = "resendExpirationTime";
+
+const savedExpirationTime = localStorage.getItem(expirationTimeKey);
+if (savedExpirationTime) {
+    const remainingTime = Math.floor((savedExpirationTime - Date.now()) / 1000);
+    if (remainingTime > 0) {
+        startCountdown(remainingTime);
+    } else {
+        localStorage.removeItem(expirationTimeKey); 
+    }
+}
+
+function startCountdown(remainingTime = countdownDuration) {
+
+    resendLink.style.display = "none";
+    countdownTimer.style.display = "inline";
+
+    const expirationTime = Date.now() + remainingTime * 1000;
+    localStorage.setItem(expirationTimeKey, expirationTime);
+
+    const interval = setInterval(() => {
+        const timeLeft = Math.floor((expirationTime - Date.now()) / 1000);
+        if (timeLeft > 0) {
+            countdownTimer.innerText = `Resend available in ${timeLeft}s`;
+        } else {
+            clearInterval(interval);
+            countdownTimer.style.display = "none";
+            resendLink.style.display = "inline";
+            localStorage.removeItem(expirationTimeKey);
+        }
+    }, 1000);
+}
+
+resendLink.addEventListener("click", (e) => {
+    startCountdown();
+});
+
     const searchInput = document.getElementById("searchInput");
     const searchButton = document.getElementById("search-btn");
 

@@ -84,8 +84,11 @@ def extract_text(file_path, file_type):
 def normalize_text(text):
     # Convert to lowercase
     text = text.lower()
+
+    # Remove leading and trailing spaces
+    text = text.strip()
     
-    # Remove extra spaces and line breaks
+    # Remove multiple spaces between words
     text = re.sub(r'\s+', ' ', text)
     
     # Normalize hyphenated words (removes spaces around hyphens)
@@ -97,13 +100,8 @@ def normalize_text(text):
     return text
 
 def split_into_sentences(text):
-    sentences = sent_tokenize(text)
-    filtered_sentences = [
-        sentence for sentence in sentences
-        if not re.search(r'\b[A-Z][a-z]+, \b.*\(\d{4}\)', sentence) 
-        and len(sentence.split()) >= 7  # Keep sentences with 7 or more words
-    ]
-    return filtered_sentences
+    sentences =  sent_tokenize(text)
+    return [sentence for sentence in sentences if len(sentence.split()) >= 7]
 
 def calculate_similarity(submitted_content, submissions):
     submitted_sentences = [normalize_text(sentence) for sentence in split_into_sentences(submitted_content)]

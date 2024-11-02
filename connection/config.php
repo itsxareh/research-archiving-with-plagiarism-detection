@@ -1045,9 +1045,10 @@ public function view_owner_profile($student_email) {
 }
 public function student_update_verify_status($verified, $student_id) {
   $connection = $this->getConnection();
+  $status = 'Approved';
 
-  $stmt = $connection->prepare("UPDATE students_data SET verify_status=? WHERE student_id=?");
-  $stmt->execute([$verified, $student_id]);
+  $stmt = $connection->prepare("UPDATE students_data SET verify_status=?, school_verify = ? WHERE student_id=?");
+  $stmt->execute([$verified, $status, $student_id]);
 
 }
 public function student_forgot_account($email, $verification_code) {
@@ -1064,6 +1065,7 @@ public function recover_code_with_email($email, $verification_code) {
   $stmt->execute([$verification_code, $email]);
 
 }
+
 public function student_change_password($email, $password) {
   $connection = $this->getConnection();
 

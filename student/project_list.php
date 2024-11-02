@@ -351,6 +351,7 @@ require_once 'templates/student_navbar.php';
                             <div class="project-action">
                                 <a href="delete_research.php?archiveID=<?= $result['archiveID'] ?>" class="btn"><i class="ti-trash" title="Delete Research"></i></a>            
                             </div>
+                            
                         </li>
                     <?php
                         }

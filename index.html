@@ -52,11 +52,9 @@
     const searchButton = document.getElementById("searchButton");
 
     searchButton.addEventListener("click", () => {
-        if(searchInput.value) {
+        if(searchInput.value !== '') {
             window.location.href = `student/all_project_list.php?searchInput=${encodeURIComponent(searchInput.value)}`;
-        } else {
-            alert("Please enter a research title");
-        }
+        } 
     });
 </script>
 </body>

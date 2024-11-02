@@ -737,6 +737,7 @@ a.dt-button.active:not(.disabled) {
   align-items: center;
 }
 .content-wrap {
+  height: 100svh;
   padding-top: 55px;
 }
 .profile-section {
@@ -2022,12 +2023,9 @@ footer p {
   margin: 10px 0;
   padding: 15px;
 }
-.item-title {
-
-
-}
-.item-content {
-
+.item-title, .item-content, .item-meta, .item-abstract {
+  word-wrap: break-word; /* Breaks long words to prevent overflow */
+    overflow-wrap: break-word;
 }
 .item-meta, .item-abstract span {
   font-size: 12px

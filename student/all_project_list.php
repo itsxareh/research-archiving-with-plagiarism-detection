@@ -235,10 +235,10 @@ require_once 'templates/student_navbar.php';
                         <p><span id="resultNumber"></span> results found <span id="inputSearch" style="display: none; font-weight:400"></span></p>
                     </div>
                     <?php endif; ?>
-                    <ul id="search-result">
-                        <?php $i=1; foreach ($projects as $result): ?>
+                    <ul id="search-result" >
+                        <?php $i=1; foreach ($projects as $result){ ?>
                             <li class="item" style="--i: <?=$i?>;">
-                                <div class="item-body">
+                                <div class="item-body" >
                                     <div class="item-title">
                                         <h3><a href="view_project_research.php?archiveID=<?= $result['archive_id'] ?>"><?= ucwords($result['project_title']); ?></a></h3>
                                     </div>
@@ -253,7 +253,7 @@ require_once 'templates/student_navbar.php';
                                         <?php endif; ?>
                                     </div>
                                     <div class="item-abstract">
-                                        <h3 class="abstract-title"><a href="#"><span>Abstract</span><i class="ti-angle-down f-s-10"></i></a></h3>
+                                        <h3 class="abstract-title"><a href="#"><span>Abstract</span><i class="ti-angle-down f-s-10" ></i></a></h3>
                                         <div class="abstract-group" style="display:none">
                                             <section class="item-meta">
                                                 <div class="abstract-article">
@@ -264,7 +264,7 @@ require_once 'templates/student_navbar.php';
                                     </div>
                                 </div>
                             </li>
-                        <?php $i++; endforeach; ?>
+                        <?php $i++; } ?>
                         <div class="pagination-container">
                             <?php
                                 $params = [
@@ -338,6 +338,7 @@ require_once 'templates/student_navbar.php';
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
 <script src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
 <script>
+
     window.onpopstate = function(event) {
         filteredData();
     };
@@ -350,7 +351,7 @@ require_once 'templates/student_navbar.php';
     const keywordsInput = document.getElementById('keywords');
     const tagify = new Tagify(keywordsInput, {
         delimiters: ",",
-        maxTags: 5,   
+        maxTags: 7,   
         dropdown: {
             enabled: 0 
         }
