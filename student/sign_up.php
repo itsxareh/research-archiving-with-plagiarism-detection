@@ -104,7 +104,7 @@ session_start();
                   </div>
                 </div>
                 <div class="row">
-                <div class="col-sm-12 col-md-6 col-xl-6">
+                  <div class="col-sm-12 col-md-6 col-xl-6">
                     <div class="form-input">
                       <label for="department">Department</label>
                       <select name="department" id="department" required>

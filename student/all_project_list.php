@@ -302,7 +302,7 @@ require_once 'templates/student_navbar.php';
     window.onpopstate = function(event) {
         filteredData();
     };
-    $(".abstract-title").click(function(event){
+    $("#search-result").on("click", "h3.abstract-title", function(event) {
         event.preventDefault();
         $(this).closest(".item-abstract").find(".abstract-group").slideToggle(200);
         $(this).find("i").toggleClass("ti-angle-down ti-angle-up"); 
@@ -350,9 +350,9 @@ require_once 'templates/student_navbar.php';
         var toYear =  $('#toYear').val();
         var research_date =  $('#research_date').val();
         var searchInput =  $('#searchInput').val();
-        var course = $('#department_course').val();
+        var course = (department === '') ? $('#department_course').val = '' : $('#department_course').val() ;
         var keywords = getKeywords();  // Assuming getKeywords() is defined elsewhere and returns a value
-        var page = <?= isset($_GET['page']) ? $_GET['page'] : 1 ?>;
+        var page = 1 ;
         var limit = <?= isset($limit) ? $limit : 10 ?>;
 
 
@@ -374,7 +374,11 @@ require_once 'templates/student_navbar.php';
         success: function(response) {
             $('#search-result').html(response.html);
             $('#resultNumber').text(response.totalFilteredCount); 
-            console.log(response.totalFilteredCount + ' ' + searchInput );
+            if(response.count > 0) {
+                $('#search-result').html(response.html);
+            } else {
+                $('#search-result').html("<p class='text-center' style='color: #666; font-size: 14px; font-weight:400'>No projects found.</p>");
+            }
             if (searchInput.length > 0) {
                 $('#inputSearch').show();
                 $('#inputSearch').html('for "<strong>'+searchInput+'</strong>"');

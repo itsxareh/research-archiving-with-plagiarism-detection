@@ -62,7 +62,7 @@ foreach ($resp as $row) {
 
     echo '      </div>
                 <div class="item-abstract">
-                    <h3><a href="#"><span>Abstract</span><i class="ti-angle-down f-s-10"></i></a></h3>
+                    <h3 class="abstract-title"><a href="#"><span>Abstract</span><i class="ti-angle-down f-s-10"></i></a></h3>
                     <div class="abstract-group" style="display:none">
                         <section class="item-meta">
                             <div class="abstract-article">
@@ -74,15 +74,16 @@ foreach ($resp as $row) {
             </div>
         </li>';
 }
-    $totalPages = ceil($totalFilteredCount / $limit);
+$totalPages = ceil($totalFilteredCount / $limit);
 
-    echo '<div class="pagination-container">';
-    for ($i = 1; $i <= $totalPages; $i++) {
-        $pageLink = '?page=' . $i . ($queryString ? '&' . $queryString : '');
-        echo "<a class='pagination' onclick='filteredData()' href='$pageLink'" 
-            . ($i == $page ? ' id="active"' : '') . ">$i</a>";
-    }
-    echo '</div>';
+echo '<div class="pagination-container">';
+for ($i = 1; $i <= $totalPages; $i++) {
+    $pageLink = '?page=' . $i . ($queryString ? '&' . $queryString : '');
+    echo "<a class='pagination' onclick='filteredData()' href='$pageLink'" 
+        . ($i == $page ? ' id="active"' : '') . ">$i</a>";
+}
+echo '</div>';
+
 
 $output = ob_get_clean();
 
