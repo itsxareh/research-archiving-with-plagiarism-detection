@@ -8,8 +8,8 @@ if (isset($_POST['updateInfo'])) {
     $fname = $_POST['first_name'];
     $mname = $_POST['middle_name'];
     $lname = $_POST['last_name'];
-    $department = $_POST['department'];
-    $course = $_POST['department_course'];
+    $department = $_SESSION['auth_user']['department_id'];
+    $course = $_SESSION['auth_user']['course_id'];
 
     $currentData = $db->student_profile($student_id);
 
@@ -135,7 +135,7 @@ if (isset($_FILES['img_student'])) {
                 </div>
                 <div class="item-detail">
                     <label class="info-label" for="department">Department:</label>
-                    <select id="inputDepartment" name="department" class="selectpicker form-control item-meta " required title="Select Department">
+                    <select id="inputDepartment" name="department" class="selectpicker form-control item-meta " required title="Select Department" disabled>
                     <?php 
                         $res = $db->showDepartments_WHERE_ACTIVE();
 
@@ -152,7 +152,8 @@ if (isset($_FILES['img_student'])) {
                 </div>
                 <div class="item-detail">
                     <label class="info-label" for="course">Course:</label>
-                    <select id="department_course" name="department_course" class="selectpicker form-control" required>
+                    <select id="department_course" name="department_course" class="selectpicker form-control" required disabled>
+                        
                         <?php 
                             $res = $db->showCourse_WHERE_ACTIVE($data['department_id']);
                             foreach ($res as $item) {

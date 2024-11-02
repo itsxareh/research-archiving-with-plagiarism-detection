@@ -737,7 +737,6 @@ a.dt-button.active:not(.disabled) {
   align-items: center;
 }
 .content-wrap {
-  height: 100svh;
   padding-top: 55px;
 }
 .profile-section {
@@ -1011,6 +1010,12 @@ option {
 }
 .pagination-container {
   text-align: center;
+}
+.pagination-container > span {
+  display: inline-block;
+  margin-left: 1rem;
+  font-size: 10px;
+  background-color: transparent;
 }
 .pagination-container > .pagination {
   display: inline-block;

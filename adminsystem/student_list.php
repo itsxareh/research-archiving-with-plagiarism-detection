@@ -83,6 +83,8 @@ require_once 'templates/admin_navbar.php';
                     <th class="list-th">Student Number</th>    
                     <th class="list-th">Full Name</th>
                     <th class="list-th">Email</th>
+                    <th class="list-th">No. of Research Papers</th>
+                    <th class="list-th">Published Research</th>
                     <th class="list-th">Status</th>
                     <th class="list-th">Action</th>
                 </tr>
@@ -98,18 +100,21 @@ require_once 'templates/admin_navbar.php';
                     <td class="list-td"><?= $result['student_id'] ?></td>
                     <td class="list-td"><?= $result['first_name'] ?> <?= $result['middle_name'] ?> <?= $result['last_name'] ?></td>
                     <td class="list-td"><?= $result['student_email'] ?></td>
+                    <td class="list-td" style="font-weight: 700;"><?=  $result['total_research'] ?></td>
+                    <td class="list-td" style="font-weight: 700;"><?= $result['published_research'] ?></td>
                     <td class="list-td">
                         <?php
                             $status = $result ['school_verify'];
                             $badgeColor = ($status ==='Approved') ? 'badge-success' : 'badge-danger';
-                            ?>
-                            <span class= "badge <?= $badgeColor ?>">
+                        ?>
+                        <span class= "badge <?= $badgeColor ?>" style="border-radius: 15px; font-size: 0.875rem">
                             <?= $status ?>
-                </span>
-                    <td class="list-td">
-                        <a href="view_profile.php?studID=<?= $result['student_id'] ?>" class="btn btn-primary"><i class="ti-eye" title="View Information"></i></a>
-                        <a href="approval_student.php?studID=<?= $result['studID'] ?>" class="btn btn-success"><i class="ti-check" title="Approve Student"></i></a>
-                        <a href="delete_student.php?studID=<?= $result['studID'] ?>" class="btn btn-danger"><i class="ti-trash" title="Delete Student"></i></a>
+                        </span>
+
+                    <td class="list-td" style="text-align:center">
+                        <a href="view_profile.php?studID=<?= $result['student_id'] ?>" class="btn" style="font-weight: 800"><i class="ti-eye" title="View Information"></i></a>
+                        <a href="approval_student.php?studID=<?= $result['studID'] ?>" class="btn" style="font-weight: 800; color: green;"><i class="ti-check" title="Approve Student"></i></a>
+                        <a href="delete_student.php?studID=<?= $result['studID'] ?>" class="btn" style="font-weight: 800; color: #a33333;"><i class="ti-trash" title="Delete Student"></i></a>
                     </td>
                 </tr>
                 <?php

@@ -313,7 +313,15 @@ require_once 'templates/admin_navbar.php';
                                     <td class="list-td text-ellipsis"><?= $result['project_title'] ?></td>
                                     <td class="list-td"><?= $result['name'] ?></td>
                                     <td class="list-td"><?= $result['course_name'] ?></td>
-                                    <td class="list-td"><?php echo $result['plagiarism_percentage'] !== NULL ? 'Yes' : 'No'?></td>
+                                    <td class="list-td">
+                                        <?php 
+                                            $plagiarized = $result['plagiarism_percentage'];
+                                            $badgeColor = ($plagiarized === NULL) ? 'badge-success' : 'badge-danger';
+                                        ?>
+                                        <span class="badge <?= $badgeColor ?>" style="border-radius: 15px; font-size: 0.875rem">
+                                            <?= $plagiarized === NULL ? 'No' : 'Yes' ?>
+                                        </span>
+                                    </td>
                                     <td class="list-td">
                                         <?php 
                                             $status = $result['document_status'];

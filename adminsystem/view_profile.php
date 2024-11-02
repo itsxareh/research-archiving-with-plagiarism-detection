@@ -76,9 +76,9 @@ require_once 'templates/admin_navbar.php';
   <?php
 if(isset($_GET['studID'])){
 
-  $student_id = $_GET['studID'];
+  $studID= $_GET['studID'];
 
-  $data = $db->view_profile($student_id);
+  $data = $db->view_profile($studID);
 
   if (isset($data) && is_array($data)) {
     $first_name = $data['first_name'] ?? 'Unknown';

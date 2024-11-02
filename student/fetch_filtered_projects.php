@@ -77,11 +77,53 @@ foreach ($resp as $row) {
 $totalPages = ceil($totalFilteredCount / $limit);
 
 echo '<div class="pagination-container">';
-for ($i = 1; $i <= $totalPages; $i++) {
+
+$visiblePages = 5; // Number of pages to show around the current page
+$startPage = max(1, $page - floor($visiblePages / 2));
+$endPage = min($totalPages, $startPage + $visiblePages - 1);
+
+// Adjust startPage if near the end of pagination range
+if ($endPage - $startPage + 1 < $visiblePages) {
+    $startPage = max(1, $endPage - $visiblePages + 1);
+}
+
+// "Prev" button
+if ($page > 1) {
+    $prevPageLink = '?page=' . ($page - 1) . ($queryString ? '&' . $queryString : '');
+    echo "<a class='pagination prev' onclick='filteredData()' href='$prevPageLink'>Prev</a>";
+}
+
+// First page link
+if ($startPage > 1) {
+    $firstPageLink = '?page=1' . ($queryString ? '&' . $queryString : '');
+    echo "<a class='pagination' onclick='filteredData()' href='$firstPageLink'>1</a>";
+    if ($startPage > 2) {
+        echo "<span>...</span>";
+    }
+}
+
+// Display page numbers within the range
+for ($i = $startPage; $i <= $endPage; $i++) {
     $pageLink = '?page=' . $i . ($queryString ? '&' . $queryString : '');
     echo "<a class='pagination' onclick='filteredData()' href='$pageLink'" 
         . ($i == $page ? ' id="active"' : '') . ">$i</a>";
 }
+
+// Last page link
+if ($endPage < $totalPages) {
+    if ($endPage < $totalPages - 1) {
+        echo "<span>...</span>";
+    }
+    $lastPageLink = '?page=' . $totalPages . ($queryString ? '&' . $queryString : '');
+    echo "<a class='pagination' onclick='filteredData()' href='$lastPageLink'>$totalPages</a>";
+}
+
+// "Next" button
+if ($page < $totalPages) {
+    $nextPageLink = '?page=' . ($page + 1) . ($queryString ? '&' . $queryString : '');
+    echo "<a class='pagination next' onclick='filteredData()' href='$nextPageLink'>Next</a>";
+}
+
 echo '</div>';
 
 

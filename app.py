@@ -61,14 +61,24 @@ def extract_text(file_path, file_type):
     if file_type == 'application/pdf':
         reader = PdfReader(file_path)
         for page in reader.pages:
-            content += page.extract_text()
+            page_text = page.extract_text()
+            # Detect and ignore reference sections
+            if re.search(r'\b(References|Bibliography|Works Cited)\b', page_text, re.IGNORECASE):
+                break  # Stop when reaching the references
+            content += page_text
     elif file_type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
         doc = Document(file_path)
         for para in doc.paragraphs:
-            content += para.text
+            para_text = para.text
+            if re.search(r'\b(References|Bibliography|Works Cited)\b', para_text, re.IGNORECASE):
+                break  # Stop when reaching the references
+            content += para_text
     else:
         with open(file_path, 'r') as file:
-            content = file.read()
+            for line in file:
+                if re.search(r'\b(References|Bibliography|Works Cited)\b', line, re.IGNORECASE):
+                    break  # Stop when reaching the references
+                content += line
     return content
 
 def normalize_text(text):
@@ -87,8 +97,13 @@ def normalize_text(text):
     return text
 
 def split_into_sentences(text):
-    sentences =  sent_tokenize(text)
-    return [sentence for sentence in sentences if len(sentence.split()) >= 7]
+    sentences = sent_tokenize(text)
+    filtered_sentences = [
+        sentence for sentence in sentences
+        if not re.search(r'\b[A-Z][a-z]+, \b.*\(\d{4}\)', sentence) 
+        and len(sentence.split()) >= 7  # Keep sentences with 7 or more words
+    ]
+    return filtered_sentences
 
 def calculate_similarity(submitted_content, submissions):
     submitted_sentences = [normalize_text(sentence) for sentence in split_into_sentences(submitted_content)]
@@ -214,7 +229,9 @@ def upload_file():
                     accurate_percentage += float(match['similarity_percentage'])
 
 
-                plagiarism_percentage = (accurate_percentage / plagiarized_count) if total_sentences > 0 and plagiarized_count > 0 else 0
+                average_plagiarized = accurate_percentage / plagiarized_count
+                plagiarism_percentage = ((plagiarized_count/ total_sentences) * average_plagiarized) if total_sentences > 0 and plagiarized_count > 0 else 0
+                print("Accuracy percentage", accurate_percentage)
                 print("Plagiarized counts", plagiarized_count)
                 print("Plagiarism percentage", plagiarism_percentage)
                 if plagiarism_percentage > 0:

@@ -146,10 +146,10 @@ require_once 'templates/student_navbar.php';
 
 
 <div class="content-wrap">
-    <div class="container">
-        <div class="col-md-12">
-            <div class="row">
-                <div class="col-md-12">
+    <div class="container" >
+        <div class="col-md-12" >
+            <div class="row" >
+                <div class="col-md-12 ">
                     <div class="page-header">
                         <div class="page-title">
                             <h1>Research Papers</h1>
@@ -157,7 +157,7 @@ require_once 'templates/student_navbar.php';
                     </div>
                 </div>
             </div>
-            <section class="project-page-content row">
+            <section class="project-page-content row" >
                 <div class="col-sm-12 col-md-3 ">
                     <div class="advance-filter-search">
                         <p class="font-black bold">Filter</p>
@@ -280,12 +280,51 @@ require_once 'templates/student_navbar.php';
                                 // Filter out empty parameters
                                 $queryString = http_build_query(array_filter($params));
 
-                                for ($i = 1; $i <= $totalPages; $i++):
-                                    $pageUrl = "?page=$i" . ($queryString ? "&$queryString" : '');
-                            ?>
-                                <a class="pagination" onclick="filteredData()" href="<?= $pageUrl ?>"
-                                <?= $i == $page ? 'id="active"' : '' ?>><?= $i ?></a>
-                            <?php endfor; ?>
+                                $pageUrl = function($pageNum) use ($queryString) {
+                                    return "?page=$pageNum" . ($queryString ? "&$queryString" : '');
+                                };
+
+                                $visiblePages = 5; 
+                                $startPage = max(1, $page - floor($visiblePages / 2));
+                                $endPage = min($totalPages, $startPage + $visiblePages - 1);
+                        
+                                // Adjust startPage if near the end of pagination range
+                                if ($endPage - $startPage + 1 < $visiblePages) {
+                                    $startPage = max(1, $endPage - $visiblePages + 1);
+                                }
+                        
+                                // "Prev" button
+                                if ($page > 1) {
+                                    echo '<a class="pagination prev" href="' . $pageUrl($page - 1) . '" onclick="filteredData()">Prev</a>';
+                                }
+                        
+                                // First page link
+                                if ($startPage > 1) {
+                                    echo '<a class="pagination" href="' . $pageUrl(1) . '" onclick="filteredData()">1</a>';
+                                    if ($startPage > 2) {
+                                        echo '<span>...</span>';
+                                    }
+                                }
+                        
+                                // Display page numbers within the range
+                                for ($i = $startPage; $i <= $endPage; $i++) {
+                                    echo '<a class="pagination" href="' . $pageUrl($i) . '" onclick="filteredData()" ' .
+                                        ($i == $page ? 'id="active"' : '') . '>' . $i . '</a>';
+                                }
+                        
+                                // Last page link
+                                if ($endPage < $totalPages) {
+                                    if ($endPage < $totalPages - 1) {
+                                        echo '<span>...</span>';
+                                    }
+                                    echo '<a class="pagination" href="' . $pageUrl($totalPages) . '" onclick="filteredData()">' . $totalPages . '</a>';
+                                }
+                        
+                                // "Next" button
+                                if ($page < $totalPages) {
+                                    echo '<a class="pagination next" href="' . $pageUrl($page + 1) . '" onclick="filteredData()">Next</a>';
+                                } 
+                                ?>
                         </div>
                     </ul>
                 </div>
@@ -350,8 +389,8 @@ require_once 'templates/student_navbar.php';
         var toYear =  $('#toYear').val();
         var research_date =  $('#research_date').val();
         var searchInput =  $('#searchInput').val();
-        var course = (department === '') ? $('#department_course').val = '' : $('#department_course').val() ;
-        var keywords = getKeywords();  // Assuming getKeywords() is defined elsewhere and returns a value
+        var course = (department === '') ? '' : $('#department_course').val() ;
+        var keywords = getKeywords(); 
         var page = 1 ;
         var limit = <?= isset($limit) ? $limit : 10 ?>;
 

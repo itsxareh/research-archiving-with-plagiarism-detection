@@ -30,7 +30,7 @@ if (isset($_POST['sign-up'])) {
     $verification_code = rand(100000, 999999);
 
     $uniqueId = uniqid() . mt_rand(1000, 9999);
-    $imagePath = '../imageFiles/default-profile.png';
+    $imagePath = '../imageFiles/'.$uniqueId.'- default-profile.png';
 
     $snumberPattern = '/^\d{3}-\d{5}[A-Za-z]$/';
     $passwordPattern = '/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/';

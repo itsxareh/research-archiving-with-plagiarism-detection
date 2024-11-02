@@ -313,9 +313,24 @@ public function showCourse_WHERE_ACTIVE($department){
 
 public function SELECT_ALL_StudentsData(){
   $connection = $this->getConnection();
-  $stmt = $connection->prepare("SELECT *, students_data.id AS studID FROM students_data 
-  LEFT JOIN departments ON departments.id = students_data.department_id
-  LEFT JOIN course ON course.id = students_data.course_id ");
+  $stmt = $connection->prepare(
+    "SELECT 
+      students_data.*, 
+      students_data.id AS studID, 
+      departments.name AS department_name, 
+      course.course_name,
+      COUNT(archive_research.id) AS total_research,
+      SUM(CASE WHEN archive_research.document_status = 'Accepted' THEN 1 ELSE 0 END) AS published_research
+    FROM 
+        students_data
+    LEFT JOIN 
+        archive_research ON students_data.id = archive_research.student_id
+    LEFT JOIN 
+        departments ON departments.id = students_data.department_id
+    LEFT JOIN 
+        course ON course.id = students_data.course_id
+    GROUP BY 
+        students_data.id");
   $stmt->execute();
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -452,7 +467,7 @@ public function SELECT_COUNT_ALL_ARCHIVE_RESEARCH(){
 public function SELECT_RECENT_RESEARCH_PAPER(){
   $connection = $this->getConnection();
 
-  $stmt = $connection->prepare("SELECT archive_research.date_published, archive_research.project_title as project_title, archive_research.archive_id as aid FROM archive_research LEFT JOIN archive_research_views ON archive_research.archive_id = archive_research_views.archive_research_id GROUP BY archive_research_id ORDER BY archive_research.id DESC LIMIT 5;");
+  $stmt = $connection->prepare("SELECT archive_research.date_published, archive_research.project_title as project_title, archive_research.archive_id as aid FROM archive_research LEFT JOIN archive_research_views ON archive_research.archive_id = archive_research_views.archive_research_id WHERE archive_research.document_status = 'Accepted' GROUP BY archive_research_id ORDER BY archive_research.id DESC LIMIT 5;");
   $stmt->execute();
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -584,12 +599,14 @@ public function SELECT_ARCHIVE_RESEARCH($archiveID){
     archive_research.*,
     archive_research.archive_id AS archiveID,
     archive_research.id AS aid,
+    students_data.student_id AS sid,
     departments.*,
     course.*,
     (SELECT COUNT(id) FROM archive_research_views WHERE archive_research_views.archive_research_id = archive_research.archive_id) AS view_count
     FROM archive_research
     LEFT JOIN departments ON departments.id = archive_research.department_id
     LEFT JOIN course ON course.id = archive_research.course_id
+    LEFT JOIN students_data ON students_data.id = archive_research.student_id
     WHERE archive_research.archive_id = ?");
   $stmt->execute([$archiveID]);
   $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -930,7 +947,7 @@ return $result;
 public function student_profile($student_id) {
   $connection = $this->getConnection();
 
-  $stmt = $connection->prepare("SELECT *, students_data.id as aid FROM students_data 
+  $stmt = $connection->prepare("SELECT *, students_data.id as aid, departments.id as did, course.id as cid FROM students_data 
   LEFT JOIN departments ON departments.id = students_data.department_id 
   LEFT JOIN course ON course.id = students_data.course_id WHERE students_data.id = ? ");
 	$stmt->execute([$student_id]);

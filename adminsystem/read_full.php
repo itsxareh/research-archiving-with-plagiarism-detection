@@ -126,7 +126,7 @@ require_once 'templates/admin_navbar.php';
       <ul>
         <li class="info-meta"><label>Course:</label><?= $data['course_name'] ?></li>
         <li class="info-meta"><label>Department:</label><?= $data['name'] ?></li>
-        <li class="info-meta"><label>Contact Email:</label><?= $data['research_owner_email'] ?></li>
+        <li class="info-meta"><label>Contact Email:</label><a href="view_profile.php?studID=<?= $data['sid'] ?>"><?= $data['sid'] ?><i class="ti-arrow-top-right"></i></a></li>
       </ul>
     </div>
     <div class="info-container">

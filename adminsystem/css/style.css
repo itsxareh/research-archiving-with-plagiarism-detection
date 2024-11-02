@@ -3069,9 +3069,6 @@ tbody tr td:last-child {
 .login-logo img {
   height: 75px;
 }
-.content-wrap {
-  height: 100svh;
-}
 .login-title {
   margin: auto;
   font-size: 4.250rem;
