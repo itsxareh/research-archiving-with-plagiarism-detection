@@ -417,6 +417,27 @@ public function SELECT_ALL_ARCHIVE_RESEARCH_WHERE_PUBLISH($limit, $offset) {
 
   return $result;
 }
+public function SELECT_ALL_OWNED_ARCHIVE_RESEARCH($owner_email, $limit, $offset) {
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT *, archive_research.id AS archiveID,
+    (SELECT COUNT(id) FROM archive_research_views WHERE archive_research_views.archive_research_id = archive_research.archive_id) AS view_count
+    FROM archive_research 
+    LEFT JOIN departments ON departments.id = archive_research.department_id
+    LEFT JOIN course ON course.id = archive_research.course_id 
+    WHERE archive_research.research_owner_email = :owner_email
+    ORDER BY view_count DESC 
+    LIMIT :limit OFFSET :offset");
+
+  $stmt->bindParam(':owner_email', $owner_email, PDO::PARAM_STR);
+  $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+  $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+
+  $stmt->execute();
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $result;
+}
 
 public function SELECT_ALL_ARCHIVE_RESEARCH_WHERE_PUBLISH_FILTER_DEPARTMENT_FROM_DATE_PUBLISH_TO_DATE_PUBLISH($department, $from_date, $to_date){
   $connection = $this->getConnection();
@@ -1294,12 +1315,17 @@ public function UPDATE_student_profile($imagePath, $student_id) {
 
 }
 
-public function SELECT_ALL_STUDENT_ARCHIVE_RESEARCH($student_email){
+public function SELECT_ALL_STUDENT_ARCHIVE_RESEARCH($owner_email, $limit, $offset) {
   $connection = $this->getConnection();
   $stmt = $connection->prepare("SELECT *, archive_research.id AS archiveID, archive_research.archive_id AS aid FROM archive_research 
   LEFT JOIN departments ON departments.id = archive_research.department_id
-  LEFT JOIN course ON course.id = archive_research.course_id WHERE archive_research.research_owner_email = ? ORDER BY dateOFSubmit DESC");
-  $stmt->execute([$student_email]);
+  LEFT JOIN course ON course.id = archive_research.course_id WHERE archive_research.research_owner_email = :owner_email ORDER BY archiveID DESC LIMIT :limit OFFSET :offset");
+   
+  $stmt->bindParam(':owner_email', $owner_email, PDO::PARAM_STR);
+  $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+  $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+  
+  $stmt->execute();
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   return $result;
@@ -1368,6 +1394,7 @@ public function COUNT_FILTERED_ARCHIVE_RESEARCH($searchInput, $department, $cour
   $row = $stmt->fetch(PDO::FETCH_ASSOC);
   return $row['total'];
 }
+
 public function SELECT_FILTERED_ARCHIVE_RESEARCH($searchInput, $department, $course, $keywords, $fromYear, $toYear, $research_date, $limit, $offset){
   $connection = $this->getConnection();
   $query = 'SELECT *, archive_research.id AS archiveID FROM archive_research 
@@ -1447,7 +1474,72 @@ public function SELECT_FILTERED_ARCHIVE_RESEARCH($searchInput, $department, $cou
   return $result;
 }
 
-public function SELECT_OWNED_ARCHIVE_RESEARCH($owner_email, $searchInput, $fromYear, $toYear, $documentStatus, $research_date){
+public function COUNT_FILTERED_OWNED_ARCHIVE_RESEARCH($owner_email, $searchInput, $keywords, $documentStatus, $fromYear, $toYear, $research_date) {
+  $connection = $this->getConnection();
+  $query = "SELECT COUNT(*) as total FROM archive_research WHERE 1 = 1";
+  
+  if (!empty($searchInput)) {
+    $query .= " AND (project_title LIKE :searchInput OR project_abstract LIKE :searchInput OR archive_id LIKE :searchInput)";
+  }
+  if (!empty($owner_email)) {
+    $query .= " AND research_owner_email = :ownerEmail";
+  }
+  if (!empty($documentStatus)) {
+    $query .= " AND document_status = :documentStatus";
+  }
+  if (!empty($keywords)) {
+    $keywordArray = array_map('trim', explode(',', $keywords));
+    $keywordConditions = [];
+
+    foreach ($keywordArray as $index => $keyword) {
+        $param = ":keyword" . $index;
+        $keywordConditions[] = "archive_research.keywords LIKE $param";
+    }
+
+    $query .= " AND (" . implode(" OR ", $keywordConditions) . ")";
+  }
+  if (!empty($fromYear)) {
+      $query .= " AND YEAR(dateOFSubmit) >= :fromYear";
+  }
+  if (!empty($toYear)) {
+      $query .= " AND YEAR(dateOFSubmit) <= :toYear";
+  }
+  if (!empty($research_date)) {
+    $orderDirection = $research_date === 'newest' ? 'DESC' : 'ASC';
+    $query .= " ORDER BY dateOFSubmit " . $orderDirection;
+  }
+
+  
+  $stmt = $connection->prepare($query);
+
+  if (!empty($searchInput)) {
+      $stmt->bindValue(':searchInput', '%' . $searchInput . '%', PDO::PARAM_STR);
+  }
+  if (!empty($owner_email)) {
+    $stmt->bindValue(':ownerEmail', $owner_email, PDO::PARAM_STR);
+  }
+  if (!empty($documentStatus)) {
+    $stmt->bindValue(':documentStatus', $documentStatus , PDO::PARAM_STR);
+  }
+  if (!empty($keywords)) {
+    foreach ($keywordArray as $index => $keyword) {
+        $param = ":keyword" . $index;
+        $stmt->bindValue($param, '%' . trim($keyword) . '%', PDO::PARAM_STR);
+    }
+  }
+  if (!empty($fromYear)) {
+      $stmt->bindValue(':fromYear', $fromYear, PDO::PARAM_INT);
+  }
+  if (!empty($toYear)) {
+      $stmt->bindValue(':toYear', $toYear, PDO::PARAM_INT);
+  }
+
+  $stmt->execute();
+  $row = $stmt->fetch(PDO::FETCH_ASSOC);
+  return $row['total'];
+}
+
+public function SELECT_OWNED_ARCHIVE_RESEARCH($owner_email, $searchInput, $keywords, $fromYear, $toYear, $documentStatus, $research_date, $limit, $offset){
   $connection = $this->getConnection();
   $query = 'SELECT *, archive_research.id AS archiveID FROM archive_research 
   LEFT JOIN departments ON departments.id = archive_research.department_id
@@ -1463,16 +1555,32 @@ public function SELECT_OWNED_ARCHIVE_RESEARCH($owner_email, $searchInput, $fromY
       $query .= " AND document_status = :documentStatus";
   }
   if (!empty($fromYear) || $fromYear !== '') {
-      $query .= " AND YEAR(date_published) >= :fromYear";
+      $query .= " AND YEAR(dateOFSubmit) >= :fromYear";
   }
   if (!empty($toYear) || $toYear !== '') {
-      $query .= " AND YEAR(date_published) <= :toYear";
+      $query .= " AND YEAR(dateOFSubmit) <= :toYear";
+  }
+  if (!empty($keywords)) {
+    $keywordArray = array_map('trim', explode(',', $keywords));
+    $keywordConditions = [];
+
+    foreach ($keywordArray as $index => $keyword) {
+        $param = ":keyword" . $index;
+        $keywordConditions[] = "archive_research.keywords LIKE $param";
+    }
+
+    $query .= " AND (" . implode(" OR ", $keywordConditions) . ")";
   }
   if (!empty($research_date)) {
     $orderDirection = $research_date === 'newest' ? 'DESC' : 'ASC';
-    $query .= " ORDER BY date_published " . $orderDirection;
+    $query .= " ORDER BY archive_research.id " . $orderDirection;
   }
-  
+  if (!empty($limit)) {
+    $query .= " LIMIT :limit";
+  }
+  if (!empty($offset)) {
+    $query .= " OFFSET :offset";
+  }
   $stmt = $connection->prepare($query);
 
   if (!empty($searchInput)) {
@@ -1484,11 +1592,23 @@ public function SELECT_OWNED_ARCHIVE_RESEARCH($owner_email, $searchInput, $fromY
   if (!empty($documentStatus)) {
       $stmt->bindValue(':documentStatus', $documentStatus , PDO::PARAM_STR);
   }
+  if (!empty($keywords)) {
+    foreach ($keywordArray as $index => $keyword) {
+        $param = ":keyword" . $index;
+        $stmt->bindValue($param, '%' . trim($keyword) . '%', PDO::PARAM_STR);
+    }
+  }
   if (!empty($fromYear) || $fromYear !== '') {
       $stmt->bindValue(':fromYear', $fromYear, PDO::PARAM_INT);
   }
   if (!empty($toYear) || $toYear !== '') {
       $stmt->bindValue(':toYear', $toYear, PDO::PARAM_INT);
+  }
+  if (!empty($limit)) {
+    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+  }
+  if (!empty($offset)) {
+      $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
   }
   $stmt->execute();
 

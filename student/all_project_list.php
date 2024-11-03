@@ -341,7 +341,7 @@ require_once 'templates/student_navbar.php';
 
     window.onpopstate = function(event) {
         filteredData();
-    };
+    }; 
     $("#search-result").on("click", "h3.abstract-title", function(event) {
         event.preventDefault();
         $(this).closest(".item-abstract").find(".abstract-group").slideToggle(200);
@@ -356,6 +356,9 @@ require_once 'templates/student_navbar.php';
             enabled: 0 
         }
     });
+    function getKeywords() {
+        return tagify.value.map(tag => tag.value).join(',');
+    }
 
     function getURLParameter(name) {
         return new URLSearchParams(window.location.search).get(name);
@@ -380,10 +383,6 @@ require_once 'templates/student_navbar.php';
         if (toYear) document.getElementById('toYear').value = toYear;
         if (keywords) document.getElementById('keywords').value = keywords;
     });
-    function getKeywords() {
-        return tagify.value.map(tag => tag.value).join(',');
-    }
-
     function filteredData() {
         var department =  $('#inputDepartment_search').val();
         var fromYear =  $('#fromYear').val();

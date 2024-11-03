@@ -13,14 +13,29 @@ if($_SESSION['auth_user']['student_id']==0){
     
 }
 
-$searchInput = isset($_GET['searchInput']) ? $_GET['searchInput'] : '';
 $student_email = isset($_SESSION['auth_user']['student_email']) ? $_SESSION['auth_user']['student_email'] : '';
 
-if ($searchInput) {
-    $projects = $db->SELECT_OWNED_ARCHIVE_RESEARCH($student_email, $searchInput, '', '', '', '');
+$searchInput = isset($_GET['searchInput']) ? $_GET['searchInput'] : '';
+$keywords = isset($_GET['keywords']) ? $_GET['keywords'] : '';
+$fromYear = isset($_GET['fromYear']) ? $_GET['fromYear'] : '';
+$toYear = isset($_GET['toYear']) ? $_GET['toYear'] : '';
+$document_status = isset($_GET['documentStatus']) ? $_GET['documentStatus'] : '';
+$research_date = isset($_GET['research_date']) ? $_GET['research_date'] : '';
+$page = isset($_GET['page']) ? $_GET['page'] : 1;
+$limit = isset($_POST['limit']) ? $_POST['limit'] : 10;
+$offset = ($page - 1) * $limit;
+
+if ($searchInput || $keywords || $fromYear || $toYear || $research_date) {
+    $totalFilteredProjects = $db->COUNT_FILTERED_OWNED_ARCHIVE_RESEARCH($student_email, $searchInput, $keywords, $document_status, $fromYear, $toYear, $research_date);
+    $totalPages = ceil($totalFilteredProjects / $limit);
+
+    $projects = $db->SELECT_OWNED_ARCHIVE_RESEARCH($student_email, $searchInput, $keywords, $fromYear, $toYear, $document_status, $research_date, $limit, $offset);
     $displaySearchInfo = true;
 } else {
-    $projects = $db->SELECT_ALL_STUDENT_ARCHIVE_RESEARCH($student_email);
+    $totalProjects = count($db->SELECT_ALL_OWNED_ARCHIVE_RESEARCH($student_email, PHP_INT_MAX, 0));
+    $totalPages = ceil($totalProjects / $limit);
+
+    $projects = $db->SELECT_ALL_STUDENT_ARCHIVE_RESEARCH($student_email, $limit, $offset);
     $displaySearchInfo = true;
 }
 
@@ -244,6 +259,7 @@ require_once 'templates/student_navbar.php';
                         <div class="mb-3">
                         <label class="item-meta" for="research_date">Sort by</label>
                             <select id="research_date" name="research_date" class="form-control item-meta" required>
+                                <option value=""></option>    
                                 <option value="newest">Newest</option>
                                 <option value="oldest">Oldest</option>
                             </select>
@@ -285,25 +301,26 @@ require_once 'templates/student_navbar.php';
                                 </select>
                             </div>
                         </fieldset>
+                        <div class="mb-3">
+                            <label class="item-meta" for="keywords">Keywords</label>
+                            <input id="keywords" name="keywords" class="form-control-keyword" value="" required> 
+                            </input>    
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-9">
-                    <?php if ($displaySearchInfo): ?>
-                        <div id="data-result" style="display:none">
-                            <p><span id="resultNumber"><?= count($projects) ?></span> results for "<span id="inputSearch"><?= htmlspecialchars($searchInput) ?></span>"</span></p>
-                        </div>
+                    <div id="data-result" style="display:none">
+                        <?php if ($displaySearchInfo): ?>
+                        <p><span id="resultNumber"></span> results found <span id="inputSearch" style="display: none; font-weight:400"></span></p>
+                    </div>
                     <?php endif; ?>
-
                     <ul id="search-result" tabindex="-1">
                     <?php
-                        $student_email = $_SESSION['auth_user']['student_email'];
-                        
-                        $data = $db->SELECT_ALL_STUDENT_ARCHIVE_RESEARCH($student_email);
                         $i = 1;
-                        if (count($data) > 0) {
-                            foreach ($data as $result) {
+                        if (count($projects) > 0) {
+                            foreach ($projects as $result) {
                     ?>
-                        <li class="project-list item" style="--i: <?=$i; $i++;?>;">
+                        <li class="project-list item" style="--i: <?=$i;?>;">
                             <div class="item-body">
                                 <div class="project-tag">
                                     <?php 
@@ -353,12 +370,73 @@ require_once 'templates/student_navbar.php';
                             </div>
                             
                         </li>
-                    <?php
+                        <?php
+                            $i++;
+                            }
+                        } else {
+                            echo "<p style='text-align: center'>No uploaded research found.</p>";
                         }
-                    } else {
-                        echo "<p style='text-align: center'>No uploaded research found.</p>";
-                    }
-                    ?>
+                        ?>
+                        <div class="pagination-container">
+                            <?php
+                                $params = [
+                                    'documentStatus' => isset($_GET['documentStatus']) ? $_GET['documentStatus'] : '',
+                                    'fromYear' => isset($_GET['fromYear']) ? $_GET['fromYear'] : '',
+                                    'toYear' => isset($_GET['toYear']) ? $_GET['toYear'] : '',
+                                    'research_date' => isset($_GET['research_date']) ? $_GET['research_date'] : '',
+                                    'searchInput' => isset($_GET['searchInput']) ? $_GET['searchInput'] : '',
+                                    'keywords' => isset($_GET['keywords']) ? $_GET['keywords'] : ''
+                                ];
+
+                                // Filter out empty parameters
+                                $queryString = http_build_query(array_filter($params));
+
+                                $pageUrl = function($pageNum) use ($queryString) {
+                                    return "?page=$pageNum" . ($queryString ? "&$queryString" : '');
+                                };
+
+                                $visiblePages = 5; 
+                                $startPage = max(1, $page - floor($visiblePages / 2));
+                                $endPage = min($totalPages, $startPage + $visiblePages - 1);
+                        
+                                // Adjust startPage if near the end of pagination range
+                                if ($endPage - $startPage + 1 < $visiblePages) {
+                                    $startPage = max(1, $endPage - $visiblePages + 1);
+                                }
+                        
+                                // "Prev" button
+                                if ($page > 1) {
+                                    echo '<a class="pagination prev" href="' . $pageUrl($page - 1) . '" onclick="filteredData()">Prev</a>';
+                                }
+                        
+                                // First page link
+                                if ($startPage > 1) {
+                                    echo '<a class="pagination" href="' . $pageUrl(1) . '" onclick="filteredData()">1</a>';
+                                    if ($startPage > 2) {
+                                        echo '<span>...</span>';
+                                    }
+                                }
+                        
+                                // Display page numbers within the range
+                                for ($i = $startPage; $i <= $endPage; $i++) {
+                                    echo '<a class="pagination" href="' . $pageUrl($i) . '" onclick="filteredData()" ' .
+                                        ($i == $page ? 'id="active"' : '') . '>' . $i . '</a>';
+                                }
+                        
+                                // Last page link
+                                if ($endPage < $totalPages) {
+                                    if ($endPage < $totalPages - 1) {
+                                        echo '<span>...</span>';
+                                    }
+                                    echo '<a class="pagination" href="' . $pageUrl($totalPages) . '" onclick="filteredData()">' . $totalPages . '</a>';
+                                }
+                        
+                                // "Next" button
+                                if ($page < $totalPages) {
+                                    echo '<a class="pagination next" href="' . $pageUrl($page + 1) . '" onclick="filteredData()">Next</a>';
+                                } 
+                                ?>
+                        </div>
                     </ul>
                 </div>
             </section>
@@ -366,32 +444,59 @@ require_once 'templates/student_navbar.php';
     </div>
 </div>
 <script>
-    $(".abstract-title").click(function(event){
+    window.onpopstate = function(event) {
+        filteredData();
+    }; 
+    $('#search-result').on('click', 'h3.abstract-title', function(event){
+        console.log('clicked');
         event.preventDefault();
-        $(this).closest(".item-abstract").find(".abstract-group").slideToggle(200);
-        $(this).find("i").toggleClass("ti-angle-down ti-angle-up"); 
+        $(this).closest('.item-abstract').find('.abstract-group').slideToggle(200);
+        $(this).find('i').toggleClass('ti-angle-down ti-angle-up');
     });
 
-    const keywordsInput = document.getElementById('keywords');
-    const tagify = new Tagify(keywordsInput, {
-        delimiters: ",",
-        maxTags: 5,   
-        dropdown: {
-            enabled: 0 
-        }
-    });
-
-    function prepareKeywords() {
-        document.getElementById('keywords').value = tagify.value.map(tag => tag.value).join(',');
+    // const keywordsInput = document.getElementById('keywords');
+    // const tagify = new Tagify(keywordsInput, {
+    //     delimiters: ",",
+    //     maxTags: 7,   
+    //     dropdown: {
+    //         enabled: 0 
+    //     }
+    // });
+    // function getKeywords() {
+    //     return tagify.value.map(tag => tag.value).join(',');
+    // }
+    function getURLParameter(name) {
+        return new URLSearchParams(window.location.search).get(name);
     }
 
+    document.addEventListener("DOMContentLoaded", () => {
+        // Get parameters from the URL
+        const searchInput = getURLParameter('searchInput');
+        const researchDate = getURLParameter('research_date');
+        const documentStatus = getURLParameter('documentStatus');
+        const fromYear = getURLParameter('fromYear');
+        const toYear = getURLParameter('toYear');
+        const keywords = getURLParameter('keywords');
+
+        // Set the values of inputs or selects based on the URL parameters
+        if (searchInput) document.getElementById('searchInput').value = searchInput;
+        if (researchDate) document.getElementById('research_date').value = researchDate;
+        if (documentStatus) document.getElementById('documentStatus').value = documentStatus;
+        if (fromYear) document.getElementById('fromYear').value = fromYear;
+        if (toYear) document.getElementById('toYear').value = toYear;
+        if (keywords) document.getElementById('keywords').value = keywords;
+    });
+    
     function filteredData(){
         var owner_email = '<?= $_SESSION['auth_user']['student_email']?>';
         var documentStatus = $('#documentStatus').val();
         var fromYear = $('#fromYear').val();
         var toYear = $('#toYear').val();
+        var keywords = getKeywords(); 
         var searchInput = $('#searchInput').val();
         var research_date = $('#research_date').val();
+        var page = 1 ;
+        var limit = <?= isset($limit) ? $limit : 10 ?>;
 
         if (documentStatus === 'Not Accepted'){
             fromYear = '';
@@ -405,18 +510,30 @@ require_once 'templates/student_navbar.php';
                 owner_email: owner_email,
                 searchInput: searchInput,
                 documentStatus: documentStatus,
+                keywords: keywords,
                 fromYear: fromYear,
                 toYear: toYear,
-                research_date: research_date
+                research_date: research_date,
+                page: page,
+                limit: limit
             },
             success: function(response){
                 console.log(response);
-                console.log(response.html);
-                console.log(response.count);
                 $('#search-result').html(response.html);
-                $('#resultNumber').text(response.count);
-
-                if (searchInput.length > 0 && response.count > 0 || searchInput.length > 0){
+                $('#resultNumber').text(response.totalFilteredCount); 
+                if(response.count > 0) {
+                    $('#search-result').html(response.html);
+                } else {
+                    $('#search-result').html("<p class='text-center' style='color: #666; font-size: 14px; font-weight:400'>No projects found.</p>");
+                }
+                if (searchInput.length > 0) {
+                    $('#inputSearch').show();
+                    $('#inputSearch').html('for "<strong>'+searchInput+'</strong>"');
+                } else {
+                    $('#inputSearch').hide();
+                }
+                if (response.count > 0 || searchInput.length > 0) {
+                    $('#resultNumber').html(response.totalFilteredCount);
                     $('#data-result').show();
                 } else {
                     $('#data-result').hide();
@@ -429,9 +546,11 @@ require_once 'templates/student_navbar.php';
             }
         });
     }
-    
-    $('#documentStatus, #research_date').change(filteredData);
-    $('#fromYear, #toYear').change(filteredData);
+
+    tagify.on('add', filteredData);
+    tagify.on('remove', filteredData);
+
+    $('#documentStatus, #research_date, #fromYear, #toYear').change(filteredData);
     $('#searchInput').on('keyup', function() {
         if ($(this).val().length > 0) { 
             filteredData();
