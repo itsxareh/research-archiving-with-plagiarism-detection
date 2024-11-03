@@ -47,7 +47,7 @@ session_start();
                 <div class="col-lg-6">
                     <div class="login-content">
                         <div class="login-logo">
-                            <a href="index.html"><span>Online Thesis Archiving System</span></a>
+                            <a href="index.php"><span>Online Thesis Archiving System</span></a>
                         </div>
                         <div class="login-form">
                             <h4>Verify Account</h4>

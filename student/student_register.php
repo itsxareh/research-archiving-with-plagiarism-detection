@@ -51,7 +51,7 @@ session_start();
                 <div class="col-lg-6">
                     <div class="login-content">
                         <div class="login-logo">
-                            <a href="../index.html"><span>EARIST Research Archiving System</span></a>
+                            <a href="../index.php"><span>EARIST Research Archiving System</span></a>
                         </div>
                         <div class="login-form">
                             <h4>Student Register</h4>
@@ -123,7 +123,7 @@ session_start();
                                    </p>
                                 <div class="register-link m-t-15 text-center">
                                     <p>Already have account ? <a href="login.php"> Log In</a></p>
-                                    <p><a href="../index.html"> Go Back</a></p>
+                                    <p><a href="../index.php"> Go Back</a></p>
                                 </div>
                             </form>
                         </div>

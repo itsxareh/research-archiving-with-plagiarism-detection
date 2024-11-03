@@ -31,7 +31,7 @@ header("location:all_project_list.php");
   <div class="header">
     <div class="nav-header">
       <div class="logo">
-        <a href="../index.html">
+        <a href="../index.php">
           <img src="images/logo2.png">
         </a>
       </div>

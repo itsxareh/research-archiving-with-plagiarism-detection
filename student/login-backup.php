@@ -50,7 +50,7 @@ header("location:all_project_list.php");
                 <div class="col-lg-6">
                     <div class="login-content">
                         <div class="login-logo">
-                            <a href="../index.html"><span>EARIST Research Archiving System</span></a>
+                            <a href="../index.php"><span>EARIST Research Archiving System</span></a>
                         </div>
                         <div class="login-form" >
                             <h4>Student Login</h4>
@@ -71,7 +71,7 @@ header("location:all_project_list.php");
                                 <button name="LogIn" class="btn btn-primary btn-flat m-b-30 m-t-30" style="background: #d34848;">Log In</button>
                                 <div class="register-link m-t-15 text-center">
                                     <p>Don't have account ? <a href="student_register.php"> Sign Up Here</a></p>
-                                    <p><a href="../index.html"> Go Back</a></p>
+                                    <p><a href="../index.php"> Go Back</a></p>
                                 </div>
                             </form>
                         </div>
