@@ -9,6 +9,10 @@ ini_set('display_errors', 1);
 
 
 session_start();
+
+if(isset($_SESSION['auth_user']['student_id']))
+header("location:all_project_list.php");
+
 ?>
 
 <!DOCTYPE html>
@@ -220,25 +224,15 @@ function validatePassword() {
 
   errorMessage.textContent = "";
 
-  fetch("../php/checkStudentPassword.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `password=${encodeURIComponent(password)}`
-  })
-  .then(response => response.json())
-  .then(data => {
-    console.log(data);
-    if (data.valid === false) {
-      $('#password').css('background-image', 'url("../images/close.png")');
-      if (data.message !== null) {
-        errorMessage.textContent = data.message;
-      }
-    } else {
-      $('#password').css('background-image', 'url("../images/checked.png")');
-      errorMessage.textContent = "";
-    }
-  })
-  .catch(error => console.error("Error:", error));
+  const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  
+  if (!passwordPattern.test(password)) {
+    errorMessage.textContent = "Password must be at least 8 characters with uppercase, lowercase, number & symbol.";
+    $(`#password`).css('background-image', 'url("../images/close.png")');
+  } else {
+    errorMessage.textContent = "";
+    $(`#password`).css('background-image', 'url("../images/checked.png")');
+  }
 }
 
 

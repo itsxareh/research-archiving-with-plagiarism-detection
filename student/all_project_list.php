@@ -225,7 +225,6 @@ require_once 'templates/student_navbar.php';
                         <div class="mb-3">
                             <label class="item-meta" for="keywords">Keywords</label>
                             <input id="keywords" name="keywords" class="form-control-keyword" value="" required> 
-                            </input>    
                         </div>
                     </div>
                 </div>

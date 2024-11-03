@@ -189,3 +189,95 @@ main {
         padding: .5rem;
     }
 }
+
+ul {
+    list-style-type: none !important;
+    padding: 0;
+    margin: 0 !important;
+}
+.user-avatar {
+    padding: .575rem 1.125rem;
+    color: #373757;
+    background-color: #fff;
+    border-radius: 5rem;
+    cursor: pointer;
+}
+.user-avatar:hover, .user-avatar:focus {
+    color: #24243a;
+    background-color: #e0e0e0;
+}
+.dropdown-profile {
+    display: none;
+}
+
+.dropdown-profile.show {
+    display: block;
+}
+.dropdown-menu li {
+    padding: 0 10px;
+    font-size: 14px;
+}
+.dropdown-content-heading {
+    padding: 10px 15px;
+  }
+  .dropdown-content-heading span {
+    font-size: 13px;
+    font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
+    color: #373757;
+  }
+  .dropdown-content-heading i {
+    position: relative;
+    top: 5px;
+    opacity: 1!important;
+    color: #5873fe;
+  }
+  .dropdown-content-body li {
+    padding: 15px;
+    border-top: 1px solid #eef5f9;
+  }
+  .dropdown-content-body li.active,
+  .dropdown-content-body li:focus,
+  .dropdown-content-body li:hover {
+    background: #eef5f9;
+    border-top: 1px solid #eef5f9;
+  }
+  .dropdown-content-body li a.active,
+  .dropdown-content-body li a:focus,
+  .dropdown-content-body li a:hover {
+    color: #868e96;
+  }
+  .dropdown-content-body li:last-child {
+    padding: 5px 15px;
+  }
+  .dropdown-profile {
+    top: 2rem !important;
+    width: 200px;
+  }
+  .dropdown-profile .trial-day {
+    font-size: 11px;
+    padding-top: 2px;
+    color: #5873fe;
+  }
+  .dropdown-profile li {
+    padding: 7px 15px;
+  }
+  .dropdown-profile li a {
+    display: block;
+    color: #373757;
+  }
+  .dropdown-profile li a.active,
+  .dropdown-profile li a:focus,
+  .dropdown-profile li a:hover {
+    color: #373757;
+  }
+  .dropdown-profile li a span {
+    font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
+    font-size: 14px;
+  }
+  .dropdown-profile li a i {
+    margin-right: 5px;
+    font-size: 14px;
+  }
+  .dropdown-profile li:last-child {
+    padding: 7px 15px;
+  }

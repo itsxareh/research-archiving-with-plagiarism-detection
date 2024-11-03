@@ -61,6 +61,7 @@ header("location:all_project_list.php");
             <div class="log-in-container">
               <form class="form-container" action="../php/student_forgotPassword.php" method="POST">
                 <h4>Forgot password</h4>
+                <p>Please enter your registered email address. We’ll send you a code to reset your password..</p>
                 <div class="row">
                   <div class="col-xl-12 col-md-12 col-sm-12">
                     <div class="form-input">

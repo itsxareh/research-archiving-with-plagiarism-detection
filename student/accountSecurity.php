@@ -65,86 +65,77 @@ if(isset($_SESSION['auth_user']['student_id'])){
 ?>
 <div class="edit-info-details">
         <form action="" method="POST" class="needs-validation">
-            <div class="edit-info-container">
-                <div class="item-detail">
-                    <label class="info-label" for="first_name">Current Password:</label>
-                    <input class="info-input" type="password" id="first_name" name="cpassword">
+            <div class="col-sm-12 col-md-12 col-xl-12">
+              <div class="row">
+                <div class="col-sm-12 col-md-12 col-xl-12">
+                  <div class="row">
+                    <div class="item-detail col-sm-12 col-md-6 col-xl-6 md:p-0">
+                        <label class="info-label" for="cpassword">Current Password:</label>
+                        <input class="info-input" type="password" id="cpassword" name="cpassword" minlength = 8 maxlength = 16 required>
+                        <span  id="cpassword-error" class="error-message m-t-2">Use 8 or more characters with a mix of letters, numbers, & symbols</span>
+                      </div>
+                    <div class="item-detail col-sm-12 col-md-6 col-xl-6 md:p-0">
+                        <label class="info-label" for="npassword">New password:</label>
+                        <input class="info-input" type="password" id="npassword" name="npassword" minlength = 8 maxlength = 16 required>
+                        <span  id="npassword-error" class="error-message m-t-2">Use 8 or more characters with a mix of letters, numbers, & symbols</span>
+                      </div>
+                    <div class="item-detail col-sm-12 col-md-6 col-xl-6 md:p-0">
+                        <label class="info-label" for="cnpassword">Confirm New Password:</label>
+                        <input class="info-input" type="password" id="cnpassword" name="cnpassword" minlength = 8 maxlength = 16 required>
+                        <span  id="cnpassword-error" class="error-message m-t-2">Use 8 or more characters with a mix of letters, numbers, & symbols</span>
+                      </div>
+                  </div>
+                  <div class="submit-container">
+                      <button class="update-button info-label m-t-10" name="update">Update</button>
+                  </div>
                 </div>
-                <div class="item-detail">
-                    <label class="info-label" for="middle_name">New password:</label>
-                    <input class="info-input" type="password" id="middle_name" name="npassword">
-                </div>
-                <div class="item-detail">
-                    <label class="info-label" for="last_name">Confirm New Password:</label>
-                    <input class="info-input" type="password" id="last_name" name="cnpassword">
-                </div>
-                
-            </div>
-            <div class="submit-container">
-                <button class="update-button info-label m-t-10" name="update">Update</button>
+              </div>
             </div>
         </form>
     </div>
-    <!-- Common
-    <script src="js/lib/jquery.min.js"></script>
-    <script src="js/lib/jquery.nanoscroller.min.js"></script>
-    <script src="js/lib/menubar/sidebar.js"></script>
-    <script src="js/lib/preloader/pace.min.js"></script>
-    <script src="js/lib/bootstrap.min.js"></script>
-    <script src="js/scripts.js"></script>
-     Peity 
-    <script src="js/lib/peitychart/jquery.peity.min.js"></script>
-    <script src="js/lib/peitychart/peitychart.init.js"></script>
-
-     Sparkline 
-    <script src="js/lib/sparklinechart/jquery.sparkline.min.js"></script>
-    <script src="js/lib/sparklinechart/sparkline.init.js"></script>
-
- Select2 
-    <script src="js/lib/select2/select2.full.min.js"></script>
-
- Validation
-    <script src="js/lib/form-validation/jquery.validate.min.js"></script>
-    <script src="js/lib/form-validation/jquery.validate-init.js"></script>
-  Owl Carousel 
-    <script src="js/lib/owl-carousel/owl.carousel.min.js"></script>
-    <script src="js/lib/owl-carousel/owl.carousel-init.js"></script>
- JS Grid 
-    <script src="js/lib/jsgrid/db.js"></script>
-    <script src="js/lib/jsgrid/jsgrid.core.js"></script>
-    <script src="js/lib/jsgrid/jsgrid.load-indicator.js"></script>
-    <script src="js/lib/jsgrid/jsgrid.load-strategies.js"></script>
-    <script src="js/lib/jsgrid/jsgrid.sort-strategies.js"></script>
-    <script src="js/lib/jsgrid/jsgrid.field.js"></script>
-    <script src="js/lib/jsgrid/fields/jsgrid.field.text.js"></script>
-    <script src="js/lib/jsgrid/fields/jsgrid.field.number.js"></script>
-    <script src="js/lib/jsgrid/fields/jsgrid.field.select.js"></script>
-    <script src="js/lib/jsgrid/fields/jsgrid.field.checkbox.js"></script>
-    <script src="js/lib/jsgrid/fields/jsgrid.field.control.js"></script>
-    <script src="js/lib/jsgrid/jsgrid-init.js"></script>
-
-  Nestable 
-    <script src="js/lib/nestable/jquery.nestable.js"></script>
-    <script src="js/lib/nestable/nestable.init.js"></script>
-     -->
     <script src="js/lib/sweetalert/sweetalert.min.js"></script>
     <script src="js/lib/sweetalert/sweetalert.init.js"></script>
 
 
 
-    <script>
-   var forms = document.querySelectorAll('.needs-validation')
-Array.prototype.slice.call(forms)
-  .forEach(function (form) {
-    form.addEventListener('submit', function (event) {
-      if (!form.checkValidity()) {
-        event.preventDefault()
-        event.stopPropagation()
-      }
+<script>
+document.getElementById("cpassword").addEventListener("input", () => validatePassword("cpassword"));
+document.getElementById("npassword").addEventListener("input", () => validatePassword("npassword"));
+document.getElementById("cnpassword").addEventListener("input", validateConfirmPassword);
 
-      form.classList.add('was-validated')
-    }, false)
-  }); 
+function validatePassword(field) {
+  const password = document.getElementById(field).value;
+  const errorMessage = document.getElementById(`${field}-error`);
+
+  const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  errorMessage.textContent = "";
+  
+  if (!passwordPattern.test(password)) {
+    errorMessage.textContent = "Password must be at least 8 characters with uppercase, lowercase, number & symbol.";
+    $(`#${field}`).css('background-image', 'url("../images/close.png")');
+  } else {
+    errorMessage.textContent = "";
+    $(`#${field}`).css('background-image', 'url("../images/checked.png")');
+  }
+
+  if (field === "npassword") {
+    validateConfirmPassword();
+  }
+}
+
+function validateConfirmPassword() {
+  const newPassword = document.getElementById("npassword").value;
+  const confirmPassword = document.getElementById("cnpassword").value;
+  const errorMessage = document.getElementById("cnpassword-error");
+
+  if (confirmPassword !== newPassword) {
+    errorMessage.textContent = "Passwords do not match";
+    $('#cnpassword').css('background-image', 'url("../images/close.png")');
+  } else {
+    errorMessage.textContent = "";
+    $('#cnpassword').css('background-image', 'url("../images/checked.png")');
+  }
+}
 </script>
 
 <?php 

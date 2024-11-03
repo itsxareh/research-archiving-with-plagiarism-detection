@@ -69,11 +69,13 @@ if (!isset($_SESSION['email'])){
               <form class="form-container" action="../php/student_changePassword.php" method="POST">
                 <input type="hidden" name="email" id="email" value="<?php echo htmlspecialchars($email); ?>">
                 <h4>Set a new password</h4>
+                <p>Please create a new password for your account.</p>
                 <div class="row">
                   <div class="col-xl-12 col-md-12 col-sm-12">
                     <div class="form-input">
                       <label for="npassword">New password</label>
-                      <input type="password" name="npassword" id="npassword" required>
+                      <input type="password" name="npassword" id="npassword" minlength="8" maxlength="16" required>
+                      <span  id="npassword-error" class="error-message m-t-2"></span>
                     </div>
                   </div>
                 </div>
@@ -81,7 +83,8 @@ if (!isset($_SESSION['email'])){
                   <div class="col-xl-12 col-md-12 col-sm-12">
                     <div class="form-input">
                       <label for="cnpassword">Confirm a new password</label>
-                      <input type="password" name="cnpassword" id="cnpassword" required>
+                      <input type="password" name="cnpassword" id="cnpassword" minlength="8" maxlength="16" required>
+                      <span  id="cnpassword-error" class="error-message m-t-2"></span>
                     </div>
                   </div>
                 </div>
@@ -100,6 +103,44 @@ if (!isset($_SESSION['email'])){
     </div>
   </main>
 <script>
+
+document.getElementById("npassword").addEventListener("input", () => validatePassword("npassword"));
+document.getElementById("cnpassword").addEventListener("input", validateConfirmPassword);
+
+function validatePassword(field) {
+  const password = document.getElementById(field).value;
+  const errorMessage = document.getElementById(`${field}-error`);
+
+  const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  errorMessage.textContent = "";
+
+  if (!passwordPattern.test(password)) {
+    errorMessage.textContent = "Password must be at least 8 characters with uppercase, lowercase, number & symbol.";
+    $(`#${field}`).css('background-image', 'url("../images/close.png")');
+  } else {
+    errorMessage.textContent = "";
+    $(`#${field}`).css('background-image', 'url("../images/checked.png")');
+  }
+
+  if (field === "npassword") {
+    validateConfirmPassword();
+  }
+}
+
+function validateConfirmPassword() {
+  const newPassword = document.getElementById("npassword").value;
+  const confirmPassword = document.getElementById("cnpassword").value;
+  const errorMessage = document.getElementById("cnpassword-error");
+
+  if (confirmPassword !== newPassword) {
+    errorMessage.textContent = "Passwords do not match";
+    $('#cnpassword').css('background-image', 'url("../images/close.png")');
+  } else {
+    errorMessage.textContent = "";
+    $('#cnpassword').css('background-image', 'url("../images/checked.png")');
+  }
+}
+
     const searchInput = document.getElementById("searchInput");
     const searchButton = document.getElementById("search-btn");
 

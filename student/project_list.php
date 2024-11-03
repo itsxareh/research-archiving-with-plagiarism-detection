@@ -303,8 +303,7 @@ require_once 'templates/student_navbar.php';
                         </fieldset>
                         <div class="mb-3">
                             <label class="item-meta" for="keywords">Keywords</label>
-                            <input id="keywords" name="keywords" class="form-control-keyword" value="" required> 
-                            </input>    
+                            <input id="filter-keywords" name="keywords" class="form-control-keyword" value="" required />
                         </div>
                     </div>
                 </div>
@@ -453,18 +452,29 @@ require_once 'templates/student_navbar.php';
         $(this).closest('.item-abstract').find('.abstract-group').slideToggle(200);
         $(this).find('i').toggleClass('ti-angle-down ti-angle-up');
     });
+    const keywordsInput = document.getElementById('keywords');
+    const tagify = new Tagify(keywordsInput, {
+        delimiters: ",",
+        maxTags: 7,   
+        dropdown: {
+            enabled: 0 
+        }
+    });
 
-    // const keywordsInput = document.getElementById('keywords');
-    // const tagify = new Tagify(keywordsInput, {
-    //     delimiters: ",",
-    //     maxTags: 7,   
-    //     dropdown: {
-    //         enabled: 0 
-    //     }
-    // });
-    // function getKeywords() {
-    //     return tagify.value.map(tag => tag.value).join(',');
-    // }
+    function prepareKeywords() {
+        document.getElementById('keywords').value = tagify.value.map(tag => tag.value).join(',');
+    }
+    const filterKeywordsInput = document.getElementById('filter-keywords');
+    const keywordTagify = new Tagify(filterKeywordsInput, {
+        delimiters: ",",
+        maxTags: 7,   
+        dropdown: {
+            enabled: 0 
+        }
+    });
+    function getKeywords() {
+        return keywordTagify.value.map(tag => tag.value).join(',');
+    }
     function getURLParameter(name) {
         return new URLSearchParams(window.location.search).get(name);
     }
@@ -547,8 +557,8 @@ require_once 'templates/student_navbar.php';
         });
     }
 
-    tagify.on('add', filteredData);
-    tagify.on('remove', filteredData);
+    keywordTagify.on('add', filteredData);
+    keywordTagify.on('remove', filteredData);
 
     $('#documentStatus, #research_date, #fromYear, #toYear').change(filteredData);
     $('#searchInput').on('keyup', function() {

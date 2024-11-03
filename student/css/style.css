@@ -887,16 +887,41 @@ a.dt-button.active:not(.disabled) {
   line-height: 22px;
   color: rgb(53, 53, 53);
 }
+
+.item-detail span {
+  font-size: 11px;
+}
+.item-detail:focus-within input:invalid, .item-detail:focus-within select:invalid {
+  border-color: #a33333;
+  background-image: url('../../images/close.png');
+}
+.item-detail input:valid {
+  background-image: url('../../images/checked.png');
+}
+.item-detail input:valid, .item-detail input:invalid {
+  background-size: 12.5px;
+  background-repeat: no-repeat;
+  background-position: calc(100% - 10px);
+}
+.item-detail select:valid, .item-detail select:invalid {
+  background-size: 12.5px;
+  background-repeat: no-repeat;
+  background-position: calc(100% - 20px);
+}
+.item-detail input:invalid span {
+  color: #a20e0e;
+}
+.item-detail input, .form-input select {
+  width: 100%;
+  border-radius: .575rem;
+  padding: .625rem .625rem;
+  border: #cccccc solid 1px;
+}
 .item-detail select {
   height: 44px !important;
   padding: 10px 15px;
   margin: 0.675rem 0;
   border-radius: 5px; 
-}
-.edit-info-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
 }
 .info-label { 
   margin: 0px;
