@@ -64,35 +64,35 @@ if(isset($_SESSION['auth_user']['student_id'])){
 }
 ?>
 <div class="edit-info-details">
-        <form action="" method="POST" class="needs-validation">
+    <form action="" method="POST" class="needs-validation">
+        <div class="col-sm-12 col-md-12 col-xl-12">
+          <div class="row">
             <div class="col-sm-12 col-md-12 col-xl-12">
               <div class="row">
-                <div class="col-sm-12 col-md-12 col-xl-12">
-                  <div class="row">
-                    <div class="item-detail col-sm-12 col-md-6 col-xl-6 md:p-0">
-                        <label class="info-label" for="cpassword">Current Password:</label>
-                        <input class="info-input" type="password" id="cpassword" name="cpassword" minlength = 8 maxlength = 16 required>
-                        <!-- <span  id="cpassword-error" class="error-message m-t-2"></span> -->
-                      </div>
-                    <div class="item-detail col-sm-12 col-md-6 col-xl-6 md:p-0">
-                        <label class="info-label" for="npassword">New password:</label>
-                        <input class="info-input" type="password" id="npassword" name="npassword" minlength = 8 maxlength = 16 required>
-                        <span  id="npassword-error" class="error-message m-t-2"></span>
-                      </div>
-                    <div class="item-detail col-sm-12 col-md-6 col-xl-6 md:p-0">
-                        <label class="info-label" for="cnpassword">Confirm New Password:</label>
-                        <input class="info-input" type="password" id="cnpassword" name="cnpassword" minlength = 8 maxlength = 16 required>
-                        <span  id="cnpassword-error" class="error-message m-t-2"></span>
-                      </div>
+                <div class="item-detail col-sm-12 col-md-6 col-xl-6 md:p-0">
+                    <label class="info-label" for="cpassword">Current Password:</label>
+                    <input class="info-input" type="password" id="cpassword" name="cpassword" minlength = 8 maxlength = 16 required>
+                    <!-- <span  id="cpassword-error" class="error-message m-t-2"></span> -->
                   </div>
-                  <div class="submit-container">
-                      <button class="update-button info-label m-t-10" name="update">Update</button>
+                <div class="item-detail col-sm-12 col-md-6 col-xl-6 md:p-0">
+                    <label class="info-label" for="npassword">New password:</label>
+                    <input class="info-input" type="password" id="npassword" name="npassword" minlength = 8 maxlength = 16 required>
+                    <span  id="npassword-error" class="error-message m-t-2"></span>
                   </div>
-                </div>
+                <div class="item-detail col-sm-12 col-md-6 col-xl-6 md:p-0">
+                    <label class="info-label" for="cnpassword">Confirm New Password:</label>
+                    <input class="info-input" type="password" id="cnpassword" name="cnpassword" minlength = 8 maxlength = 16 required>
+                    <span  id="cnpassword-error" class="error-message m-t-2"></span>
+                  </div>
+              </div>
+              <div class="submit-container">
+                  <button class="update-button info-label m-t-10" name="update">Update</button>
               </div>
             </div>
-        </form>
-    </div>
+          </div>
+        </div>
+    </form>
+</div>
     <script src="js/lib/sweetalert/sweetalert.min.js"></script>
     <script src="js/lib/sweetalert/sweetalert.init.js"></script>
 

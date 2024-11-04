@@ -18,7 +18,7 @@ if(isset($_GET['archiveID'])){
     $sql1 = $db->delete_research($archive_id);
 
     $_SESSION['alert'] = "Success";
-    $_SESSION['status'] = "Research DELETED";
+    $_SESSION['status'] = "Research deleted successfully";
     $_SESSION['status-code'] = "success";
 
     header('location: project_list.php');

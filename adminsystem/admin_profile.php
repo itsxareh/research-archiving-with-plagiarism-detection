@@ -109,9 +109,9 @@ require_once 'templates/admin_navbar.php';
 
 <div class="content-wrap">
     <div class="container">
-      <div class=" col-md-12">
+      <div class=" col-sm-12 col-md-12 col-lg-12">
         <div class="row">
-          <div class="col-lg-12">
+          <div class="col-md-12">
             <div class="page-header">
               <div class="page-title">
                 <h1>My account
@@ -120,44 +120,36 @@ require_once 'templates/admin_navbar.php';
             </div>
           </div>
         </div>
-        <section id="main-content">
-          <!-- Begin Page Content -->
-          <div class="container-fluid">
+        <div class="col-sm-12 col-md-12 col-lg-12 p-0">
+          <div class="row">
+              <?php
+            if(isset($_SESSION['auth_user']['admin_id'])){
 
-<!-- Page Heading -->
-<div class="profile-section">
-  <?php
-if(isset($_SESSION['auth_user']['admin_id'])){
+              $admin_id = $_SESSION['auth_user']['admin_id'];
 
-  $student_id = $_SESSION['auth_user']['admin_id'];
+              $data = $db->admin_profile($admin_id);
+                
+            }
+            ?>
 
-  $data = $db->admin_profile($student_id);
-    
-}
-?>
-
-<div class="col-md-3 p-l-0">
-  <div class="profile-menu">
-    <ul>
-      <li><a class="menu-accountInfo" href="admin_profile.php?menuTab=accountInfo"><span>Personal Information</span></a></li>
-      <li><a class="menu-accountSecurity" href="admin_profile.php?menuTab=accountSecurity"><span>Security</span></a></li>
-    </ul>
-  </div>
-</div>
-<div class="col-md-9 p-r-0">
-  <div class="content">
-    <?php 
-      $page = isset($_GET['menuTab']) ? $_GET['menuTab'] : 'accountInfo';
-      include $page.'.php';
-    ?>
-  </div>
-</div>
-</div>
-</div>
-</div>
-
-
-
+              <div class="col-sm-12 col-md-3 col-xl-3">
+                <div class="profile-menu">
+                  <ul>
+                    <li><a class="menu-accountInfo" href="admin_profile.php?menuTab=accountInfo"><span>Personal Information</span></a></li>
+                    <li><a class="menu-accountSecurity" href="admin_profile.php?menuTab=accountSecurity"><span>Security</span></a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-sm-12 col-md-9 col-xl-9">
+                <div class="content">
+                  <?php 
+                    $page = isset($_GET['menuTab']) ? $_GET['menuTab'] : 'accountInfo';
+                    include $page.'.php';
+                  ?>
+                </div>
+              </div>
+            </div>
+        </div>
   </div>                                        
 </div>
 

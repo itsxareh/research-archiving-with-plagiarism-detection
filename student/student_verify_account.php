@@ -68,6 +68,7 @@ header("location:all_project_list.php");
                 <input type="hidden" name="redirect_to" value="<?= isset($_GET['redirect_to']) ? $_GET['redirect_to'] : '' ?>">
                 <input type="hidden" name="student_no" value="<?= $student_no ?>">
                 <h4>Account Verification</h4>
+                <p>Please enter the code that we sent to you in your email address.</p>
                 <div class="row">
                   <div class="col-xl-12 col-md-12 col-sm-12">
                     <div class="form-input">
@@ -80,7 +81,6 @@ header("location:all_project_list.php");
                   <div class="col-xl-12 col-md-12 col-sm-12">
                     <div class="flex align-items-center">
                       <button name="verify" type="submit" class="login-btn">Verify now</button>
-                      <p class="m-0 ml-4">Create an account instead? <a class="signup-link" href="sign_up.php">Sign up</a></p>
                     </div>
                   </div>
                 </div>

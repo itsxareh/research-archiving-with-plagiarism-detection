@@ -239,7 +239,7 @@ require_once 'templates/student_navbar.php';
                             <li class="item" style="--i: <?=$i?>;">
                                 <div class="item-body" >
                                     <div class="item-title">
-                                        <h3><a href="view_project_research.php?archiveID=<?= $result['archive_id'] ?>"><?= ucwords($result['project_title']); ?></a></h3>
+                                        <h4><a href="view_project_research.php?archiveID=<?= $result['archive_id'] ?>"><?= ucwords($result['project_title']); ?></a></h4>
                                     </div>
                                     <div class="item-content">
                                         <p><?= $result['project_members']; ?></p>

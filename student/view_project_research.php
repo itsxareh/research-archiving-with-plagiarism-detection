@@ -94,7 +94,7 @@ require_once 'templates/student_navbar.php';
                     </p>
                 </div>
                 <div class="mt-6 text-center">
-                  <a href="login.php"
+                  <a href="login.php?redirect_to=../student/read_full.php?archiveID=<?php echo $data['archive_id']; ?>"
                         class="inline-flex w-full items-center justify-center rounded-lg hover:bg-[#c54b4b] bg-[#a33333] p-2 py-3 text-sm font-medium text-white outline-none focus:ring-2 focus:ring-black focus:ring-offset-1 disabled:bg-gray-400">
                         Log in
                     </a>
@@ -125,7 +125,7 @@ require_once 'templates/student_navbar.php';
           <div class="row">
           <div class="col-md-8">
             <div class="short-info">
-              <p><strong style="font-size: 24px; color:#313131"><?php echo $data['project_title']; ?> </strong><br></p>
+              <p><strong style="font-size: 20px; color:#313131"><?php echo $data['project_title']; ?> </strong><br></p>
               <p class="detail-font"><?php echo $data['project_members']; ?></p>
               <?php if (!empty($data['date_published'])) {
                   $first_published = DateTime::createFromFormat("Y-m-d", $data['date_published'])->format("d F Y");
@@ -149,10 +149,10 @@ require_once 'templates/student_navbar.php';
             </div>
           </div>
           <div class="col-md-4">
-          <div class="title-margin-left">
+          <div class="">
                   <div class="page-header">
                     <div class="page-title information-meta">
-                      <span class="info-font"><i class="ti-info" style="background-color: white; border-radius: 50%; margin-right:6px"></i>Information</span>
+                      <span class="info-font text-white"><i class="ti-info text-black" style="background-color: white; border-radius: 50%; margin-right:6px"></i>Information</span>
                     </div>
                   </div>
                 </div>

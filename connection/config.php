@@ -230,11 +230,11 @@ public function UPDATE_admin_profile($imagePath, $admin_id) {
 }
 
 
-public function UPDATE_admin_info_onSETTINGS($fname, $mname, $lname, $c_address, $cp_number, $adminID) {
+public function UPDATE_admin_info_onSETTINGS($fname, $mname, $lname,  $cp_number, $adminID) {
   $connection = $this->getConnection();
 
   $stmt = $connection->prepare("UPDATE admin_account SET first_name=?, middle_name=?, last_name=?, complete_address=?, phone_number=? WHERE id=?");
-  $result = $stmt->execute([$fname, $mname, $lname, $c_address, $cp_number, $adminID]);
+  $result = $stmt->execute([$fname, $mname, $lname, $cp_number, $adminID]);
 
   return $result;
 
@@ -488,7 +488,7 @@ public function SELECT_COUNT_ALL_ARCHIVE_RESEARCH(){
 public function SELECT_RECENT_RESEARCH_PAPER(){
   $connection = $this->getConnection();
 
-  $stmt = $connection->prepare("SELECT archive_research.date_published, archive_research.project_title as project_title, archive_research.archive_id as aid FROM archive_research LEFT JOIN archive_research_views ON archive_research.archive_id = archive_research_views.archive_research_id WHERE archive_research.document_status = 'Accepted' GROUP BY archive_research_id ORDER BY archive_research.id DESC LIMIT 5;");
+  $stmt = $connection->prepare("SELECT archive_research.date_published, archive_research.project_title as project_title, archive_research.archive_id as aid, archive_research.id as ari FROM archive_research WHERE archive_research.document_status = 'Accepted' ORDER BY ari DESC LIMIT 5;");
   $stmt->execute();
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -776,7 +776,6 @@ public function delete_research($archive_id) {
       $sql = $connection->prepare("SELECT archive_id, similar_archive_id FROM plagiarism_results WHERE similar_archive_id = ?");
       $sql->execute([$archive_id]);
       $result = $sql->fetchAll(PDO::FETCH_ASSOC);
-
       $sql2 = $connection->prepare("SELECT archive_id, similar_archive_id FROM plagiarism_results WHERE archive_id = ?");
       $sql2->execute([$archive_id]);
       $result2 = $sql2->fetchAll(PDO::FETCH_ASSOC);
@@ -791,6 +790,13 @@ public function delete_research($archive_id) {
           $sql4 = $connection->prepare("DELETE FROM plagiarism_summary WHERE archive_id = ?");
           $sql4->execute([$archive_id]);
 
+      }
+      $sql = $connection->prepare("SELECT documents FROM archive_research WHERE id = ?");
+      $sql->execute([$archive_id]);
+      $result = $sql->fetch(PDO::FETCH_ASSOC);
+      $filePath = $result['documents'];
+      if (file_exists($filePath)) { 
+          unlink($filePath);
       }
 
       $sql = $connection->prepare("DELETE FROM archive_research WHERE id = ?");
@@ -1127,7 +1133,7 @@ public function student_register_INSERT_Info($department, $department_course, $s
   
   
   $sql = $connection->prepare("INSERT INTO students_data(department_id, course_id, student_id, first_name, last_name, phone_number, student_email, student_password, profile_picture, verification_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-  $sql->execute([$department, $department_course, $student_number, $first_name, $last_name, $PhoneNumber, $email, md5($pword), $imagePath, $verification_code]);
+  $sql->execute([$department, $department_course, $student_number, $first_name, $last_name, $PhoneNumber, $email, md5($pword), NULL, $verification_code]);
 
 }
 
@@ -1246,7 +1252,13 @@ public function update_student_school_verification($student_id){
   
 }
 
+public function admin_Insert_NOTIFICATION($admin_id, $logs, $date, $time) {
+  $connection = $this->getConnection();
 
+  $sql = $connection->prepare("INSERT INTO system_notification(logs, logs_date, logs_time) VALUES (?, ?, ?, ?)");
+  $success = $sql->execute([$logs, $date, $time, $admin_id]);
+  return $success;
+}
 
 //NOTIFICATION COUNT
 public function student_Insert_NOTIFICATION($student_id, $logs, $date, $time) {

@@ -10,12 +10,12 @@ session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 		
-		if(isset($_POST['LogIn']))
+		if(isset($_POST['submit']))
 		{
             
             
-			$email = $_POST['adminEmail'];
-			$password = md5($_POST['adminPword']);
+			$email = $_POST['email'];
+			$password = md5($_POST['password']);
 			
 			$searchResults = $db->adminLogin($email, $password);
 			        

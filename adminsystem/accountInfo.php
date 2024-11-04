@@ -8,11 +8,10 @@ if (isset($_POST['updateInfo'])) {
     $fname = $_POST['first_name'];
     $mname = $_POST['middle_name'];
     $lname = $_POST['last_name'];
-    $department = $_POST['department'];
-    $course = $_POST['department_course'];
+    $pnumber = $_POST['pnumber'];
 
     // Fetch the current data from the database
-    $currentData = $db->student_profile($admin_id);
+    $currentData = $db->admin_profile($admin_id);
 
     // Check if the form data is different from the current data
     if ($fname !== $currentData['first_name'] ||
@@ -20,7 +19,7 @@ if (isset($_POST['updateInfo'])) {
         $lname !== $currentData['last_name']) {
 
         // Prepare and execute the SQL update query
-        $stmt = $db->UPDATE_student_info_onSETTINGS($fname, $mname, $lname, $department, $course, $admin_id);
+        $stmt = $db->UPDATE_admin_info_onSETTINGS($fname, $mname, $lname, $pnumber, $adminID);
 
         // Check if the update was successful
         if ($stmt) {
@@ -46,112 +45,78 @@ if (isset($_POST['updateInfo'])) {
         $_SESSION['status-code'] = "info";
     }
 }
-if (isset($_FILES['img_student'])) {
-  $admin_id = $_SESSION['auth_user']['admin_id'];
 
-  // Define the directory where you want to save the images
-  $uploadDirectory = '../imageFiles/'; // Change this to your desired directory
-
-  // Generate a unique filename for the updated image
-  $uniqueFilename = uniqid() . '-' . $_FILES['img_student']['name'];
-
-  // Define the full path to the saved image file
-  $imagePath = $uploadDirectory . $uniqueFilename;
-
-  // Retrieve the current image path from the database
-  $currentImagePath = $db->SELECT_admin_profile($admin_id);
-
-  // Delete the current image from the file system
-  if (file_exists($currentImagePath)) {
-      unlink($currentImagePath);
-  }
-
-  // Move the updated image to the specified directory
-  if (move_uploaded_file($_FILES['img_student']['tmp_name'], $imagePath)) {
-      // Image has been successfully updated in the file system
-
-      // Update the database with the new image path
-      $sql = $db->UPDATE_admin_profile($imagePath, $admin_id);
-
-      if ($sql) {
-
-        date_default_timezone_set('Asia/Manila');
-        $date = date('F / d l / Y');
-        $time = date('g:i A');
-        $logs = 'Profile picture updated successfully.';
-
-        $sql2 = $db->student_Insert_NOTIFICATION($admin_id, $logs, $date, $time);
-
-          $_SESSION['alert'] = "Success...";
-          $_SESSION['status'] = "Image Updated";
-          $_SESSION['status-code'] = "success";
-      } else {
-          $_SESSION['alert'] = "Failed!";
-          $_SESSION['status'] = "Database update failed";
-          $_SESSION['status-code'] = "error";
-      }
-  } else {
-      $_SESSION['status'] = "Failed to move the uploaded image";
-      $_SESSION['status-code'] = "error";
-  }
-}
 ?>
 <strong>Basic Info</strong><br>
-<div class="basic-info">
-    <form id="image-upload-form" method="POST" enctype="multipart/form-data">
-        <label class="change-picture" for="upload-image">
-            <div class="profile">
-                <img alt="" id="myImage" title="" class="profile-picture" src="<?php echo $data['admin_profile_picture']; ?>" data-original-title="Usuario">
+
+<div class="col-sm-12 col-md-12 col-xl-12">
+    <div class="row">
+        <div class="col-md-2-col-xl-2">
+            <form id="image-upload-form" method="POST" enctype="multipart/form-data">
+                <label class="change-picture" for="upload-image">
+                    <div class="profile">
+                        <img alt="" id="myImage" title="" class="profile-picture" src="<?php echo $data['admin_profile_picture']; ?>" data-original-title="Usuario">
+                    </div>
+                    <span class="info-label">Edit photo</span>
+                    <input id="upload-image" class="upload-image" type="file" name="img_student" onchange="previewAndUploadImage(event)" required accept="image/*">
+                </label>
+            </form>
+        </div>
+        <div class="col-sm-12 col-md-8 col-xl-8">
+            <div class="row">
+                <div class="col-sm-10 col-md-10 col-xl-10" id="info-details">
+                    <div class="item-detail">
+                        <span class="info-label">Name:</span>
+                        <span class="profile-info"><?php echo $data['first_name'].' '.$data['middle_name'].' '.$data['last_name']; ?></span>
+                    </div>
+                    <div class="item-detail">
+                        <span class="info-label">Address:</span>
+                        <span class="profile-info"><?php echo $data['complete_address']; ?></span>
+                    </div>
+                    <div class="item-detail">
+                        <span class="info-label">Status</span>
+                        <span class="profile-info"><?php echo $data['verify_status']; ?></span>
+                    </div>
+                </div>
+                <div class="col-sm-2 col-md-2 col-xl-2">
+                    <button class="float-right edit-button info-label">Edit<span><i class="ti-pencil m-l-4"></i></span></button>
+                </div>
+                <div class="col-sm-10 col-md-10 col-xl-10" id="edit-info" style="display: none;">
+                    <form action="" method="POST">
+                        <div class="close-right">
+                            <button class="close-button info-label">Close <span><i class="ti-close m-l-4"></i></span></button>
+                        </div>
+                        <div class="edit-info-container">
+                            <div class="item-detail">
+                                <label class="info-label" for="first_name">First Name</label>
+                                <input class="info-input" type="text" id="first_name" name="first_name" value="<?php echo $data['first_name'];?>">
+                            </div>
+                            <div class="item-detail">
+                                <label class="info-label" for="middle_name">Middle Name</label>
+                                <input class="info-input" type="text" id="middle_name" name="middle_name" value="<?php echo $data['middle_name'];?>">
+                            </div>
+                            <div class="item-detail">
+                                <label class="info-label" for="last_name">Last Name</label>
+                                <input class="info-input" type="text" id="last_name" name="last_name" value="<?php echo $data['last_name'];?>">
+                            </div>
+                            <div class="item-detail">
+                            <label class="info-label" for="pnumber">Phone number</label>
+                            <input class="info-input" type="text" id="pnumber" name="pnumber" value="<?php echo $data['phone_number'];?>">
+                            </div>
+                        </div>
+                        <div class="submit-container">
+                            <button class="close-button info-label m-r-8 m-t-10">Close</button>
+                            <button class="update-button info-label m-t-10" name="updateInfo">Update</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <span class="info-label">Edit photo</span>
-            <input id="upload-image" class="upload-image" type="file" name="img_student" onchange="previewAndUploadImage(event)" required accept="image/*">
-        </label>
-    </form>
-    <div class="info-details">
-        <div class="item-detail">
-            <span class="info-label">Name:</span>
-            <span class="profile-info"><?php echo $data['first_name'].' '.$data['middle_name'].' '.$data['last_name']; ?></span>
         </div>
-        <div class="item-detail">
-            <span class="info-label">Address:</span>
-            <span class="profile-info"><?php echo $data['complete_address']; ?></span>
-        </div>
-        <div class="item-detail">
-            <span class="info-label">Status</span>
-            <span class="profile-info"><?php echo $data['verify_status']; ?></span>
-        </div>
+        
     </div>
-    <div class="edit-info-details" style="display: none;">
-        <form action="" method="POST">
-            <div class="close-right">
-                <button class="close-button info-label">Close <span><i class="ti-close m-l-4"></i></span></button>
-            </div>
-            <div class="edit-info-container">
-                <div class="item-detail">
-                    <label class="info-label" for="first_name">First Name:</label>
-                    <input class="info-input" type="text" id="first_name" name="first_name" value="<?php echo $data['first_name'];?>">
-                </div>
-                <div class="item-detail">
-                    <label class="info-label" for="middle_name">Middle Name:</label>
-                    <input class="info-input" type="text" id="middle_name" name="middle_name" value="<?php echo $data['middle_name'];?>">
-                </div>
-                <div class="item-detail">
-                    <label class="info-label" for="last_name">Last Name:</label>
-                    <input class="info-input" type="text" id="last_name" name="last_name" value="<?php echo $data['last_name'];?>">
-                </div>
-                <div class="item-detail">
-                <label class="info-label" for="complete_address">Address:</label>
-                <input class="info-input" type="text" id="complete_address" name="complete_address" value="<?php echo $data['complete_address'];?>">
-                </div>
-            </div>
-            <div class="submit-container">
-                <button class="close-button info-label m-r-8 m-t-10">Close</button>
-                <button class="update-button info-label m-t-10" name="updateInfo">Update</button>
-            </div>
-        </form>
+    <div class="edit-info-details">
+        
     </div>
-    <button class="edit-button info-label">Edit<span><i class="ti-pencil m-l-4"></i></span></button>
-</div>
 <hr class="divider-space">
 <strong>Email Address</strong><br>
 <div class="email-info">
@@ -210,16 +175,16 @@ if (isset($_FILES['img_student'])) {
         });
     }
     $(".edit-button").click(function() {
-        $(".info-details").hide();
+        $("#info-details").hide();
         $(".edit-button").hide();
-        $(".edit-info-details").show();
+        $("#edit-info").show();
     });
 
     $(".close-button").click(function(e) {
         e.preventDefault();
-        $(".edit-info-details").hide();
+        $("#edit-info").hide();
         $(".edit-button").show();
-        $(".info-details").show();
+        $("#info-details").show();
     });
 </script>
 <?php 

@@ -141,7 +141,7 @@ if(isset($_GET['contact_email'])){
   <div class="col-md-4 p-r-0">
     <div class="content">
       <div class="profile-img">
-        <img id="viewImage" src="<?php echo $data['profile_picture'];?>" alt="Profile Image">
+        <img id="viewImage" src="<?= isset($data['profile_picture']) ? $data['profile_picture'] : '../images/default-profile.svg' ?>" alt="Profile Image">
       </div>
     </div>
   </div>

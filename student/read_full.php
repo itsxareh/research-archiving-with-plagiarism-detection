@@ -99,7 +99,7 @@ require_once 'templates/student_navbar.php';
   ?>
     <div class="col-md-8">
         <div class="short-info">
-            <p><strong style="font-size: 24px; color:#313131"><?php echo $data['project_title']; ?> </strong><br></p>
+            <p><strong style="font-size: 20px; color:#313131"><?php echo $data['project_title']; ?> </strong><br></p>
             <p class="detail-font"><?php echo $data['project_members']; ?></p>
             <?php if (!empty($data['date_published'])) {
               $first_published = DateTime::createFromFormat("Y-m-d", $data['date_published'])->format("d F Y");
@@ -117,7 +117,7 @@ require_once 'templates/student_navbar.php';
       <div class="title-margin-left">
         <div class="page-header">
           <div class="page-title information-meta">
-            <span>Information</span>
+            <span class="info-font text-white"><i class="ti-info text-black" style="background-color: white; border-radius: 50%; margin-right:6px"></i>Information</span>
           </div>
         </div>
       </div>
@@ -126,7 +126,7 @@ require_once 'templates/student_navbar.php';
         <ul>
           <li class="info-meta"><label>Course:</label><?= $data['course_name'] ?></li>
           <li class="info-meta"><label>Department:</label><?= $data['name'] ?></li>
-          <li class="info-meta"><label>Contact Email:</label><?= $data['research_owner_email'] ?></li>
+          <li class="info-meta"><label>Contact Email:</label><a href="view_profile.php?contact_email=<?= $data['research_owner_email'] ?>"><?= $data['research_owner_email'] ?><i class="ti-arrow-top-right"></i></a></li>
         </ul>
       </div>
       <div class="info-container">

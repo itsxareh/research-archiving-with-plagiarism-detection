@@ -99,7 +99,7 @@ require_once 'templates/admin_navbar.php';
   ?>
     <div class="col-md-8">
         <div class="short-info">
-            <p><strong style="font-size: 24px; color:#313131"><?php echo ucwords($data['project_title']); ?> </strong><br></p>
+            <p><strong style="font-size: 20px; color:#313131"><?php echo ucwords($data['project_title']); ?> </strong><br></p>
             <p class="detail-font"><?php echo $data['project_members']; ?></p>
             <?php if (!empty($data['date_published'])) {
               $first_published = DateTime::createFromFormat("Y-m-d", $data['date_published'])->format("d F Y");
@@ -117,7 +117,7 @@ require_once 'templates/admin_navbar.php';
     <div class="title-margin-left">
       <div class="page-header">
         <div class="page-title information-meta">
-          <span class="info-font"><i class="ti-info" style="background-color: white; border-radius: 50%; margin-right:6px"></i>Information</span>
+          <span class="info-font text-white"><i class="ti-info text-black" style="background-color: white; border-radius: 50%; margin-right:6px"></i>Information</span>
         </div>
       </div>
     </div>

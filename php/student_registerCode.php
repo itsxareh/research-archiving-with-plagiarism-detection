@@ -17,7 +17,6 @@ session_start();
 
 
 if (isset($_POST['sign-up'])) {
-
     $first_name = $_POST['firstname'];
     // $middle_name = $_POST['middlename'];
     $last_name = $_POST['lastname'];
@@ -30,8 +29,7 @@ if (isset($_POST['sign-up'])) {
     $verification_code = rand(100000, 999999);
 
     $uniqueId = uniqid() . mt_rand(1000, 9999);
-    $imagePath = '../imageFiles/'.$uniqueId.'- default-profile.png';
-
+    
     $snumberPattern = '/^\d{3}-\d{5}[A-Za-z]$/';
     $passwordPattern = '/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/';
     if (!preg_match($snumberPattern, $_POST['snumber'])) {
@@ -69,11 +67,9 @@ if (isset($_POST['sign-up'])) {
         header("location: ../student/sign_up.php");
         exit();
     }
-
+    
     if ($pword) {
-
-        $sql = $db->student_register_INSERT_Info($department, $course, $student_number, $first_name, $last_name, $PhoneNumber, $email, $pword, $imagePath, $verification_code);
-
+        $sql = $db->student_register_INSERT_Info($department, $course, $student_number, $first_name, $last_name, $PhoneNumber, $email, $pword, '', $verification_code);
 
         $mail = new PHPMailer(true);
 
@@ -93,7 +89,7 @@ if (isset($_POST['sign-up'])) {
         $mail->send();
 
         $_SESSION['alert'] = "Success";
-        $_SESSION['status'] = "Student Registered. Kindly check your registered email for account verification code.";
+        $_SESSION['status'] = "Kindly check your registered email for account verification code.";
         $_SESSION['status-code'] = "success";
         header("location: ../student/student_verify_account.php?student_no={$student_number}");
     } else {

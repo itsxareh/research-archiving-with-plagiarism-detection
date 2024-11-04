@@ -1,7 +1,74 @@
 <?php
 $db = new Database();
 ?>
+<style type="text/css">
+    .menu-container {
+    position: relative;
+    display: inline-block;
+    text-align: left;
+}
 
+/* Button styling */
+.menu-button {
+    display: inline-flex;
+    width: 100%;
+    justify-content: center;
+    gap: 8px; /* Adjust spacing as needed */
+    border-radius: 4px;
+    background-color: #ffffff;
+    padding: 8px 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1f2937; /* gray-900 */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* shadow-sm */
+    border: none;
+    /* border: 1px solid #d1d5db; ring-gray-300 */
+    transition: background-color 0.2s ease;
+}
+
+.menu-button:hover {
+    cursor: pointer;
+    background-color: #f9fafb; /* hover:bg-gray-50 */
+}
+
+/* SVG Icon styling */
+.menu-icon {
+    margin-right: -4px;
+    height: 20px;
+    width: 20px;
+    color: #9ca3af; /* gray-400 */
+}
+
+/* Dropdown styling */
+.dropdown-profile {
+    display: none;
+    position: absolute;
+    right: 0;
+    z-index: 10;
+    margin-top: 16px;
+    width: 164px;
+    border-radius: 4px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* shadow-lg */
+    border: 1px solid rgba(0, 0, 0, 0.05); /* ring-black ring-opacity-5 */
+    outline: none;
+}
+
+/* Dropdown item styling */
+.dropdown-item {
+    display: block;
+    padding: 8px 16px;
+    font-size: 0.875rem;
+    color: #4b5563; /* gray-700 */
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #f3f4f6; /* bg-gray-100 */
+    color: #1f2937; /* text-gray-900 */
+}
+</style>
 
 <div class="sidebar sidebar-hide-to-small sidebar-shrink sidebar-gestures">
     <div class="nano">
@@ -97,10 +164,7 @@ $db = new Database();
                         </div>
                     </div>
                 </div>
-                
-                <div class="dropdown dib">
-                    <div class="header-icon" data-toggle="dropdown">
-                    <?php
+                <?php
                         if(isset($_SESSION['auth_user']['admin_id'])) {
                             $adminID = $_SESSION['auth_user']['admin_id'];
 
@@ -109,7 +173,26 @@ $db = new Database();
 
                         }
                     ?>
-                        <span class="user-avatar"><?php echo $result['first_name'];?> <?php echo $result['last_name'];?>
+                <div class="menu-container">
+                    <div>
+                        <button type="button" class="menu-button" id="menu-button" aria-expanded="true" aria-haspopup="true">
+                            <?php echo $result['first_name']; ?> <?php echo $result['last_name']; ?>
+                            <svg class="menu-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="dropdown-profile" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                        <div role="none">
+                            <a href="#" onclick="profile();" class="dropdown-item" role="menuitem" tabindex="-1" id="menu-item-0">Account settings</a>
+                            <a href="#" onclick="logout();" class="dropdown-item" role="menuitem" tabindex="-1" id="menu-item-1">Sign out</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="dropdown dib">
+                    <div class="header-icon" data-toggle="dropdown">
+
+                        <span class="user-avatar">
                             <i class="ti-angle-down f-s-10"></i>
                         </span>
 
@@ -119,13 +202,7 @@ $db = new Database();
                                     <li>
                                         <a href="#" onclick="profile();">
                                             <i class="ti-settings"></i>
-                                            <span>Settings</span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" onclick="add_admin();">
-                                            <i class="ti-user"></i>
-                                            <span>Add Admin</span>
+                                            <span>My Info</span>
                                         </a>
                                     </li>
                                     <li>
@@ -138,7 +215,7 @@ $db = new Database();
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
@@ -176,7 +253,12 @@ $db = new Database();
         });
     });
 </script>
-
+<script>
+    document.getElementById("menu-button").addEventListener("click", function () {
+        const dropdown = document.querySelector(".dropdown-profile");
+        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    });
+</script>
 
 <script>
   function profile() {

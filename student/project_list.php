@@ -219,8 +219,8 @@ require_once 'templates/student_navbar.php';
                                         <input type="text" class="info-input" id="keywords" name="keywords" placeholder="Ex: Data Analytics, Machine Learning, Invention" required>
                                     </div>
                                     <div class="item-detail">
-                                        <label for="" class="info-label m-l-4">Project File (PDF)</label>
-                                        <input type="file" accept=".pdf" class="info-input-file" name="project_file" required>
+                                        <label for="" class="info-label m-l-4">Research Paper Softcopy (PDF)</label>
+                                        <input type="file" accept=".pdf" class="info-input-file" style="border:none" name="project_file" required>
                                     </div>
                                 </div>
                             </div>
@@ -234,209 +234,213 @@ require_once 'templates/student_navbar.php';
                     </div>
                 </div>
             <section class="project-page-content">
-                <div class="col-md-3">
-                    <div class="add-research">
-                        <button type="button" class="add-research-button item-meta" data-toggle="modal" data-target="#modelId">
-                        <i class="ti-plus m-r-4"></i> Add New Research
-                        </button>
-                    </div>
-                    <div class="advance-filter-search">
-                        <p class="font-black bold">Filter</p>
-                        <!-- <div class="mb-3 mb-sm-0">
-                            <label for="" class="item-meta">Select Department</label>
-                            <select id="inputDepartment_search" name="department" class="selectpicker form-control item-meta" required>
-                            <option></option>
-                            <?php 
-                                $res = $db->showDepartments_WHERE_ACTIVE();
-
-                                foreach ($res as $item) {
-                                echo '<option value="'.$item['name'].'">'.$item['name'].'</option>';
-                                }
-                            ?>
-                            
-                            </select>
-                        </div> -->
-                        <div class="mb-3">
-                        <label class="item-meta" for="research_date">Sort by</label>
-                            <select id="research_date" name="research_date" class="form-control item-meta" required>
-                                <option value=""></option>    
-                                <option value="newest">Newest</option>
-                                <option value="oldest">Oldest</option>
-                            </select>
-                        </div>
-                        <fieldset class="mb-3">
-                            <div class="input-filter-group">
-                                <label class="item-meta" for="info-label">Document Status:</label>
-                                <select class="item-meta" style="width: auto;" name="documentStatus" id="documentStatus">
-                                    <option value="">All</option>
-                                    <option value="Accepted">Published</option>
-                                    <option value="Not Accepted">Not yet published</option>
-                                </select>
-                        </fieldset>
-                        <fieldset class="mb-3">
-                            <div class="input-filter-group">
-                                <label class="item-meta" for="info-label">From:</label>
-                                <select class="item-meta" name="fromYear" id="fromYear">
-                                    <option value=""></option>
-                                    <?php 
-                                        $defaultYear = 1999;
-                                        for ($year = 1999; $year <= 2024; $year++) {
-                                            $selected = ($year == $defaultYear) ? 'selected' : ''; 
-                                            echo "<option value =\"$year\">$year</option>";
-                                        }
-                                    ?>
-                                </select>
+                <div class="col-sm-12 col-md-12 col-xl-12">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-4 col-xl-3">
+                            <div class="add-research">
+                                <button type="button" class="add-research-button item-meta" data-toggle="modal" data-target="#modelId">
+                                <i class="ti-plus m-r-4"></i> Add New Research
+                                </button>
                             </div>
-                            <div class="input-filter-group">
-                                <label class="item-meta" for="info-label">To:</label>
-                                <select class="item-meta" name="toYear" id="toYear">
-                                    <option value=""></option>
+                            <div class="advance-filter-search">
+                                <p class="font-black bold">Filter</p>
+                                <!-- <div class="mb-3 mb-sm-0">
+                                    <label for="" class="item-meta">Select Department</label>
+                                    <select id="inputDepartment_search" name="department" class="selectpicker form-control item-meta" required>
+                                    <option></option>
                                     <?php 
-                                        $defaultYear = date('Y');
-                                        for ($year = date('Y'); $year >= 1999; $year--) {
-                                            $selected = ($year == $defaultYear) ? 'selected' : ''; 
-                                            echo "<option value =\"$year\">$year</option>";
-                                        }
-                                    ?>
-                                </select>
-                            </div>
-                        </fieldset>
-                        <div class="mb-3">
-                            <label class="item-meta" for="keywords">Keywords</label>
-                            <input id="filter-keywords" name="keywords" class="form-control-keyword" value="" required />
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-9">
-                    <div id="data-result" style="display:none">
-                        <?php if ($displaySearchInfo): ?>
-                        <p><span id="resultNumber"></span> results found <span id="inputSearch" style="display: none; font-weight:400"></span></p>
-                    </div>
-                    <?php endif; ?>
-                    <ul id="search-result" tabindex="-1">
-                    <?php
-                        $i = 1;
-                        if (count($projects) > 0) {
-                            foreach ($projects as $result) {
-                    ?>
-                        <li class="project-list item" style="--i: <?=$i;?>;">
-                            <div class="item-body">
-                                <div class="project-tag">
-                                    <?php 
-                                        if ($result['document_status'] == "Accepted") {
-                                            echo '<span class="badge badge-success tag" style="font-size: 12px;">Published</span>';
-                                        } else {
-                                                echo '<span class="badge badge-danger tag" style="font-size: 12px;">Not Published</span>';
+                                        $res = $db->showDepartments_WHERE_ACTIVE();
 
+                                        foreach ($res as $item) {
+                                        echo '<option value="'.$item['name'].'">'.$item['name'].'</option>';
                                         }
                                     ?>
                                     
+                                    </select>
+                                </div> -->
+                                <div class="mb-3">
+                                <label class="item-meta" for="research_date">Sort by</label>
+                                    <select id="research_date" name="research_date" class="form-control item-meta" required>
+                                        <option value=""></option>    
+                                        <option value="newest">Newest</option>
+                                        <option value="oldest">Oldest</option>
+                                    </select>
                                 </div>
-                                <div class="item-title">
-                                    <h3><a href="view_project_research.php?archiveID=<?= $result['archive_id'] ?>"><?php echo $result['project_title'];?></a></h3>
-                                </div>
-                                <div class="item-content">
-                                    <p><?php echo $result['project_members'];?></p>
-                                </div>
-                                <div class="item-meta">
-                                    <p><?php echo $result['name'];?></p>
-                                    <p>Archive ID: <?php echo $result['archive_id'];?></p>
-                                    <p>
-                                        <?php 
-                                            if (!empty($result['date_published'])) {
-                                                $first_published = DateTime::createFromFormat("Y-m-d", $result['date_published'])->format("d F Y");
-                                                echo "Published: ", $first_published;
-                                            } else {
-                                                 echo "Not yet published";
- 
-                                            }
-                                        ?>
-                                    </p>
-                                </div>
-                                <div class="item-abstract">
-                                    <h3 class="abstract-title"><a href="#"><span>Abstract</span><i class="ti-angle-down f-s-10"></i></a></h3>
-                                    <div class="abstract-group" style="display:none">
-                                        <section class="item-meta">
-                                            <div class="abstract-article">
-                                                <p><?= $result['project_abstract']?></p>
-                                            </div>
-                                        </section>
+                                <fieldset class="mb-3">
+                                    <div class="input-filter-group">
+                                        <label class="item-meta" for="info-label">Document Status:</label>
+                                        <select class="item-meta" style="width: auto;" name="documentStatus" id="documentStatus">
+                                            <option value="">All</option>
+                                            <option value="Accepted">Published</option>
+                                            <option value="Not Accepted">Not yet published</option>
+                                        </select>
+                                </fieldset>
+                                <fieldset class="mb-3">
+                                    <div class="input-filter-group">
+                                        <label class="item-meta" for="info-label">From:</label>
+                                        <select class="item-meta" name="fromYear" id="fromYear">
+                                            <option value=""></option>
+                                            <?php 
+                                                $defaultYear = 1999;
+                                                for ($year = 1999; $year <= 2024; $year++) {
+                                                    $selected = ($year == $defaultYear) ? 'selected' : ''; 
+                                                    echo "<option value =\"$year\">$year</option>";
+                                                }
+                                            ?>
+                                        </select>
                                     </div>
+                                    <div class="input-filter-group">
+                                        <label class="item-meta" for="info-label">To:</label>
+                                        <select class="item-meta" name="toYear" id="toYear">
+                                            <option value=""></option>
+                                            <?php 
+                                                $defaultYear = date('Y');
+                                                for ($year = date('Y'); $year >= 1999; $year--) {
+                                                    $selected = ($year == $defaultYear) ? 'selected' : ''; 
+                                                    echo "<option value =\"$year\">$year</option>";
+                                                }
+                                            ?>
+                                        </select>
+                                    </div>
+                                </fieldset>
+                                <div class="mb-3">
+                                    <label class="item-meta" for="keywords">Keywords</label>
+                                    <input id="filter-keywords" name="keywords" class="form-control-keyword" value="" required />
                                 </div>
                             </div>
-                            <div class="project-action">
-                                <a href="delete_research.php?archiveID=<?= $result['archiveID'] ?>" class="btn"><i class="ti-trash" title="Delete Research"></i></a>            
-                            </div>
-                            
-                        </li>
-                        <?php
-                            $i++;
-                            }
-                        } else {
-                            echo "<p style='text-align: center'>No uploaded research found.</p>";
-                        }
-                        ?>
-                        <div class="pagination-container">
-                            <?php
-                                $params = [
-                                    'documentStatus' => isset($_GET['documentStatus']) ? $_GET['documentStatus'] : '',
-                                    'fromYear' => isset($_GET['fromYear']) ? $_GET['fromYear'] : '',
-                                    'toYear' => isset($_GET['toYear']) ? $_GET['toYear'] : '',
-                                    'research_date' => isset($_GET['research_date']) ? $_GET['research_date'] : '',
-                                    'searchInput' => isset($_GET['searchInput']) ? $_GET['searchInput'] : '',
-                                    'keywords' => isset($_GET['keywords']) ? $_GET['keywords'] : ''
-                                ];
-
-                                // Filter out empty parameters
-                                $queryString = http_build_query(array_filter($params));
-
-                                $pageUrl = function($pageNum) use ($queryString) {
-                                    return "?page=$pageNum" . ($queryString ? "&$queryString" : '');
-                                };
-
-                                $visiblePages = 5; 
-                                $startPage = max(1, $page - floor($visiblePages / 2));
-                                $endPage = min($totalPages, $startPage + $visiblePages - 1);
-                        
-                                // Adjust startPage if near the end of pagination range
-                                if ($endPage - $startPage + 1 < $visiblePages) {
-                                    $startPage = max(1, $endPage - $visiblePages + 1);
-                                }
-                        
-                                // "Prev" button
-                                if ($page > 1) {
-                                    echo '<a class="pagination prev" href="' . $pageUrl($page - 1) . '" onclick="filteredData()">Prev</a>';
-                                }
-                        
-                                // First page link
-                                if ($startPage > 1) {
-                                    echo '<a class="pagination" href="' . $pageUrl(1) . '" onclick="filteredData()">1</a>';
-                                    if ($startPage > 2) {
-                                        echo '<span>...</span>';
-                                    }
-                                }
-                        
-                                // Display page numbers within the range
-                                for ($i = $startPage; $i <= $endPage; $i++) {
-                                    echo '<a class="pagination" href="' . $pageUrl($i) . '" onclick="filteredData()" ' .
-                                        ($i == $page ? 'id="active"' : '') . '>' . $i . '</a>';
-                                }
-                        
-                                // Last page link
-                                if ($endPage < $totalPages) {
-                                    if ($endPage < $totalPages - 1) {
-                                        echo '<span>...</span>';
-                                    }
-                                    echo '<a class="pagination" href="' . $pageUrl($totalPages) . '" onclick="filteredData()">' . $totalPages . '</a>';
-                                }
-                        
-                                // "Next" button
-                                if ($page < $totalPages) {
-                                    echo '<a class="pagination next" href="' . $pageUrl($page + 1) . '" onclick="filteredData()">Next</a>';
-                                } 
-                                ?>
                         </div>
-                    </ul>
+                        <div class="col-md-8">
+                            <div id="data-result" style="display:none">
+                                <?php if ($displaySearchInfo): ?>
+                                <p><span id="resultNumber"></span> results found <span id="inputSearch" style="display: none; font-weight:400"></span></p>
+                            </div>
+                            <?php endif; ?>
+                            <ul id="search-result" tabindex="-1">
+                            <?php
+                                $i = 1;
+                                if (count($projects) > 0) {
+                                    foreach ($projects as $result) {
+                            ?>
+                                <li class="project-list item" style="--i: <?=$i;?>;">
+                                    <div class="item-body">
+                                        <div class="project-tag">
+                                            <?php 
+                                                if ($result['document_status'] == "Accepted") {
+                                                    echo '<span class="badge badge-success tag" style="font-size: 12px;">Published</span>';
+                                                } else {
+                                                        echo '<span class="badge badge-danger tag" style="font-size: 12px;">Not Published</span>';
+
+                                                }
+                                            ?>
+                                            
+                                        </div>
+                                        <div class="item-title">
+                                            <h3><a href="view_project_research.php?archiveID=<?= $result['archive_id'] ?>"><?php echo $result['project_title'];?></a></h3>
+                                        </div>
+                                        <div class="item-content">
+                                            <p><?php echo $result['project_members'];?></p>
+                                        </div>
+                                        <div class="item-meta">
+                                            <p><?php echo $result['name'];?></p>
+                                            <p>Archive ID: <?php echo $result['archive_id'];?></p>
+                                            <p>
+                                                <?php 
+                                                    if (!empty($result['date_published'])) {
+                                                        $first_published = DateTime::createFromFormat("Y-m-d", $result['date_published'])->format("d F Y");
+                                                        echo "Published: ", $first_published;
+                                                    } else {
+                                                        echo "Not yet published";
+        
+                                                    }
+                                                ?>
+                                            </p>
+                                        </div>
+                                        <div class="item-abstract">
+                                            <h3 class="abstract-title"><a href="#"><span>Abstract</span><i class="ti-angle-down f-s-10"></i></a></h3>
+                                            <div class="abstract-group" style="display:none">
+                                                <section class="item-meta">
+                                                    <div class="abstract-article">
+                                                        <p><?= $result['project_abstract']?></p>
+                                                    </div>
+                                                </section>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="project-action">
+                                        <a href="delete_research.php?archiveID=<?= $result['archiveID'] ?>" class="btn"><i class="ti-trash" title="Delete Research"></i></a>            
+                                    </div>
+                                    
+                                </li>
+                                <?php
+                                    $i++;
+                                    }
+                                } else {
+                                    echo "<p style='text-align: center'>No uploaded research found.</p>";
+                                }
+                                ?>
+                                <div class="pagination-container">
+                                    <?php
+                                        $params = [
+                                            'documentStatus' => isset($_GET['documentStatus']) ? $_GET['documentStatus'] : '',
+                                            'fromYear' => isset($_GET['fromYear']) ? $_GET['fromYear'] : '',
+                                            'toYear' => isset($_GET['toYear']) ? $_GET['toYear'] : '',
+                                            'research_date' => isset($_GET['research_date']) ? $_GET['research_date'] : '',
+                                            'searchInput' => isset($_GET['searchInput']) ? $_GET['searchInput'] : '',
+                                            'keywords' => isset($_GET['keywords']) ? $_GET['keywords'] : ''
+                                        ];
+
+                                        // Filter out empty parameters
+                                        $queryString = http_build_query(array_filter($params));
+
+                                        $pageUrl = function($pageNum) use ($queryString) {
+                                            return "?page=$pageNum" . ($queryString ? "&$queryString" : '');
+                                        };
+
+                                        $visiblePages = 5; 
+                                        $startPage = max(1, $page - floor($visiblePages / 2));
+                                        $endPage = min($totalPages, $startPage + $visiblePages - 1);
+                                
+                                        // Adjust startPage if near the end of pagination range
+                                        if ($endPage - $startPage + 1 < $visiblePages) {
+                                            $startPage = max(1, $endPage - $visiblePages + 1);
+                                        }
+                                
+                                        // "Prev" button
+                                        if ($page > 1) {
+                                            echo '<a class="pagination prev" href="' . $pageUrl($page - 1) . '" onclick="filteredData()">Prev</a>';
+                                        }
+                                
+                                        // First page link
+                                        if ($startPage > 1) {
+                                            echo '<a class="pagination" href="' . $pageUrl(1) . '" onclick="filteredData()">1</a>';
+                                            if ($startPage > 2) {
+                                                echo '<span>...</span>';
+                                            }
+                                        }
+                                
+                                        // Display page numbers within the range
+                                        for ($i = $startPage; $i <= $endPage; $i++) {
+                                            echo '<a class="pagination" href="' . $pageUrl($i) . '" onclick="filteredData()" ' .
+                                                ($i == $page ? 'id="active"' : '') . '>' . $i . '</a>';
+                                        }
+                                
+                                        // Last page link
+                                        if ($endPage < $totalPages) {
+                                            if ($endPage < $totalPages - 1) {
+                                                echo '<span>...</span>';
+                                            }
+                                            echo '<a class="pagination" href="' . $pageUrl($totalPages) . '" onclick="filteredData()">' . $totalPages . '</a>';
+                                        }
+                                
+                                        // "Next" button
+                                        if ($page < $totalPages) {
+                                            echo '<a class="pagination next" href="' . $pageUrl($page + 1) . '" onclick="filteredData()">Next</a>';
+                                        } 
+                                        ?>
+                                </div>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </section>
         </div>
