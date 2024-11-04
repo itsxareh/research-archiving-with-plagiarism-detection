@@ -45,6 +45,7 @@ session_start();
     <link rel="apple-touch-icon" sizes="57x57" href="http://placehold.it/57.png/000/fff">   
 
     <!-- Common -->
+    <link href="../css/styles.css" rel="stylesheet">
     <link href="css/lib/font-awesome.min.css" rel="stylesheet">
     <link href="css/lib/themify-icons.css" rel="stylesheet">
     <link href="css/lib/menubar/sidebar.css" rel="stylesheet">
@@ -62,7 +63,52 @@ require_once 'templates/student_navbar.php';
 <!---------NAVIGATION BAR ENDS-------->
 
 
+<div id="login-popup" tabindex="-1"
+    class="bg-black/50 hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 h-full items-center justify-center flex">
+    <div class="relative p-4 w-full max-w-md h-full h-auto">
 
+        <div class="relative bg-white rounded-lg shadow">
+            <button type="button"
+                class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center popup-close">
+                <svg
+                    aria-hidden="true" class="w-5 h-5" style="width: 1.25rem !important;" fill="#000" viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      cliprule="evenodd">
+                    </path>
+                </svg>
+                <span class="sr-only">Close popup</span>
+            </button>
+
+            <div class="p-15">
+                <h3 class="text-2xl mb-0.5 font-medium"></h3>
+                <p class="mb-4 text-sm font-normal text-gray-800"></p>
+
+                <div class="text-center">
+                    <p class="mb-3 text-2xl font-semibold leading-5 text-slate-900">
+                        Login to your account
+                    </p>
+                    <p class="mt-2 text-sm leading-4 text-slate-600">
+                        You must be logged in to perform this action.
+                    </p>
+                </div>
+                <div class="mt-6 text-center">
+                  <a href="login.php"
+                        class="inline-flex w-full items-center justify-center rounded-lg hover:bg-[#c54b4b] bg-[#a33333] p-2 py-3 text-sm font-medium text-white outline-none focus:ring-2 focus:ring-black focus:ring-offset-1 disabled:bg-gray-400">
+                        Log in
+                    </a>
+                </div>
+                <div class="mt-2 text-center">
+                  <a href="sign_up.php"
+                        class="inline-flex w-full items-center justify-center rounded-lg  p-2 py-3  hover:bg-[#333] bg-black text-sm font-medium text-white outline-none focus:ring-2 focus:ring-black focus:ring-offset-1 disabled:bg-gray-400">
+                        Sign up
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="content-wrap">
   <div class="container">
       <div class="col-md-12">
@@ -95,7 +141,11 @@ require_once 'templates/student_navbar.php';
                <p style="height: auto; background:none; border: none; margin: 0" class="detail-font" id="projectAbstract" readonly><?php echo $data['project_abstract']; ?></p>
               </div>
               <br>
-              <a style="color: #BB0505;" href="read_full.php?archiveID=<?php echo $data['archive_id'] ; ?>">Read full text</a>
+              <?php if (isset($_SESSION['auth_user']['student_id']) == 0): ?>
+                  <a style="color: #BB0505;" href="javascript:void(0);" data-require-login="true">Read full text</a>
+              <?php else: ?>
+                  <a style="color: #BB0505;" href="read_full.php?archiveID=<?php echo $data['archive_id']; ?>">Read full text</a>
+              <?php endif; ?>
             </div>
           </div>
           <div class="col-md-4">
@@ -155,13 +205,20 @@ require_once 'templates/student_navbar.php';
 
 <!----------------UPLOAD OR UPDATE AN IMAGE AND DISPLAYS THE SELECTED IMAGE FIRST BEFORE UPDATING OR UPLOADING--------------->
 <script>
-    function previewImage(event) {
-  var reader = new FileReader();
-  reader.onload = function () {
-    var output = document.getElementById('myImage');
-    output.src = reader.result;
-  }
-  reader.readAsDataURL(event.target.files[0]);
+const loginPopup = document.getElementById("login-popup");
+const requireLoginLink = document.querySelector('[data-require-login="true"]');
+const popupClose = document.querySelector(".popup-close");
+
+if (requireLoginLink) {
+    requireLoginLink.addEventListener("click", function () {
+        loginPopup.classList.remove("hidden");
+    });
+}
+
+if (popupClose) {
+    popupClose.addEventListener("click", function () {
+        loginPopup.classList.add("hidden");
+    });
 }
 </script>
 

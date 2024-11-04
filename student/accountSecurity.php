@@ -72,17 +72,17 @@ if(isset($_SESSION['auth_user']['student_id'])){
                     <div class="item-detail col-sm-12 col-md-6 col-xl-6 md:p-0">
                         <label class="info-label" for="cpassword">Current Password:</label>
                         <input class="info-input" type="password" id="cpassword" name="cpassword" minlength = 8 maxlength = 16 required>
-                        <span  id="cpassword-error" class="error-message m-t-2">Use 8 or more characters with a mix of letters, numbers, & symbols</span>
+                        <!-- <span  id="cpassword-error" class="error-message m-t-2"></span> -->
                       </div>
                     <div class="item-detail col-sm-12 col-md-6 col-xl-6 md:p-0">
                         <label class="info-label" for="npassword">New password:</label>
                         <input class="info-input" type="password" id="npassword" name="npassword" minlength = 8 maxlength = 16 required>
-                        <span  id="npassword-error" class="error-message m-t-2">Use 8 or more characters with a mix of letters, numbers, & symbols</span>
+                        <span  id="npassword-error" class="error-message m-t-2"></span>
                       </div>
                     <div class="item-detail col-sm-12 col-md-6 col-xl-6 md:p-0">
                         <label class="info-label" for="cnpassword">Confirm New Password:</label>
                         <input class="info-input" type="password" id="cnpassword" name="cnpassword" minlength = 8 maxlength = 16 required>
-                        <span  id="cnpassword-error" class="error-message m-t-2">Use 8 or more characters with a mix of letters, numbers, & symbols</span>
+                        <span  id="cnpassword-error" class="error-message m-t-2"></span>
                       </div>
                   </div>
                   <div class="submit-container">

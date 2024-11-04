@@ -8,10 +8,10 @@ ini_set('display_errors', 1);
 
 
 session_start();
-if($_SESSION['auth_user']['student_id']==0){
-  echo"<script>window.location.href='login.php'</script>";
+// if($_SESSION['auth_user']['student_id']==0){
+//   echo"<script>window.location.href='login.php'</script>";
   
-}
+// }
 
 
 ?>
@@ -156,7 +156,7 @@ if(isset($_GET['contact_email'])){
       if (!empty($data['works'])) {
           $i = 1;
           foreach ($data['works'] as $work) {
-            echo '<a href="view_archive_research.php?archiveID=' . $work['aid'] . '" class="info-label"><span style="display: flex;">'.'['.$i.'] '.'<i class="project-work">'.ucwords($work['project_title']) . '</i></span></a><br>';
+            echo '<a href="view_project_research.php?archiveID=' . $work['aid'] . '" class="info-label"><span style="display: flex;">'.'['.$i.'] '.'<i class="project-work">'.ucwords($work['project_title']) . '</i></span></a><br>';
             $i += 1;
           }
       } else {

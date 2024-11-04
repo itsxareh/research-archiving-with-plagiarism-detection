@@ -103,11 +103,11 @@ if (isset($_FILES['img_student'])) {
             <span class="profile-info"><?php echo $data['student_id']; ?></span>
         </div>
         <div class="item-detail">
-            <span class="info-label">Name:</span>
+            <span class="info-label">Name</span>
             <span class="profile-info"><?php echo $data['first_name'].' '.$data['middle_name'].' '.$data['last_name']; ?></span>
         </div>
         <div class="item-detail">
-            <span class="info-label">Course:</span>
+            <span class="info-label">Course</span>
             <span class="profile-info"><?php echo $data['course_name']; ?></span>
         </div>
         <div class="item-detail">
@@ -122,19 +122,19 @@ if (isset($_FILES['img_student'])) {
             </div>
             <div class="edit-info-container">
                 <div class="item-detail">
-                    <label class="info-label" for="first_name">First Name:</label>
+                    <label class="info-label" for="first_name">First Name</label>
                     <input class="info-input" type="text" id="first_name" name="first_name" value="<?php echo $data['first_name'];?>">
                 </div>
                 <div class="item-detail">
-                    <label class="info-label" for="middle_name">Middle Name:</label>
+                    <label class="info-label" for="middle_name">Middle Name <span>(Optional)</span></label>
                     <input class="info-input" type="text" id="middle_name" name="middle_name" value="<?php echo $data['middle_name'];?>">
                 </div>
                 <div class="item-detail">
-                    <label class="info-label" for="last_name">Last Name:</label>
+                    <label class="info-label" for="last_name">Last Name</label>
                     <input class="info-input" type="text" id="last_name" name="last_name" value="<?php echo $data['last_name'];?>">
                 </div>
                 <div class="item-detail">
-                    <label class="info-label" for="department">Department:</label>
+                    <label class="info-label" for="department">Department</label>
                     <select id="inputDepartment" name="department" class="selectpicker form-control item-meta " required title="Select Department" disabled>
                     <?php 
                         $res = $db->showDepartments_WHERE_ACTIVE();
@@ -151,7 +151,7 @@ if (isset($_FILES['img_student'])) {
                     </select>
                 </div>
                 <div class="item-detail">
-                    <label class="info-label" for="course">Course:</label>
+                    <label class="info-label" for="course">Course</label>
                     <select id="department_course" name="department_course" class="selectpicker form-control" required disabled>
                         
                         <?php 
