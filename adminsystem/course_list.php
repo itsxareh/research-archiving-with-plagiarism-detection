@@ -80,7 +80,7 @@ if(ISSET($_POST['edit'])){
     <title>Course List: EARIST Research Archiving System</title>
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo1.png">
+    <link rel="shortcut icon" href="images/logo2.png">
     <!-- Retina iPad Touch Icon-->
     <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
     <!-- Retina iPhone Touch Icon-->
@@ -294,21 +294,26 @@ require_once 'templates/admin_navbar.php';
 </script>
 
 <script>
-    const actionButtons = document.querySelectorAll(".action-button");
+document.addEventListener("click", function(event) {
+    // Check if the clicked element has the class 'action-button'
+    if (event.target.classList.contains("action-button")) {
+        // Get the student ID from the button's ID attribute
+        const studentId = event.target.id.split("_")[1];
+        console.log(studentId); // For debugging: log the student ID
 
-// Add a click event listener to each button
-actionButtons.forEach(button => {
-    button.addEventListener("click", function () {
         // Get the corresponding dropdown menu based on the button's ID
-        const studentId = this.id.split("_")[1];
-        console.log(studentId); // Extract the unique student ID
         const dropdown = document.getElementById(`dropdown_${studentId}`);
         
-        // Hide all dropdowns first to close any open ones
-        
+        // Hide all other dropdowns first
+        document.querySelectorAll(".dropdown-action").forEach((dropdown) => {
+            dropdown.style.display = "none";
+        });
+
         // Toggle the display of the clicked button's dropdown
-        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-    });
+        if (dropdown) {
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        }
+    }
 });
     $('#datatablesss_filter label input').removeClass('form-control form-control-sm');
 $(document).ready(function(){

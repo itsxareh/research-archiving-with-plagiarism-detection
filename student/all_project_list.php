@@ -111,7 +111,6 @@ if(ISSET($_POST['add_research'])){
     <link rel="apple-touch-icon" sizes="57x57" href="http://placehold.it/57.png/000/fff">
     <!-- Styles -->
     <link href="css/lib/font-awesome.min.css" rel="stylesheet">
-    <link href="css/lib/themify-icons.css" rel="stylesheet">
     <link href="css/lib/owl.carousel.min.css" rel="stylesheet" />
     <link href="css/lib/owl.theme.default.min.css" rel="stylesheet" />
     <link href="css/lib/menubar/sidebar.css" rel="stylesheet">
@@ -252,7 +251,7 @@ require_once 'templates/student_navbar.php';
                                         <?php endif; ?>
                                     </div>
                                     <div class="item-abstract">
-                                        <h3 class="abstract-title"><a href="#"><span>Abstract</span><i class="ti-angle-down f-s-10" ></i></a></h3>
+                                        <h3 class="abstract-title"><a href="#"><span>Abstract</span><img src="../images/arrow-down.svg" style="width: .675rem; height: .675rem" alt=""></a></h3>
                                         <div class="abstract-group" style="display:none">
                                             <section class="item-meta">
                                                 <div class="abstract-article">
@@ -341,10 +340,14 @@ require_once 'templates/student_navbar.php';
     window.onpopstate = function(event) {
         filteredData();
     }; 
-    $("#search-result").on("click", "h3.abstract-title", function(event) {
+    $('#search-result').on('click', 'h3.abstract-title', function(event){
+        console.log('clicked');
         event.preventDefault();
-        $(this).closest(".item-abstract").find(".abstract-group").slideToggle(200);
-        $(this).find("i").toggleClass("ti-angle-down ti-angle-up"); 
+        $(this).closest('.item-abstract').find('.abstract-group').slideToggle(200);
+        
+        const img = $(this).find('img');
+        const isArrowDown = img.attr('src').includes('arrow-down');
+        img.attr('src', isArrowDown ? '../images/arrow-up.svg' : '../images/arrow-down.svg');
     });
 
     const keywordsInput = document.getElementById('keywords');

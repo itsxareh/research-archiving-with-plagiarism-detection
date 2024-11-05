@@ -51,13 +51,13 @@ header("location:all_project_list.php");
     <div class="content-wrapper h-100">
       <div class="col-xl-12 col-md-12-col sm-12">
         <div class="row p-4">
-          <div class="col-sm-12 col-md-4 col-xl-6">
+          <div class="col-sm-12 col-md-6 col-xl-6">
               <div class="intro">
                 <h2>Archive with Ease</h2>
                 <p>Access a full of research resources and manage your work efficiently.</p>
               </div>
           </div>
-          <div class="col-sm-12 col-md-8 col-xl-6">
+          <div class="col-sm-12 col-md-6 col-xl-6">
             <div class="log-in-container">
               <form class="form-container" action="../php/student_forgotPassword.php" method="POST">
                 <h4>Forgot password</h4>
@@ -69,12 +69,14 @@ header("location:all_project_list.php");
                       <input type="email" name="email" id="email" required>
                     </div>
                   </div>
+                  <p class="m-0 ml-4">Remember now? <a class="signup-link" href="login.php">Log in</a></p>
                 </div>
+                
                 <div class="row mt-4">
                   <div class="col-xl-12 col-md-12 col-sm-12">
                     <div class="flex align-items-center">
-                      <button name="recover-now" type="submit" class="login-btn">Recover now</button>
-                      <p class="m-0 ml-4">Remember now? <a class="signup-link" href="login.php">Log in</a></p>
+                      <button name="recover-now" type="submit" class="login-btn" style="text-wrap:nowrap">Recover now</button>
+
                     </div>
                   </div>
                 </div>

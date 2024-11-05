@@ -79,8 +79,8 @@ if (isset($_SESSION['auth_user']['student_id'])){
         <div class="nano">
             <div class="nano-content">
                 <ul class="navbar">
-                    <li><a href="project_list.php"><i class="ti-plus"></i> Create</a></li>
-                    <li><a href="all_project_list.php"><i class="ti-folder"></i> Research </a></li>
+                    <li><a href="project_list.php"><img src="../../images/archive.svg" style="width: 2.525rem; height: 2.525rem;">Archive</a></li>
+                    <li><a href="all_project_list.php"><img src="../../images/documents.svg" style="width: 2.525rem; height: 2.525rem;">Research</a></li>
                 </ul>
             </div>
         </div>
@@ -126,8 +126,8 @@ if (isset($_SESSION['auth_user']['student_id'])){
                         ?>
                         <div class="dropdown dib">
                             <div class="header-icon" style="padding: 5px 15px 0 15px !important" data-toggle="dropdown">
-                                <i class="ti-bell" style="position: relative;">
-                                    <span class="" style="position: absolute; right: -12px; top: -8px; border-radius: 50%; font-size: 12px; background-color: #a33333; padding: 5px; color: white" id="notification-badge">
+                                <img class="" src="../../images/notification-bell.svg" style="position: relative; width: 1.925rem; height: 1.925rem">
+                                    <span class="" style="position: absolute; right: 5px; top: 0; border-radius: 50%; font-size: 10px; background-color: #a33333; padding: 5px; color: white" id="notification-badge">
                                     <?php
                                         $unread = 'Unread';
                                         $total_unread = $db->studentNOTIFICATION_COUNT($studentID, $unread);
@@ -135,7 +135,7 @@ if (isset($_SESSION['auth_user']['student_id'])){
                                         echo $total_unread;
                                     ?>
                                     </span>
-                                </i>
+                                </img>
                                 <div class="drop-down dropdown-menu dropdown-menu-right" style="position: absolute; transform: translate3d(-227px, -3px, 0px); top: 0px; left: 0px; will-change: transform; height: 300px; overflow: auto; border: 1px solid #ccc;">
                                     <div class="dropdown-content-heading">
                                         <span class="text-left">Recent Notifications</span>
@@ -180,7 +180,7 @@ if (isset($_SESSION['auth_user']['student_id'])){
                         ?>
                         <div class="menu-container">
                             <div>
-                                <button type="button" class="menu-button" id="menu-button" aria-expanded="true" aria-haspopup="true">
+                                <button type="button" style="text-wrap: nowrap" class="menu-button" id="menu-button" aria-expanded="true" aria-haspopup="true">
                                     <?php echo $result['first_name']; ?> <?php echo $result['last_name']; ?>
                                     <svg class="menu-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
                                         <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />

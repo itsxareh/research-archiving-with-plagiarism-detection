@@ -1170,7 +1170,13 @@ public function studentLogin($email, $password, $redirect_to) {
         $_SESSION['status'] = "Wait for admin approve your account";
         $_SESSION['status-code'] = "info";
         header("location: ../student/login.php");
-    } else {
+      } else if ($school_verify == 'Blocked') {
+        // Handle account verification if needed
+        $_SESSION['alert'] = "Account Blocked";
+        $_SESSION['status'] = "Sorry, but your account has been blocked";
+        $_SESSION['status-code'] = "info";
+        header("location: ../student/login.php");
+      } else {
           // Handle successful login
           date_default_timezone_set('Asia/Manila');
           $date = date('F / d l / Y');

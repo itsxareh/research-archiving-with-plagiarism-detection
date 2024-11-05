@@ -173,7 +173,7 @@ if (isset($_FILES['img_student'])) {
             </div>
         </form>
     </div>
-    <button class="edit-button info-label">Edit<span><i class="ti-pencil m-l-4"></i></span></button>
+    <button class="edit-button info-label">Edit<img class="m-l-2" src="../images/edit.svg" style="width: .875rem; height: .875rem"></span></button>
 </div>
 <hr class="divider-space">
 <strong>Email Address</strong><br>
@@ -181,7 +181,7 @@ if (isset($_FILES['img_student'])) {
     <div class="email-details">
         <div class="item-detail">
             <span class="info-label">Primary email is used for account-related notifications and password reset.</span>
-            <span class="profile-email"><i class="ti-email m-r-8 m-l-2"></i><?php echo $data['student_email']; ?></span>
+            <span class="profile-email"><img class="m-r-8 m-l-2" src="../images/email.svg" style="width: .875rem; height: .875rem"><?php echo $data['student_email']; ?></span>
         </div>
     </div>
 </div>

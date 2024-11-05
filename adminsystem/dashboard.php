@@ -133,11 +133,11 @@ require_once 'templates/admin_navbar.php';
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-12 col-xl-12">
+                                <div class="col-md-12 col-xl-12" >
                                     <div class="card h-100">
                                         <div class="card-body">
                                             <h4 class="card-title mb-3">Research Papers/Department</h4>
-                                            <div class="card-text">
+                                            <div class="card-text" style="white-space: nowrap; overflow-x: auto;">
                                             <?php
                                                 $rows = $db->Archive_Research_BasedOn_Department();
                                                 $data = json_encode($rows);
