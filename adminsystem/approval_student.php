@@ -15,7 +15,7 @@ if (isset($_GET['studID'])) {
    $res = $db->update_student_school_verification($student_id);
 
     $_SESSION['alert'] = "Success";
-    $_SESSION['status'] = "Student Approved";
+    $_SESSION['status'] = "Student approved";
     $_SESSION['status-code'] = "success";
 
     header('location: student_list.php');

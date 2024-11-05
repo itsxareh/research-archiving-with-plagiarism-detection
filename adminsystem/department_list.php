@@ -54,7 +54,7 @@ if(ISSET($_POST['edit'])){
     $department_code = $_POST['dept_code'];
 
     $department_name = $_POST['dept_name'];
-    $description = $_POST['desc'];
+    $description = '';
     
 
         $sql = $db->update_Department($department_code, $department_name, $description, $dept_id);
@@ -105,6 +105,8 @@ if(ISSET($_POST['edit'])){
     <link href="css/lib/bootstrap.min.css" rel="stylesheet">
     <link href="css/lib/helper.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
+    <link href="../css/styles.css" rel="stylesheet">
+    <link href="../css/action-dropdown.css" rel="stylesheet">
     <link href="css/lib/sweetalert/sweetalert.css" rel="stylesheet">
 
 
@@ -186,7 +188,7 @@ require_once 'templates/admin_navbar.php';
                                 <th class="list-th">Department</th>
                                 <!-- <th>Description</th> -->
                                 <th class="list-th">Status</th>
-                                <th class="list-th">Action</th>
+                                <th class="list-th"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -225,12 +227,22 @@ require_once 'templates/admin_navbar.php';
                                 </td>
 
                                 <td class="list-td" style="text-align: center;">
-                                    <!-- <a href="department_status.php?departmentID_activate=<?= $result['id'] ?>" class="btn btn-success"><i class="ti-check" title="Publish Now"></i></a>
-                                    <a href="department_status.php?departmentID=<?= $result['id'] ?>" class="btn btn-danger"><i class="ti-close" title="Unpublish Now"></i></a> -->
-                                    <!-- Button trigger modal -->
-                                    <button type="button" class="btn btn-primary " data-toggle="modal" data-target="#modelId_<?= $result['id'] ?>">
-                                    <i class="ti-pencil"></i>
-                                    </button>
+                                    <div class="action-container">
+                                        <div>
+                                            <button type="button" class="action-button"  id="action-button_<?= $result['id'] ?>" aria-expanded="true" aria-haspopup="true">
+                                                Action
+                                                <svg class="action-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                                    <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <div class="dropdown-action" id="dropdown_<?= $result['id'] ?>" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                                            <div role="none">
+                                                <a href="#" data-toggle="modal" data-target="#modelId_<?= $result['id'] ?>" class="dropdown-action-item">Edit course</a>
+                                                <a href="#" data-toggle="delete-modal" data-target="#delete_modelId_<?= $result['id'] ?>" class="dropdown-action-item">Delete course</a>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                                 <!-- Modal -->
                                 <div class="modal fade" id="modelId_<?= $result['id'] ?>" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
@@ -287,6 +299,23 @@ require_once 'templates/admin_navbar.php';
 </script>
 
 <script>
+    const actionButtons = document.querySelectorAll(".action-button");
+
+// Add a click event listener to each button
+actionButtons.forEach(button => {
+    button.addEventListener("click", function () {
+        // Get the corresponding dropdown menu based on the button's ID
+        const studentId = this.id.split("_")[1];
+        console.log(studentId); // Extract the unique student ID
+        const dropdown = document.getElementById(`dropdown_${studentId}`);
+        
+        // Hide all dropdowns first to close any open ones
+        
+        // Toggle the display of the clicked button's dropdown
+        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    });
+});
+
     $('#datatablesss_filter label input').removeClass('form-control form-control-sm');
     $('#datatablesss_wrapper').children('.row').eq(1).find('.col-sm-12').css({
     'padding-left': 0,

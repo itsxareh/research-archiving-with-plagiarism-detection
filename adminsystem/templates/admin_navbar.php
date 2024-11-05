@@ -13,14 +13,14 @@ $db = new Database();
     display: inline-flex;
     width: 100%;
     justify-content: center;
-    gap: 8px; /* Adjust spacing as needed */
+    align-items: center;
+    gap: 2px; /* Adjust spacing as needed */
     border-radius: 4px;
     background-color: #ffffff;
     padding: 8px 12px;
-    font-size: 0.875rem;
+    font-size: 1.025rem;
     font-weight: 600;
-    color: #1f2937; /* gray-900 */
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* shadow-sm */
+    color: #1f2937;
     border: none;
     /* border: 1px solid #d1d5db; ring-gray-300 */
     transition: background-color 0.2s ease;

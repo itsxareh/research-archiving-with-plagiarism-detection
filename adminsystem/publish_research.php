@@ -18,7 +18,7 @@ if(isset($_GET['archiveID'])){
     $sql1 = $db->publish_research($archiveID);
 
     $_SESSION['alert'] = "Success";
-    $_SESSION['status'] = "Research in now Accepted";
+    $_SESSION['status'] = "Research published";
     $_SESSION['status-code'] = "success";
 
     header('location: archive_list.php');

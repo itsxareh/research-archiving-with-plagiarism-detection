@@ -94,6 +94,7 @@ if(ISSET($_POST['add_research'])){
     <link href="css/lib/bootstrap.min.css" rel="stylesheet">
     <link href="css/lib/helper.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
+    <link href="../css/action-dropdown.css" rel="stylesheet">
     <link href="css/lib/sweetalert/sweetalert.css" rel="stylesheet">
 
 
@@ -296,7 +297,7 @@ require_once 'templates/admin_navbar.php';
                                     <th class="list-th">Course</th>
                                     <th class="list-th">Plagiarized</th>
                                     <th class="list-th">Status</th>
-                                    <th class="list-th text-center">Action</th>
+                                    <th class="list-th"></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -333,10 +334,30 @@ require_once 'templates/admin_navbar.php';
                                     </td>
                                     
                                     <td class="list-td">
-                                        <a href="view_archive_research.php?archiveID=<?= $result['aid'] ?>" class="btn"><i class="ti-eye" style="font-weight: 800" title="View Research"></i></a>
-                                        <a href="publish_research.php?archiveID=<?= $result['archiveID'] ?>" class="btn"><i class="ti-check" style="color: green; font-weight: 800" title="Accept Now"></i></a>
-                                        <a href="unpublish_research.php?archiveID=<?= $result['archiveID'] ?>" class="btn"><i class="ti-close" style="color: #a33333; font-weight: 800" title="Don't Accept"></i></a>
-                                        <a href="delete_research.php?archiveID=<?= $result['archiveID'] ?>" class="btn"><i class="ti-trash" style="color: #a33333; font-weight: 800" title="Delete Research"></i></a>
+                                        <div class="action-container">
+                                            <div>
+                                                <button type="button" class="action-button"  id="action-button_<?= $result['archiveID'] ?>" aria-expanded="true" aria-haspopup="true">
+                                                    Action
+                                                    <svg class="action-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                                        <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <div class="dropdown-action" id="dropdown_<?= $result['archiveID'] ?>" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                                                <div role="none">
+                                                <a href="view_archive_research.php?archiveID=<?= $result['aid'] ?>" class="dropdown-action-item">View</a>
+                                                <?php 
+                                                 $document_status = $result['document_status'];
+                                                 if ($document_status === 'Accepted'){
+                                                    echo '<a href="unpublish_research.php?archiveID='.$result['archiveID'].'" class="dropdown-action-item">Unpublish</a>';
+                                                 } elseif ($document_status === 'Not Accepted'){
+                                                    echo '<a href="publish_research.php?archiveID='.$result['archiveID'].'" class="dropdown-action-item">Publish</a>';
+                                                 }
+                                                ?>
+                                                <a href="delete_research.php?archiveID=<?= $result['archiveID'] ?>" class="dropdown-action-item">Delete</a>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                                 <?php
@@ -394,8 +415,22 @@ require_once 'templates/admin_navbar.php';
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
 <script src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
 <script>
+const actionButtons = document.querySelectorAll(".action-button");
 
-
+// Add a click event listener to each button
+actionButtons.forEach(button => {
+    button.addEventListener("click", function () {
+        // Get the corresponding dropdown menu based on the button's ID
+        const studentId = this.id.split("_")[1];
+        console.log(studentId); // Extract the unique student ID
+        const dropdown = document.getElementById(`dropdown_${studentId}`);
+        
+        // Hide all dropdowns first to close any open ones
+        
+        // Toggle the display of the clicked button's dropdown
+        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    });
+});
         function filteredData(){
         var department = $('#inputDepartment_search').val();
         var fromYear = $('#fromYear').val();

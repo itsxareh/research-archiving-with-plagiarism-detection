@@ -1241,7 +1241,13 @@ public function delete_student($student_id){
   $sql->execute([$student_id]);
   
 }
+public function block_student_school_verification($student_id, $set_blocked){
+  $connection = $this->getConnection();
 
+  $sql = $connection->prepare("UPDATE students_data SET school_verify = ? WHERE id = ?");
+  $sql->execute([$set_blocked, $student_id]);
+  
+}
 public function update_student_school_verification($student_id){
   $connection = $this->getConnection();
 

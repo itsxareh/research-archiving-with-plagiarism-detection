@@ -46,6 +46,7 @@ if($_SESSION['auth_user']['admin_id']==0){
     <link href="css/lib/bootstrap.min.css" rel="stylesheet">
     <link href="css/lib/helper.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
+    <link href="../css/action-dropdown.css" rel="stylesheet">
     <link href="css/lib/sweetalert/sweetalert.css" rel="stylesheet">
 
 
@@ -86,7 +87,7 @@ require_once 'templates/admin_navbar.php';
                     <th class="list-th">No. of Research Papers</th>
                     <th class="list-th">Published Research</th>
                     <th class="list-th">Status</th>
-                    <th class="list-th">Action</th>
+                    <th class="list-th"></th>
                 </tr>
             </thead>
             <tbody>
@@ -112,9 +113,33 @@ require_once 'templates/admin_navbar.php';
                         </span>
 
                     <td class="list-td" style="text-align:center">
-                        <a href="view_profile.php?studID=<?= $result['student_id'] ?>" class="btn" style="font-weight: 800"><i class="ti-eye" title="View Information"></i></a>
-                        <a href="approval_student.php?studID=<?= $result['studID'] ?>" class="btn" style="font-weight: 800; color: green;"><i class="ti-check" title="Approve Student"></i></a>
-                        <a href="delete_student.php?studID=<?= $result['studID'] ?>" class="btn" style="font-weight: 800; color: #a33333;"><i class="ti-trash" title="Delete Student"></i></a>
+                        <div class="action-container">
+                            <div>
+                                <button type="button" class="action-button"  id="action-button_<?= $result['student_id'] ?>" aria-expanded="true" aria-haspopup="true">
+                                    Action
+                                    <svg class="action-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                        <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="dropdown-action" id="dropdown_<?= $result['student_id'] ?>" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                                <div role="none">
+                                    <a href="view_profile.php?studID=<?= $result['student_id'] ?>" class="dropdown-action-item">View Information</a>
+                                    <?php
+                                        $school_status = $result['school_verify'];
+                                        if ($school_status === 'Approved'){
+                                            echo '<a href="block_student.php?studID='.$result['studID'].'" class="dropdown-action-item">Block Student</a>';
+                                        } elseif ($school_status === 'Not Approved'){
+                                             echo '<a href="approval_student.php?studID='.$result['studID'].'" class="dropdown-action-item">Approve Student</a>';
+                                        } elseif ($school_status === 'Blocked'){
+                                            echo '<a href="unblock_student.php?studID='.$result['studID'].'" class="dropdown-action-item">Unblock Student</a>';
+                                        }
+                                    ?>
+
+                                    <a href="delete_student.php?studID=<?= $result['studID'] ?>" class="dropdown-action-item">Delete Student</a>
+                                </div>
+                            </div>
+                        </div>
                     </td>
                 </tr>
                 <?php
@@ -133,6 +158,23 @@ require_once 'templates/admin_navbar.php';
 </script>
 
 <script>
+const actionButtons = document.querySelectorAll(".action-button");
+
+// Add a click event listener to each button
+actionButtons.forEach(button => {
+    button.addEventListener("click", function () {
+        // Get the corresponding dropdown menu based on the button's ID
+        const studentId = this.id.split("_")[1];
+        console.log(studentId); // Extract the unique student ID
+        const dropdown = document.getElementById(`dropdown_${studentId}`);
+        
+        // Hide all dropdowns first to close any open ones
+        
+        // Toggle the display of the clicked button's dropdown
+        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    });
+});
+
     $('#datatablesss_filter label input').removeClass('form-control form-control-sm');
 $(document).ready(function(){
   $("#inputDepartment").change(function(){
