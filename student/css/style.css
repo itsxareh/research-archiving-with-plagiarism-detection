@@ -759,8 +759,7 @@ a.dt-button.active:not(.disabled) {
   margin-bottom: .3125rem;
   border-left: none;
 }
-.profile-menu .active span {
-  text-wrap: nowrap;
+.profile-menu .active a {
   text-decoration: underline;
 }
 .profile {

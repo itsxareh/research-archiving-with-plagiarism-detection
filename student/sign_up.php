@@ -56,13 +56,13 @@ header("location:all_project_list.php");
     <div class="content-wrapper h-100">
       <div class="col-xl-12 col-md-12-col sm-12">
         <div class="row p-4">
-          <div class="col-sm-12 col-md-4 col-xl-6">
+          <div class="col-sm-12 col-md-6 col-xl-6">
               <div class="intro">
                 <h2>Archive with Ease</h2>
                 <p>Access a full of research resources and manage your work efficiently.</p>
               </div>
           </div>
-          <div class="col-sm-12 col-md-8 col-xl-6">
+          <div class="col-sm-12 col-md-6 col-xl-6">
             <div class="sign-up-container">
               <form class="form-container" action="../php/student_registerCode.php" method="POST">
                 <h4>Sign up now</h4>
@@ -145,7 +145,7 @@ header("location:all_project_list.php");
                   <div class="col-xl-12 col-md-12 col-sm-12">
                     <div class="form-input">
                       <div class="flex align-items-center">
-                        <button type="submit" name="sign-up" class="sign-up-btn">Sign up</button>
+                        <button type="submit" name="sign-up" class="sign-up-btn" style="text-wrap: nowrap ;">Sign up</button>
                         <p class="m-0 ml-4">Already have an account? <a class="login-link" href="login.php">Log in</a></p>
                       </div>
                     </div>

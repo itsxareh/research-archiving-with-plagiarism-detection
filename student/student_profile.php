@@ -136,8 +136,8 @@ require_once 'templates/student_navbar.php';
               <div class="col-sm-12 col-md-3 col-xl-3">
                 <div class="profile-menu">
                   <ul>
-                    <li><a class="menu-accountInfo" href="student_profile.php?menuTab=accountInfo"><span>Personal Information</span></a></li>
-                    <li><a class="menu-accountSecurity" href="student_profile.php?menuTab=accountSecurity"><span>Security</span></a></li>
+                    <li><a class="menu-accountInfo" href="student_profile.php?menuTab=accountInfo">Personal Information</a></li>
+                    <li><a class="menu-accountSecurity" href="student_profile.php?menuTab=accountSecurity">Security</a></li>
                   </ul>
                 </div>
               </div>

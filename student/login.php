@@ -51,13 +51,13 @@ header("location:all_project_list.php");
     <div class="content-wrapper h-100">
       <div class="col-xl-12 col-md-12-col sm-12">
         <div class="row p-4">
-          <div class="col-sm-12 col-md-4 col-xl-6">
+          <div class="col-sm-12 col-md-6 col-xl-6">
               <div class="intro">
                 <h2>Archive with Ease</h2>
                 <p>Access a full of research resources and manage your work efficiently.</p>
               </div>
           </div>
-          <div class="col-sm-12 col-md-8 col-xl-6">
+          <div class="col-sm-12 col-md-6 col-xl-6">
             <div class="log-in-container">
               <form class="form-container" action="../php/student_loginCode.php" method="POST">
                 <input type="hidden" name="redirect_to" value="<?= isset($_GET['redirect_to']) ? $_GET['redirect_to'] : '' ?>">
@@ -82,7 +82,7 @@ header("location:all_project_list.php");
                 <div class="row mt-4">
                   <div class="col-xl-12 col-md-12 col-sm-12">
                     <div class="flex align-items-center">
-                      <button name="submit" type="submit" class="login-btn">Log in</button>
+                      <button name="submit" type="submit" class="login-btn" style="text-wrap: nowrap;">Log in</button>
                       <p class="m-0 ml-4">Don't have an account? <a class="signup-link" href="sign_up.php">Sign up</a></p>
                     </div>
                   </div>
