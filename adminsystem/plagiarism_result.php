@@ -144,7 +144,7 @@ require_once 'templates/admin_navbar.php';
       $archive_id = $data['aid'];
       $data = $db->SELECT_PLAGIARISM_SUMMARY_RESEARCH($archive_id);
       if (!empty($data)) {
-        $percentage = $data['plagiarism_percentage'];
+        $percentage = $data['total_percentage'];
         if ($percentage >= 100){
           $percentage = 100;
         }
@@ -162,25 +162,30 @@ require_once 'templates/admin_navbar.php';
     
     <ul class="plagiarized-container">
     <?php
-    $result = $db->SELECT_PLAGIARISM_RESULTS_RESEARCH($archive_id);
+    $result = $db-> SELECT_SUMMARY_PLAGIARISM_RESULTS_RESEARCH($archive_id);
     if (!empty($result)) {
         foreach ($result as $results) {
-            $highlighted_result = highlightPlagiarizedWords($results['submitted_sentence'], $results['existing_sentence']);
-
+            
             echo '
             <li class="plagiarized-card">
               <div class="plagiarized-card-content">
-                <p class="info-meta" style="color: #000; padding-bottom: 0; font-size: 18px; margin-bottom: 0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">'.ucwords($results['project_title']).'</p>
-                <a class="info-meta" style="font-size: 12px; padding-top: 0;" href="read_full.php?archiveID='.$results['archive_id'].'"><i class="pread">Read full here</i></a>
-                <p class="info-meta" style="color: #373757; padding-top: 6px; padding-bottom: 0; font-size: 16px; margin-bottom: 0; font-weight: 500">'.DateTime::createFromFormat("Y-m-d", $results['dateOFSubmit'])->format("F d Y").'</p>
-                
-                <p class="info-meta" style="font-size: 12px; margin-bottom: 0; padding-bottom: 0; padding-top: 6px; font-weight: 500">Submitted sentence</p>
-                <p class="info-meta" style="color: #373757; font-size: 16px; margin-bottom: 0; padding-top: 0; font-weight: 400">'.$highlighted_result['submitted'].'</p>
-                
-                <p class="info-meta" style="font-size: 12px; margin-bottom: 0; padding-bottom: 0; padding-top: 6px; font-weight: 500">Plagiarized sentence</p>
-                <p class="info-meta" style="color: #373757; font-size: 16px; margin-bottom: 0; padding-top: 0; font-weight: 400">'.$highlighted_result['existing'].'</p>
-                
-                <p class="info-meta" style="font-size: 16px; margin-bottom: 0; padding-top: 6px; font-weight: 500; color: #a33333">'.round($results['similarity_percentage'], 1).'% similar words</p>
+                <p class="info-meta" style="color: #000; padding-bottom: 0; font-size: 14px; margin-bottom: 0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">'.ucwords($results['project_title']).'</p>
+                <a class="info-meta" style="font-size: 10px; padding-top: 0;" href="read_full.php?archiveID='.$results['archive_id'].'"><i class="pread">Read full here</i></a>
+                <div class="plagiarized-card-meta">
+                  <a class="info-meta p-0 result-title" href="#">
+                    <p class="info-meta p-r-4" style="font-size: 12px; margin-bottom: 0; padding-top: 6px; font-weight: 500; color: #a33333">'.round($results['plagiarism_percentage'], 1).'%</p>
+                    <img class="plagiarized-button" src="../images/arrow-down.svg" style="width: 8px; height: 8px">
+                  </a>                  
+                  <div class="plagiarized-result" id="plagiarized-result" style="display:none">';
+            $plagiarism_result = $db->SELECT_PLAGIARISM_RESULTS_RESEARCH($results['plaid'], $results['sai']);
+            if (!empty($plagiarism_result)) {
+              foreach ($plagiarism_result as $plagiarism) {
+                $highlighted_result = highlightPlagiarizedWords($plagiarism['submitted_sentence'], $plagiarism['existing_sentence']);
+                echo '<p class="info-meta p-r-4" style="font-size: 12px; margin-bottom: 0; padding-top: 6px; font-weight: 400; color: #a33333">'.$highlighted_result['existing'].'</p>';
+                }
+              }
+            echo '</div>
+                </div>
               </div>
             </li>';
         }
@@ -206,7 +211,17 @@ require_once 'templates/admin_navbar.php';
     </div>
   </div>
 
-
+<script>
+$('.plagiarized-container').on('click', 'a.result-title', function(event){
+        console.log('clicked');
+        event.preventDefault();
+        $(this).closest('.plagiarized-card-meta').find('.plagiarized-result').slideToggle(200);
+        
+        const img = $(this).find('img');
+        const isArrowDown = img.attr('src').includes('arrow-down');
+        img.attr('src', isArrowDown ? '../images/arrow-up.svg' : '../images/arrow-down.svg');
+    });
+</script>
     <?php 
 if (isset($_SESSION['status']) && $_SESSION['status'] != '') {
 

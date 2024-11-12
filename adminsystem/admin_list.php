@@ -323,7 +323,7 @@ if(department != " "){
 
 $('.toggle-status').change(function() {
         var departmentID = $(this).data('id');
-        var status = $(this).prop('checked') ? 'Active' : 'Not Activated';
+        var status = $(this).prop('checked') ? 'Active' : 'Not Active';
 
         $.ajax({
             url: 'update_department_status.php',

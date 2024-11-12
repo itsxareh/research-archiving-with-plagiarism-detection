@@ -18,7 +18,7 @@ $fromYear = isset($_GET['fromYear']) ? $_GET['fromYear'] : '';
 $toYear = isset($_GET['toYear']) ? $_GET['toYear'] : '';
 $research_date = isset($_GET['research_date']) ? $_GET['research_date'] : '';
 $page = isset($_GET['page']) ? $_GET['page'] : 1;
-$limit = isset($_POST['limit']) ? $_POST['limit'] : 10;
+$limit = isset($_POST['limit']) ? $_POST['limit'] : 20;
 $offset = ($page - 1) * $limit;
 
 if ($searchInput || $department || $course || $keywords || $fromYear || $toYear || $research_date) {
@@ -71,7 +71,7 @@ if(ISSET($_POST['add_research'])){
         date_default_timezone_set('Asia/Manila');
         $date = date('F / d l / Y');
         $time = date('g:i A');
-        $logs = 'You successfully submitted your Research Paper';
+        $logs = 'You successfully submitted your research paper.';
 
         $sql1 = $db->student_Insert_NOTIFICATION($student_id, $logs, $date, $time);
 
@@ -100,7 +100,7 @@ if(ISSET($_POST['add_research'])){
     <title>Project List: EARIST Research Archiving System</title>
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo1.png">
+    <link rel="shortcut icon" href="images/logo2.png">
     <!-- Retina iPad Touch Icon-->
     <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
     <!-- Retina iPhone Touch Icon-->
@@ -422,7 +422,7 @@ require_once 'templates/student_navbar.php';
             }
             if (searchInput.length > 0) {
                 $('#inputSearch').show();
-                $('#inputSearch').html('for "<strong>'+searchInput+'</strong>"');
+                $('#inputSearch').html('<span style="font-size: 14px; font-weight: 400; ">for</span> "<strong style="font-size: 16px">'+searchInput+'</strong>"');
             } else {
                 $('#inputSearch').hide();
             }

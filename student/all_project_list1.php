@@ -59,7 +59,7 @@ if(ISSET($_POST['add_research'])){
         date_default_timezone_set('Asia/Manila');
         $date = date('F / d l / Y');
         $time = date('g:i A');
-        $logs = 'You successfully submitted your Research Paper';
+        $logs = 'You successfully submitted your research paper.';
 
         $sql1 = $db->student_Insert_NOTIFICATION($student_id, $logs, $date, $time);
 

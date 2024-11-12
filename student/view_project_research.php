@@ -168,7 +168,7 @@ require_once 'templates/student_navbar.php';
                   <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Publication History</p>
                   <ul>
                     <li class="info-meta"><label>Project Year:</label><?= $data['project_year'] ?></li>
-                    <li class="info-meta"><label>Date Uploaded:</label><?= DateTime::createFromFormat("Y-m-d", $data['dateOFSubmit'])->format("d F Y"); ?></li>
+                    <li class="info-meta"><label>Date Uploaded:</label><?= (new DateTime($data['dateOFSubmit']))->format("d F Y") ?></li>
                     <li class="info-meta"><label>Date Published:</label>
                       <?php if (!empty($data['date_published'])) {
                         $first_published = DateTime::createFromFormat("Y-m-d", $data['date_published'])->format("d F Y");
@@ -182,15 +182,60 @@ require_once 'templates/student_navbar.php';
                 </div>
                 <?php
                   if ($data['keywords'] !== ''){
-                    echo '<div class="info-container">
-                            <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Keywords</p>
-                            <ul class="ul-keywords">';
-                            $keywords = explode(',', $data['keywords']);
-                            foreach ($keywords as $keyword) {
-                              echo '<li class="info-meta"><span class="info-keywords">'.$keyword.'</span></li>'; 
-                            }
-                            echo '</ul>
-                          </div>';
+                    echo '
+                    <div class="info-container">
+                      <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Keywords</p>
+                      <ul class="ul-keywords">';
+                      $keywords = explode(',', $data['keywords']);
+                      foreach ($keywords as $keyword) {
+                        echo '<li class="info-meta"><span class="info-keywords">'.$keyword.'</span></li>'; 
+                      }
+                      echo '</ul>
+                    </div>';
+                  }
+                ?>
+                <?php
+                  if ($data['aid'] !== ''){
+                    $archive_id = $data['aid'];
+                    $smtm = $db->SELECT_PLAGIARISM_SUMMARY_RESEARCH($archive_id);
+                    if (!empty($smtm)) {
+                      if ($smtm['student_id'] == $_SESSION['auth_user']['student_id']){
+                        $percentage = $smtm['total_percentage'];
+                        if ($percentage >= 100){
+                          $percentage = 100;
+                        }
+                        echo '<div class="info-container">
+                                <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Results</p>
+                                <ul>
+                                  <li class="info-meta">
+                                    <label>Plagiarism Match:</label>
+                                    <div class="d-flex align-items-center">
+                                      <div class="progress w-100" style="height: 10px">
+                                        <div class="progress-bar-danger progress-bar" role="progressbar" style="width: '.round($percentage, 1).'%" aria-valuenow="'.round($percentage, 1).'" aria-valuemin="0" aria-valuemax="100"></div>
+                                      </div>
+                                      <span style="color: #a33333; font-size: 16px; margin-left: .75rem !important;">'.round($percentage, 1).'%</span>
+                                    </div>
+                                  </li>
+                                  <li class="info-meta"><label class="see-more"><a href="plagiarism_result.php?archiveID='.$data['archiveID'].'">See more</a></label></li>
+                                </ul>
+                              </div>';
+                      } else { 
+                          echo '<div class="info-container">
+                                  <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Results</p>
+                                  <ul>
+                                    <li class="info-meta">
+                                      <label>Plagiarism Match:</label>
+                                      <div class="d-flex align-items-center">
+                                        <div class="progress w-100" style="height: 10px">
+                                          <div class="progress-bar-danger progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <span style="color: #a33333; font-size: 20px; margin-left: .75rem !important;">0%</span>
+                                      </div>
+                                    </li>
+                                  </ul>
+                                </div>';
+                      }
+                    } 
                   }
                 ?>
           </div>

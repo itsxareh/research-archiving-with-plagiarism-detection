@@ -14,6 +14,8 @@ if($_SESSION['auth_user']['admin_id']==0){
     
 }
 
+$admin_id = $_SESSION['auth_user']['admin_id'];
+
 ?>
 
 <!DOCTYPE html>
@@ -38,6 +40,8 @@ if($_SESSION['auth_user']['admin_id']==0){
     <!-- Standard iPhone Touch Icon-->
     <link rel="apple-touch-icon" sizes="57x57" href="http://placehold.it/57.png/000/fff">
     <!-- Styles -->
+     
+    <link rel="stylesheet" href="../css/login-sign-up.css">
     <link href="css/lib/font-awesome.min.css" rel="stylesheet">
     <link href="css/lib/themify-icons.css" rel="stylesheet">
     <link href="css/lib/owl.carousel.min.css" rel="stylesheet" />
@@ -70,15 +74,22 @@ require_once 'templates/admin_navbar.php';
     <div class="content-wrap">
         <div class="main">
             <div class="container-fluid">
-                <div class="col-md-12 p-r-0 title-page">
+                <div class="col-sm-12 col-md-12 col-xl-12 title-page">
                     <div class="page-header">
-                        <div class="page-title">
-                            <h1>Students</h1>
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12 col-xl-12  flex justify-content-between align-items-center page-title">
+                                <h1 style="display: flex; ">Students</h1>
+                                <div class="generate-report ">
+                                    <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=all_students" class="btn print-button">
+                                        Print
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             <div class="col-md-12 list-container">
-                <table id="datatablesss" class="table list-table" style="width:100%">
+            <table id="datatablesss" class="table list-table" style="width:100%">
             <thead>
                 <tr>
                     <th class="list-th">Student Number</th>    
@@ -96,6 +107,8 @@ require_once 'templates/admin_navbar.php';
                 $data = $db->SELECT_ALL_StudentsData();
 
                 foreach ($data as $result) {
+                    $studentId = htmlspecialchars($result['student_id']);
+                    $uniquePrefix = "student_" . $studentId . "_";
                 ?>
                 <tr>
                     <td class="list-td"><?= $result['student_id'] ?></td>
@@ -135,13 +148,14 @@ require_once 'templates/admin_navbar.php';
                                             echo '<a href="unblock_student.php?studID='.$result['studID'].'" class="dropdown-action-item">Unblock Student</a>';
                                         }
                                     ?>
-
+                                    <a href="#" data-toggle="modal"  data-target="#<?= $uniquePrefix ?>edit_modal" class="dropdown-action-item">Edit information</a>
                                     <a href="delete_student.php?studID=<?= $result['studID'] ?>" class="dropdown-action-item">Delete Student</a>
                                 </div>
                             </div>
                         </div>
                     </td>
                 </tr>
+                <?php include 'templates/edit_student_modal.php'; ?>
                 <?php
                 }
                 ?>
@@ -158,58 +172,52 @@ require_once 'templates/admin_navbar.php';
 </script>
 
 <script>
-document.addEventListener("click", function(event) {
-    // Check if the clicked element has the class 'action-button'
-    if (event.target.classList.contains("action-button")) {
-        // Get the student ID from the button's ID attribute
-        const studentId = event.target.id.split("_")[1];
-        console.log(studentId); // For debugging: log the student ID
 
-        // Get the corresponding dropdown menu based on the button's ID
+
+let currentOpenDropdown = null;
+
+const closeAllDropdowns = () => {
+    document.querySelectorAll(".dropdown-action").forEach((dropdown) => {
+        dropdown.classList.remove('active');
+    });
+    currentOpenDropdown = null;
+};
+
+document.addEventListener("click", function(event) {
+    if (!event.target.closest('.action-button') && !event.target.closest('.dropdown-action')) {
+        closeAllDropdowns();
+        return;
+    }
+
+    if (event.target.classList.contains("action-button")) {
+        event.stopPropagation();
+        
+        const studentId = event.target.id.split("_")[1];
+        
         const dropdown = document.getElementById(`dropdown_${studentId}`);
         
-        // Hide all other dropdowns first
-        document.querySelectorAll(".dropdown-action").forEach((dropdown) => {
-            dropdown.style.display = "none";
-        });
-
-        // Toggle the display of the clicked button's dropdown
         if (dropdown) {
-            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+            if (currentOpenDropdown === dropdown) {
+                dropdown.classList.remove('active');
+                currentOpenDropdown = null;
+            }
+            else {
+                closeAllDropdowns();
+                dropdown.classList.add('active');
+                currentOpenDropdown = dropdown;
+            }
         }
     }
 });
 
-    $('#datatablesss_filter label input').removeClass('form-control form-control-sm');
-$(document).ready(function(){
-  $("#inputDepartment").change(function(){
-    var department = $(this).val();
-    //do something with secondIdValue
-
-if(department != " "){
-
-// $("#studentsection").show();
-
-    // alert(course);
-          $.ajax({
-            url:"show_course.php",
-            method:"POST",
-            data:{"send_department_set":1, "send_department":department},
-
-            success:function(data){
-              $("#course").html(data);
-              $("#course").css("display","block");
-            }
-          });
-        }else{
-          $("#course").css("display","none");
-        }
-
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeAllDropdowns();
+    }
 });
-  });
 
+$('#datatablesss_filter label input').removeClass('form-control form-control-sm');
 
-</script>
 <?php 
 if (isset($_SESSION['status']) && $_SESSION['status'] != '') {
 
@@ -221,8 +229,7 @@ if (isset($_SESSION['status']) && $_SESSION['status'] != '') {
 unset($_SESSION['status']);
 }
 ?>
-
-
+</script>
 </body>
 
 </html>

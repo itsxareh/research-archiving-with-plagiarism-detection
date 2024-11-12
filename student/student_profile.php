@@ -79,7 +79,7 @@ if (isset($_POST['upload'])) {
 
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo1.png">
+    <link rel="shortcut icon" href="images/logo2.png">
     <!-- Retina iPad Touch Icon-->
     <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
     <!-- Retina iPhone Touch Icon-->
@@ -96,8 +96,64 @@ if (isset($_POST['upload'])) {
     <link href="css/lib/helper.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
     <link href="css/lib/sweetalert/sweetalert.css" rel="stylesheet">
-</head>
 
+    <style>
+    .message-icon, .clock-icon, .calendar-icon {
+        width: 24px;
+        text-align: center;
+    }
+    .clock-icon {
+        opacity: 0.7;
+    }
+    .list-group-item {
+        transition: background-color 0.2s;
+    }
+
+    .list-group-item:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    .message-actions {
+        display: flex;
+        flex-wrap: nowrap;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .list-group-item:hover .message-actions {
+        opacity: 1;
+    }
+
+    .btn-link {
+        padding: 0.25rem 0.5rem;
+    }
+
+    .btn-link:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+        border-radius: 0.25rem;
+    }
+    .bg-light {
+    background-color: #f8f9fa !important;
+    }
+
+    .list-group-item.bg-light {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+        border-left: 3px solid #a33333;
+    }
+    .list-group-item-action:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    .list-group-item-action .message-icon {
+        transition: transform 0.2s ease;
+    }
+
+    .list-group-item-action:hover .message-icon {
+        transform: translateX(2px);
+    }
+    </style>
+</head>
 <body>
 <!---------NAVIGATION BAR-------->
 <?php
@@ -137,6 +193,9 @@ require_once 'templates/student_navbar.php';
                   <ul>
                     <li><a class="menu-accountInfo" href="student_profile.php?menuTab=accountInfo">Personal Information</a></li>
                     <li><a class="menu-accountSecurity" href="student_profile.php?menuTab=accountSecurity">Security</a></li>
+                    <li><a class="menu-accountInbox" href="student_profile.php?menuTab=accountInbox">Inbox</a></li>
+                    <li><a class="menu-accountActivityLogs" href="student_profile.php?menuTab=accountActivityLogs">Activity Logs</a></li>
+                  
                   </ul>
                 </div>
               </div>
@@ -153,19 +212,8 @@ require_once 'templates/student_navbar.php';
   </div>                                        
 </div>
 
-
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!----------------UPLOAD OR UPDATE AN IMAGE AND DISPLAYS THE SELECTED IMAGE FIRST BEFORE UPDATING OR UPLOADING--------------->
 <script>
-  function previewImage(event) {
-    var reader = new FileReader();
-    reader.onload = function () {
-      var output = document.getElementById('myImage');
-      output.src = reader.result;
-    }
-    reader.readAsDataURL(event.target.files[0]);
-  }
   
   $('.menu-<?php echo isset($_GET['menuTab']) ? $_GET['menuTab'] : '' ?>').addClass('active')
 </script>

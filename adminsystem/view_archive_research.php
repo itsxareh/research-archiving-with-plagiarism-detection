@@ -84,10 +84,10 @@ require_once 'templates/admin_navbar.php';
               <p><strong style="font-size: 20px; color:#313131"><?php echo ucwords($data['project_title']); ?> </strong><br></p>
               <p class="detail-font"><?php echo $data['project_members']; ?></p>
               <?php if (!empty($data['date_published'])) {
-                  $first_published = DateTime::createFromFormat("Y-m-d", $data['date_published'])->format("d F Y");
+                  $first_published = (new DateTime($data['dateOFSubmit']))->format("d F Y");
                   echo '<p class="detail-font">Published: '.$first_published.' | Archive ID: '. $data['archive_id'] .'<span class="float-right"><i class="ti-eye m-r-4 "></i>'.$data['view_count'].'</span></p>'; }
                   else {
-                    echo '<p class="detail-font">Not yet published</p>';
+                    echo '<p class="detail-font">Not yet published | Archive ID: '. $data['archive_id'] .'</p>';
                   }
                 ?>
             </div>
@@ -120,7 +120,7 @@ require_once 'templates/admin_navbar.php';
               <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Publication History</p>
               <ul>
                 <li class="info-meta"><label>Project Year:</label><?= $data['project_year'] ?></li>
-                <li class="info-meta"><label>Date Uploaded:</label><?= DateTime::createFromFormat("Y-m-d", $data['dateOFSubmit'])->format("d F Y"); ?></li>
+                <li class="info-meta"><label>Date Uploaded:</label><?= (new DateTime($data['dateOFSubmit']))->format("d F Y"); ?></li>
                 <li class="info-meta"><label>Date Published:</label>
                   <?php if (!empty($data['date_published'])) {
                     $first_published = DateTime::createFromFormat("Y-m-d", $data['date_published'])->format("d F Y");

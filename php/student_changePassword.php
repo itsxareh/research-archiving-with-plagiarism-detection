@@ -33,7 +33,7 @@ if(isset($_POST['changePassword']) && isset($_SESSION['email'])){
 			date_default_timezone_set('Asia/Manila');
 			$date = date('F / d l / Y');
 			$time = date('g:i A');
-			$logs = 'You successfully recover your account.';
+			$log = 'You successfully recover your account.';
 			$sql1 = $db->student_login_log($student_id, $log, $date, $time);
 			
 			unset($_SESSION['email']);

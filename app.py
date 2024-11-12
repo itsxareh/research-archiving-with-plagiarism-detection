@@ -1,16 +1,25 @@
 import os
 import re
+from typing import Dict, List, Tuple, Any
 from flask import Flask, request, jsonify, send_from_directory
 from PyPDF2 import PdfReader
 from docx import Document
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-import sqlite3
 import mysql.connector
 from mysql.connector import Error
 import nltk
-nltk.download('punkt_tab')
-from nltk.tokenize import sent_tokenize
+from nltk.tokenize import sent_tokenize, word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+from datetime import datetime
+import pytz
+import numpy as np
+
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+nltk.download('averaged_perceptron_tagger')
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024
@@ -29,57 +38,89 @@ def get_db():
     except Error as e:
         print(f"Error connecting to MySQL: {e}")
         return None
-
+    
 def init_db():
     with get_db() as conn:
         cursor = conn.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS students_data (
-                             id INT AUTO_INCREMENT PRIMARY KEY,
-                             student_id INT NOT NULL
-                          )''')
+        
+        # Modified archive_research table
         cursor.execute('''CREATE TABLE IF NOT EXISTS archive_research (
-                             id INT AUTO_INCREMENT PRIMARY KEY,
-                             archive_id INT NOT NULL,
-                             student_id VARCHAR(20) NOT NULL,
-                             content TEXT NOT NULL
-                          )''')
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            archive_id INT NOT NULL,
+            student_id VARCHAR(20) NOT NULL,
+            department_id INT NOT NULL,
+            course_id INT NOT NULL,
+            project_title VARCHAR(255) NOT NULL,
+            dateOfSubmit DATETIME NOT NULL,
+            project_year VARCHAR(4) NOT NULL,
+            project_abstract TEXT,
+            keywords TEXT,
+            content TEXT NOT NULL,
+            research_owner_email VARCHAR(255),
+            project_members TEXT,
+            documents VARCHAR(255),
+            file_size BIGINT UNSIGNED,
+            page_count INT UNSIGNED,
+            word_count INT UNSIGNED,
+            character_count INT UNSIGNED
+        )''')
+
         cursor.execute('''CREATE TABLE IF NOT EXISTS plagiarism_results (
-                             id INT AUTO_INCREMENT PRIMARY KEY,
-                             archive_id INT NOT NULL,
-                             submitted_sentence TEXT NOT NULL,
-                             existing_sentence TEXT NOT NULL,
-                             similar_archive_id INT NOT NULL,
-                             similarity_percentage DECIMAL(5,2) NOT NULL,
-                             is_plagiarized BOOLEAN NOT NULL,
-                             FOREIGN KEY (archive_id) REFERENCES archive_research(id),
-                             FOREIGN KEY (similar_archive_id) REFERENCES archive_research(id)
-                          )''')
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            archive_id INT NOT NULL,
+            submitted_sentence TEXT NOT NULL,
+            existing_sentence TEXT NOT NULL,
+            similar_archive_id INT NOT NULL,
+            similarity_percentage DECIMAL(5,2) NOT NULL,
+            is_plagiarized BOOLEAN NOT NULL,
+            FOREIGN KEY (archive_id) REFERENCES archive_research(id),
+            FOREIGN KEY (similar_archive_id) REFERENCES archive_research(id)
+        )''')
+
+        cursor.execute('''CREATE TABLE IF NOT EXISTS plagiarism_summary (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            archive_id INT NOT NULL,
+            similar_archive_id INT NOT NULL,
+            plagiarism_percentage DECIMAL(5,2) NOT NULL,
+            FOREIGN KEY (archive_id) REFERENCES archive_research(id),
+            FOREIGN KEY (similar_archive_id) REFERENCES archive_research(id)
+        )''')
+        
         conn.commit()
 
-def extract_text(file_path, file_type):
+def get_file_metrics(file_path, file_type):
+    """Calculate file metrics including size, page count, word count, and character count"""
+    metrics = {
+        'file_size': os.path.getsize(file_path),
+        'page_count': 0,
+        'word_count': 0,
+        'character_count': 0
+    }
+    
     content = ""
     if file_type == 'application/pdf':
         reader = PdfReader(file_path)
+        metrics['page_count'] = len(reader.pages)
         for page in reader.pages:
             page_text = page.extract_text()
-            # Detect and ignore reference sections
-            if re.search(r'\b(References|Bibliography|Works Cited)\b', page_text, re.IGNORECASE):
-                break  # Stop when reaching the references
             content += page_text
+            
     elif file_type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
         doc = Document(file_path)
+        metrics['page_count'] = len(doc.paragraphs) // 40  # Approximate pages
         for para in doc.paragraphs:
-            para_text = para.text
-            if re.search(r'\b(References|Bibliography|Works Cited)\b', para_text, re.IGNORECASE):
-                break  # Stop when reaching the references
-            content += para_text
-    else:
+            content += para.text + "\n"
+            
+    else:  # For text files
         with open(file_path, 'r') as file:
-            for line in file:
-                if re.search(r'\b(References|Bibliography|Works Cited)\b', line, re.IGNORECASE):
-                    break  # Stop when reaching the references
-                content += line
-    return content
+            content = file.read()
+            metrics['page_count'] = len(content) // 3000  # Approximate pages
+    
+    # Calculate word and character counts
+    metrics['word_count'] = len(content.split())
+    metrics['character_count'] = len(content)
+    
+    return metrics, content
 
 def normalize_text(text):
     # Convert to lowercase
@@ -101,12 +142,11 @@ def normalize_text(text):
 
 def split_into_sentences(text):
     sentences =  sent_tokenize(text)
-    return [sentence for sentence in sentences if len(sentence.split()) >= 7]
+    return [sentence for sentence in sentences if len(sentence.split()) >= 8]
 
 def calculate_similarity(submitted_content, submissions):
     submitted_sentences = [normalize_text(sentence) for sentence in split_into_sentences(submitted_content)]
 
-    
     # Prepare a list of sentences and their corresponding submission IDs
     all_existing_sentences = []
     all_existing_submission_ids = []
@@ -133,7 +173,7 @@ def calculate_similarity(submitted_content, submissions):
     for i, submitted_sentence in enumerate(submitted_sentences):
         for j, existing_sentence in enumerate(all_existing_sentences):
             similarity_score = similarity_matrix[i][j]
-            if similarity_score > 0.5:
+            if similarity_score > 0.7:
                 matching_results.append({
                     'submitted_sentence': submitted_sentence,
                     'existing_sentence': existing_sentence,
@@ -175,71 +215,110 @@ def upload_file():
     
     if not student_id:
         return jsonify(error="No student ID provided"), 400
-
-    upload_folder = os.path.join(os.getcwd(), 'pdf_files')
-    os.makedirs(upload_folder, exist_ok=True)
-    file_path = os.path.join(upload_folder, file.filename)
-    file.save(file_path)
-
+    
     try:
-        file_type = file.content_type
-        content = extract_text(file_path, file_type)
+        upload_folder = os.path.join(os.getcwd(), 'pdf_files')
+        os.makedirs(upload_folder, exist_ok=True)
+        file_path = os.path.join(upload_folder, file.filename)
+        file.save(file_path)
+
+        file_metrics, content = get_file_metrics(file_path, file.content_type)
+
+        # Asia/Manila timezone
+        manila_tz = pytz.timezone('Asia/Manila')
+        current_time = datetime.now(manila_tz)
 
         if not content:
             return jsonify(error="Failed to extract content from file"), 400
 
         with get_db() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT id FROM students_data WHERE id = %s", (student_id,))
-            if cursor.fetchone() is None:
-                return jsonify(error="Student ID does not exist"), 400
 
-            cursor.execute("INSERT INTO archive_research (archive_id, student_id, department_id, course_id, project_title, dateOFSubmit, project_year, project_abstract, keywords, content, research_owner_email, project_members, documents) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (archive_id, student_id, department_id, course_id, project_title, date_of_submit, project_year, abstract, keywords, content, owner_email, project_members, pdf_path))
+            # Insert into archive_research with file metrics
+            cursor.execute("""
+                INSERT INTO archive_research (
+                    archive_id, student_id, department_id, course_id, 
+                    project_title, dateOfSubmit, project_year, project_abstract,
+                    keywords, content, research_owner_email, project_members,
+                    documents, file_size, page_count, word_count, character_count
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (
+                    archive_id, student_id, department_id, course_id,
+                    project_title, current_time, project_year, abstract,
+                    keywords, content, owner_email, project_members,
+                    pdf_path, file_metrics['file_size'], file_metrics['page_count'],
+                    file_metrics['word_count'], file_metrics['character_count']
+                ))
             conn.commit()
-            archive_id = cursor.lastrowid
+            new_archive_id = cursor.lastrowid
 
+            # Get existing submissions for comparison
             cursor.execute("SELECT id, content FROM archive_research WHERE student_id != %s", (student_id,))
             submissions = cursor.fetchall()
 
-            similarity_results = []
+            plagiarism_results = {} # Dictionary to store results per similar document
+            
             if submissions:
                 matching_sentences = calculate_similarity(content, submissions)
-                print("Matching sentences", matching_sentences)
-                
-                accurate_percentage = 0
-                plagiarized_count = 0
-                total_sentences = len(split_into_sentences(content))
-
-                print("Total sentences", total_sentences)
+                total_sentences = 0  
                 for match in matching_sentences:
-                    similarity_results.append({
-                        'submitted_sentence': match['submitted_sentence'],
-                        'existing_sentence': match['existing_sentence'],
-                        'similarity_percentage': match['similarity_percentage'],
-                        'similar_archive_id': match['similar_archive_id'], 
-                    })
+                    similar_id = match['similar_archive_id']
+
+                    cursor.execute("SELECT content FROM archive_research WHERE id = %s", (similar_id,))
+                    similar_content = cursor.fetchone()[0]
+                    total_sentences = len(split_into_sentences(similar_content))
+
+                    cursor.execute("""
+                        INSERT INTO plagiarism_results (
+                            archive_id, similar_archive_id, submitted_sentence,
+                            existing_sentence, similarity_percentage, is_plagiarized
+                        ) VALUES (%s, %s, %s, %s, %s, %s)
+                        """, (
+                            new_archive_id, similar_id, match['submitted_sentence'],
+                            match['existing_sentence'], match['similarity_percentage'], True
+                        ))
+
+                    # Accumulate results for summary
+                    if similar_id not in plagiarism_results:
+                        plagiarism_results[similar_id] = {
+                            'matched_sentences': 0,
+                            'total_similarity': 0,
+                            'total_sentences': total_sentences
+                        }
+                    plagiarism_results[similar_id]['matched_sentences'] += 1
+                    plagiarism_results[similar_id]['total_similarity'] += match['similarity_percentage']
+
+               
+                for similar_id, results in plagiarism_results.items():
+                    avg_similarity = results['total_similarity'] / results['matched_sentences']
+                    plagiarism_percentage = (results['total_similarity'] / results['total_sentences']) if results['total_sentences'] > 0 else 0
                     
-                    cursor.execute("INSERT INTO plagiarism_results (archive_id, similar_archive_id, submitted_sentence, existing_sentence, similarity_percentage, is_plagiarized) VALUES (%s, %s, %s, %s, %s, %s)",
-                                (archive_id, match['similar_archive_id'], match['submitted_sentence'], match['existing_sentence'], match['similarity_percentage'], True))
-                    conn.commit()
-
-                    plagiarized_count += 1
-                    accurate_percentage += float(match['similarity_percentage'])
-
-
-                average_plagiarized = accurate_percentage / plagiarized_count
-                plagiarism_percentage = ((plagiarized_count/ total_sentences) * average_plagiarized) if total_sentences > 0 and plagiarized_count > 0 else 0
-                print("Accuracy percentage", accurate_percentage)
-                print("Plagiarized counts", plagiarized_count)
-                print("Plagiarism percentage", plagiarism_percentage)
-                if plagiarism_percentage > 0:
-                    cursor.execute("INSERT INTO plagiarism_summary (archive_id, similar_archive_id, plagiarism_percentage) VALUES (%s, %s, %s)", 
-                                   (archive_id, match['similar_archive_id'], plagiarism_percentage))
-                    conn.commit()
-            return jsonify(plagiarized=bool(similarity_results), similarityResults=similarity_results, plagiarism_percentage=plagiarism_percentage)
+                    cursor.execute("""
+                        INSERT INTO plagiarism_summary (
+                            archive_id, similar_archive_id, plagiarism_percentage
+                        ) VALUES (%s, %s, %s)
+                        """, (new_archive_id, similar_id, plagiarism_percentage))
+                    print(similar_id, "Total matched sentences", results['matched_sentences'])
+                    print(similar_id, 'Total similarity', results['total_similarity'])
+                    print(similar_id, "Total sentences", results['total_sentences'])
+                    print(similar_id, "Plagiarism percentage", plagiarism_percentage)
+            conn.commit()
+            print("Plagiarism summary:", plagiarism_results)
+            return jsonify({
+                'status': 'success',
+                'file_metrics': file_metrics,
+                'plagiarism_results': [
+                    {
+                        'similar_archive_id': similar_id,
+                        'plagiarism_percentage': (results['total_similarity'] / results['matched_sentences']) if results['matched_sentences'] > 0 else 0
+                    }
+                    for similar_id, results in plagiarism_results.items()
+                ]
+            })
     except Exception as e:
-        print(f"Error: {str(e)}") 
+        print(f"Error: {str(e)}")
         return jsonify(error=str(e)), 500
+    
 
 @app.route('/check_db_connection', methods=['GET'])
 def check_db_connection():

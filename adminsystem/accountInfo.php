@@ -48,82 +48,68 @@ if (isset($_POST['updateInfo'])) {
 
 ?>
 <strong>Basic Info</strong><br>
-
-<div class="col-sm-12 col-md-12 col-xl-12">
-    <div class="row">
-        <div class="col-md-2-col-xl-2">
-            <form id="image-upload-form" method="POST" enctype="multipart/form-data">
-                <label class="change-picture" for="upload-image">
-                    <div class="profile">
-                        <img alt="" id="myImage" title="" class="profile-picture" src="<?php echo $data['admin_profile_picture']; ?>" data-original-title="Usuario">
-                    </div>
-                    <span class="info-label">Edit photo</span>
-                    <input id="upload-image" class="upload-image" type="file" name="img_student" onchange="previewAndUploadImage(event)" required accept="image/*">
-                </label>
-            </form>
+<div class="basic-info">
+    <form id="image-upload-form" method="POST" enctype="multipart/form-data">
+        <label class="change-picture" for="upload-image">
+            <div class="profile">
+                <img alt="" id="myImage" title="" class="profile-picture" src="<?php echo $data['admin_profile_picture']; ?>" data-original-title="Usuario">
+            </div>
+            <span class="info-label">Edit photo</span>
+            <input id="upload-image" class="upload-image" type="file" name="img_student" onchange="previewAndUploadImage(event)" required accept="image/*">
+        </label>
+    </form>
+    <div class="info-details">
+        <div class="item-detail">
+            <span class="info-label">Name:</span>
+            <span class="profile-info"><?php echo $data['first_name'].' '.$data['middle_name'].' '.$data['last_name']; ?></span>
         </div>
-        <div class="col-sm-12 col-md-8 col-xl-8">
-            <div class="row">
-                <div class="col-sm-10 col-md-10 col-xl-10" id="info-details">
-                    <div class="item-detail">
-                        <span class="info-label">Name:</span>
-                        <span class="profile-info"><?php echo $data['first_name'].' '.$data['middle_name'].' '.$data['last_name']; ?></span>
-                    </div>
-                    <div class="item-detail">
-                        <span class="info-label">Address:</span>
-                        <span class="profile-info"><?php echo $data['complete_address']; ?></span>
-                    </div>
-                    <div class="item-detail">
-                        <span class="info-label">Status</span>
-                        <span class="profile-info"><?php echo $data['verify_status']; ?></span>
-                    </div>
+        <div class="item-detail">
+            <span class="info-label">Address:</span>
+            <span class="profile-info"><?php echo $data['complete_address']; ?></span>
+        </div>
+        <div class="item-detail">
+            <span class="info-label">Status</span>
+            <span class="profile-info"><?php echo $data['verify_status']; ?></span>
+        </div>
+    </div>
+    <div class="edit-info-details" id="edit-info" style="display: none;">
+        <form action="" method="POST">
+            <div class="close-right">
+                <button class="close-button info-label">Close <span><i class="ti-close m-l-4"></i></span></button>
+            </div>
+            <div class="edit-info-container">
+                <div class="item-detail">
+                    <label class="info-label" for="first_name">First Name</label>
+                    <input class="info-input" type="text" id="first_name" name="first_name" value="<?php echo $data['first_name'];?>">
                 </div>
-                <div class="col-sm-2 col-md-2 col-xl-2">
-                    <button class="float-right edit-button info-label">Edit<span><i class="ti-pencil m-l-4"></i></span></button>
+                <div class="item-detail">
+                    <label class="info-label" for="middle_name">Middle Name</label>
+                    <input class="info-input" type="text" id="middle_name" name="middle_name" value="<?php echo $data['middle_name'];?>">
                 </div>
-                <div class="col-sm-10 col-md-10 col-xl-10" id="edit-info" style="display: none;">
-                    <form action="" method="POST">
-                        <div class="close-right">
-                            <button class="close-button info-label">Close <span><i class="ti-close m-l-4"></i></span></button>
-                        </div>
-                        <div class="edit-info-container">
-                            <div class="item-detail">
-                                <label class="info-label" for="first_name">First Name</label>
-                                <input class="info-input" type="text" id="first_name" name="first_name" value="<?php echo $data['first_name'];?>">
-                            </div>
-                            <div class="item-detail">
-                                <label class="info-label" for="middle_name">Middle Name</label>
-                                <input class="info-input" type="text" id="middle_name" name="middle_name" value="<?php echo $data['middle_name'];?>">
-                            </div>
-                            <div class="item-detail">
-                                <label class="info-label" for="last_name">Last Name</label>
-                                <input class="info-input" type="text" id="last_name" name="last_name" value="<?php echo $data['last_name'];?>">
-                            </div>
-                            <div class="item-detail">
-                            <label class="info-label" for="pnumber">Phone number</label>
-                            <input class="info-input" type="text" id="pnumber" name="pnumber" value="<?php echo $data['phone_number'];?>">
-                            </div>
-                        </div>
-                        <div class="submit-container">
-                            <button class="close-button info-label m-r-8 m-t-10">Close</button>
-                            <button class="update-button info-label m-t-10" name="updateInfo">Update</button>
-                        </div>
-                    </form>
+                <div class="item-detail">
+                    <label class="info-label" for="last_name">Last Name</label>
+                    <input class="info-input" type="text" id="last_name" name="last_name" value="<?php echo $data['last_name'];?>">
+                </div>
+                <div class="item-detail">
+                <label class="info-label" for="pnumber">Phone number</label>
+                <input class="info-input" type="text" id="pnumber" name="pnumber" value="<?php echo $data['phone_number'];?>">
                 </div>
             </div>
-        </div>
-        
+            <div class="submit-container">
+                <button class="close-button info-label m-r-8 m-t-10">Close</button>
+                <button class="update-button info-label m-t-10" name="updateInfo">Update</button>
+            </div>
+        </form>
     </div>
-    <div class="edit-info-details">
-        
-    </div>
+    <button class="edit-button info-label">Edit<img class="m-l-2" src="../images/edit.svg" style="width: .875rem; height: .875rem"></span></button>
+</div>
 <hr class="divider-space">
 <strong>Email Address</strong><br>
 <div class="email-info">
     <div class="email-details">
         <div class="item-detail">
             <span class="info-label">Primary email is used for account-related notifications and password reset.</span>
-            <span class="profile-email"><i class="ti-email m-r-8 m-l-2"></i><?php echo $data['admin_email']; ?></span>
+            <span class="profile-email"><img class="m-r-8 m-l-2" src="../images/email.svg" style="width: .875rem; height: .875rem"></i><?php echo $data['admin_email']; ?></span>
         </div>
     </div>
 </div>
@@ -175,16 +161,16 @@ if (isset($_POST['updateInfo'])) {
         });
     }
     $(".edit-button").click(function() {
-        $("#info-details").hide();
+        $(".info-details").hide();
         $(".edit-button").hide();
-        $("#edit-info").show();
+        $(".edit-info-details").show();
     });
 
     $(".close-button").click(function(e) {
         e.preventDefault();
-        $("#edit-info").hide();
+        $(".edit-info-details").hide();
         $(".edit-button").show();
-        $("#info-details").show();
+        $(".info-details").show();
     });
 </script>
 <?php 

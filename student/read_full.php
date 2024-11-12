@@ -133,7 +133,7 @@ require_once 'templates/student_navbar.php';
         <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Publication History</p>
         <ul>
           <li class="info-meta"><label>Project Year:</label><?= $data['project_year'] ?></li>
-          <li class="info-meta"><label>Date Uploaded:</label><?= DateTime::createFromFormat("Y-m-d", $data['dateOFSubmit'])->format("d F Y"); ?></li>
+          <li class="info-meta"><label>Date Uploaded:</label><?= (new DateTime($data['dateOFSubmit']))->format("d F Y") ?></li>
           <li class="info-meta"><label>Date Published:</label>
             <?php if (!empty($data['date_published'])) {
               $first_published = DateTime::createFromFormat("Y-m-d", $data['date_published'])->format("d F Y");

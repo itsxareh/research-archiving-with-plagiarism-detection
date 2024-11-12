@@ -836,6 +836,14 @@ a.dt-button.active:not(.disabled) {
   align-items: center;
   justify-content: center;
 }
+.account-container {
+  background-color: #fff;
+  border-radius: 5px;
+  position: relative;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  height: 80svh;
+  
+}
 .submit-container {
   width: 100%;
   display: flex;
@@ -863,6 +871,10 @@ a.dt-button.active:not(.disabled) {
 }
 .plagiarized-card-content a i.pread:hover {
   text-decoration: underline;
+}
+.plagiarized-card-meta > a {
+  display: flex;
+  align-items: center;
 }
 .plagiarized-container {
   border-radius: .25rem;
@@ -1311,8 +1323,8 @@ option {
 .project-action {
   position: absolute;
   top: 0;
-  right: -60px;
-  padding: 0 10px;
+  right: -40px;
+  padding: 0;
   border-radius: 4px;
 }
 .project-action i {
@@ -2017,7 +2029,7 @@ footer p {
   float: left;
   height: 60px;
   width: 60px;
-  background: url(http://michaeltruong.ca/images/logo1.png) no-repeat;
+  background: url(http://michaeltruong.ca/images/logo2.png) no-repeat;
   background-size: 60px 60px;
 }
 .clientlogo {
@@ -4386,7 +4398,7 @@ tbody tr td:last-child {
   fill: #e6a1f2;
 }
 body {
-  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
+  font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif !important;
   background: rgba(88, 115, 254, 0.04);
   color: #868e96;
   font-size: 14px;

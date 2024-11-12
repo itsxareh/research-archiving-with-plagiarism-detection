@@ -133,7 +133,7 @@ require_once 'templates/admin_navbar.php';
       <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Publication History</p>
       <ul>
         <li class="info-meta"><label>Project Year:</label><?= $data['project_year'] ?></li>
-        <li class="info-meta"><label>Date Uploaded:</label><?= DateTime::createFromFormat("Y-m-d", $data['dateOFSubmit'])->format("d F Y"); ?></li>
+        <li class="info-meta"><label>Date Uploaded:</label><?= (new DateTime($data['dateOFSubmit']))->format("d F Y"); ?></li>
         <li class="info-meta"><label>Date Published:</label>
           <?php if (!empty($data['date_published'])) {
             $first_published = DateTime::createFromFormat("Y-m-d", $data['date_published'])->format("d F Y");
@@ -163,7 +163,7 @@ require_once 'templates/admin_navbar.php';
       $archive_id = $data['aid'];
       $smtm = $db->SELECT_PLAGIARISM_SUMMARY_RESEARCH($archive_id);
       if (!empty($smtm)) {
-        $percentage = $smtm['plagiarism_percentage'];
+        $percentage = $smtm['total_percentage'];
         if ($percentage >= 100){
           $percentage = 100;
         }

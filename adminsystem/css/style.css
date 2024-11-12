@@ -2772,6 +2772,25 @@ ul {
     width: 60px;
   }
 }
+.print-button {
+  padding: .545rem 1.765rem;
+  color: #f8f9ff;
+  background-color: #a33333;
+  border-radius: .575rem;
+  border: none !important;
+  font-size: 12px;
+  font-family: 'Poppins';
+  transition: background-color 0.2s ease-in-out;
+}
+.print-button:hover, .print-button:active{ 
+  color: #fff;
+  text-decoration: none;
+  background-color: #ca4949;
+}
+.nav-login >.login-btn:focus, .nav-signup >.signup-btn:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
 .progress-bar-primary {
   background-color: #5873fe;
 }
@@ -4303,7 +4322,7 @@ h6.h1 {
   display: none;
 }
 .pace .pace-progress {
-  background: #28a745;
+  background: #a33333;
   position: fixed;
   z-index: 2000;
   top: 0;
@@ -4334,8 +4353,8 @@ h6.h1 {
   width: 14px;
   height: 14px;
   border: solid 2px transparent;
-  border-top-color: #28a745;
-  border-left-color: #28a745;
+  border-top-color: #a33333;
+  border-left-color: #a33333;
   border-radius: 10px;
   -webkit-animation: pace-spinner 400ms linear infinite;
   -moz-animation: pace-spinner 400ms linear infinite;

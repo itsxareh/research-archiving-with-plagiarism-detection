@@ -3,6 +3,7 @@ $db = new Database();
 ?>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tagify/4.9.3/tagify.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tagify/4.9.3/tagify.css">
 <style type="text/css">
     .menu-container {
@@ -71,6 +72,29 @@ $db = new Database();
     background-color: #f3f4f6; /* bg-gray-100 */
     color: #1f2937; /* text-gray-900 */
 }
+@media (max-width: 582px) {
+    .meta-header {
+        padding: 0;
+    }
+    .logo-home {
+        margin-left: 5px;
+    }
+    #menu-button {
+        text-indent: -9999px;
+    }
+    .title-system {
+        display: none;
+    }
+    .logo-w-name {
+        margin: 0;
+    }
+    .search-bar {
+        margin: 0 !important;
+    }
+    .search-bar input {
+        width: 150px !important;
+    }
+}
 </style>
 <?php 
 if (isset($_SESSION['auth_user']['student_id'])){
@@ -79,8 +103,8 @@ if (isset($_SESSION['auth_user']['student_id'])){
         <div class="nano">
             <div class="nano-content">
                 <ul class="navbar">
-                    <li><a href="project_list.php"><img src="../../images/archive.svg" style="width: 2.525rem; height: 2.525rem;">Archive</a></li>
-                    <li><a href="all_project_list.php"><img src="../../images/documents.svg" style="width: 2.525rem; height: 2.525rem;">Research</a></li>
+                    <li><a href="project_list.php"><img src="../../images/archive.svg" style="width: 2.225rem; height: 2.225rem;">Archive</a></li>
+                    <li><a href="all_project_list.php"><img src="../../images/documents.svg" style="width: 2.225rem; height: 2.225rem;">Research</a></li>
                 </ul>
             </div>
         </div>
@@ -118,7 +142,7 @@ if (isset($_SESSION['auth_user']['student_id'])){
                     <div style="display: flex; flex-direction: row; justify-content:end; align-items: center; flex:1">
                         <div class="search-bar m-r-16">
                             <input id="searchInput" name="searchInput" type="text" class="form-control" placeholder="Search...">
-                            <button class="search-btn" id="search-btn"><i class="ti-search"></i></button>
+                            <button class="search-btn" id="search-btn" style="background-color: transparent"><img style="width: 1.275rem; height: 1.275rem;" src="../../images/search.svg" alt=""></button>
                         </div>
                         <?php
                             if(isset($_SESSION['auth_user']['student_id'])) {
@@ -126,7 +150,7 @@ if (isset($_SESSION['auth_user']['student_id'])){
                         ?>
                         <div class="dropdown dib">
                             <div class="header-icon" style="padding: 5px 15px 0 15px !important" data-toggle="dropdown">
-                                <img class="" src="../../images/notification-bell.svg" style="position: relative; width: 1.925rem; height: 1.925rem">
+                                <img class="" src="../../images/notification-bell.svg" style="position: relative; width: 1.525rem; height: 1.525rem">
                                     <span class="" style="position: absolute; right: 5px; top: 0; border-radius: 50%; font-size: 10px; background-color: #a33333; padding: 5px; color: white" id="notification-badge">
                                     <?php
                                         $unread = 'Unread';

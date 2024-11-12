@@ -92,17 +92,17 @@ if(ISSET($_POST['add_research'])){
         curl_close($ch);
     
         $responseData = json_decode($response, true);
-
-        if ($responseData){
+        print_r($responseData);
+        if ($responseData['status'] == 'success') {
             date_default_timezone_set('Asia/Manila');
             $date = date('F / d l / Y');
             $time = date('g:i A');
-            $logs = 'You successfully submitted your Research Paper';
+            $logs = 'You successfully submitted your research paper.';
 
             $sql1 = $db->student_Insert_NOTIFICATION($student_id, $logs, $date, $time);
 
             $_SESSION['alert'] = "Success";
-            $_SESSION['status'] = "You successfully submitted your Research Paper";
+            $_SESSION['status'] = "You successfully submitted your research paper.";
             $_SESSION['status-code'] = "success";
         }
     } else {
@@ -126,7 +126,7 @@ if(ISSET($_POST['add_research'])){
     <title>Project List: EARIST Research Archiving System</title>
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo1.png">
+    <link rel="shortcut icon" href="images/logo2.png">
     <!-- Retina iPad Touch Icon-->
     <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
     <!-- Retina iPhone Touch Icon-->
@@ -366,9 +366,8 @@ require_once 'templates/student_navbar.php';
                                         </div>
                                     </div>
                                     <div class="project-action">
-                                        <a href="delete_research.php?archiveID=<?= $result['archiveID'] ?>" class="btn"><i class="ti-trash" title="Delete Research"></i></a>            
+                                        <a href="delete_research.php?archiveID=<?= $result['archiveID'] ?>" class="btn"><img style="width: 20px; height: 20px" src="images/svg/delete.svg" title="Delete Research"></img></a>            
                                     </div>
-                                    
                                 </li>
                                 <?php
                                     $i++;

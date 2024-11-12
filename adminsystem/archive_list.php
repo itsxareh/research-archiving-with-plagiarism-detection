@@ -1,7 +1,6 @@
 <?php
 
 include '../connection/config.php';
-
 $db = new Database();
 
 //display all errors
@@ -100,9 +99,6 @@ if(ISSET($_POST['add_research'])){
 
     <!---------------------DATATABLES------------------------->
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/datetime/1.5.1/css/dataTables.dateTime.min.css" rel="stylesheet">
-    
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
@@ -118,109 +114,53 @@ require_once 'templates/admin_navbar.php';
 
 
 
-    <div class="content-wrap">
-            <div class="main container-fluid">
-                <div class="col-md-12 p-r-0 title-page">
-                    <div class="page-header">
-                        <div class="page-title">
-                            <h1>Researches</h1>
+<div class="content-wrap">
+    <div class="main container-fluid">
+        <div class="col-sm-12 col-md-12 col-xl-12 title-page">
+            <div class="page-header">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-xl-12  flex justify-content-between align-items-center page-title">
+                        <h1 style="display: flex; ">Research Papers</h1>
+                        <div class="generate-report ">
+                            <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=all_research_papers" class="btn print-button">
+                                Print
+                            </a>
                         </div>
                     </div>
                 </div>
-                <div class="modal fade" id="modelId" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
-                    <div class="modal-dialog modal-lg" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Add New Research</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                            </div>
-
-                            <form action="" method="POST" enctype="multipart/form-data">
-                            <div class="modal-body">
-                                <div class="form-group">
-
-                                  <div class="form-group row">
-                                    <div class="col-sm-6 mb-3 mb-sm-0">
-                                    <label for="">Research Title</label>
-                                    <input type="text" class="form-control" name="project_title" placeholder="Enter Research Title...">
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                    <label for="">Enter a year</label>
-                                    <input type="number" class="form-control" name="year" min="1900" max="2100" placeholder="Ex: 2024">
-                                    </div>
-                                  </div>
-                                  
-                                  <div class="form-group row">
-                                    <div class="col-sm-6 mb-3 mb-sm-0">
-                                    <label for="">Select Department</label>
-                                  <select id="inputDepartment" name="department" class="selectpicker form-control" required title="Select Department">
-                                    <option></option>
-                                    <?php 
-                                        $res = $db->showDepartments_WHERE_ACTIVE();
-
-                                        foreach ($res as $item) {
-                                        echo '<option value="'.$item['id'].'">'.$item['name'].'</option>';
-                                        }
-                                    ?>
-                                    
-                                  </select>
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                    <label for="">Select Course</label>
-                                    <div class="course_dropdown" id="course"></div>
-                                    </div>
-                                  </div>
-                                  
-                                  <label for="">Abstract</label>
-                                  <textarea class="form-control" name="abstract" placeholder="The Research Abstract..."></textarea>
-                                  
-                                  <label for="">Project Members</label>
-                                  <input type="text" class="form-control" name="project_members" placeholder="Ex: John Doe, Peter Parker, Tony Stark">
-                                  
-
-                                  <div class="form-group row">
-                                    <div class="col-sm-6 mb-3 mb-sm-0">
-                                    <label for="">Project Owner Email</label>
-                                    <input type="email" class="form-control" name="owner_email" placeholder="johndoe@example.com">
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                    <label for="">Project File (PDF)</label>
-                                    <input type="file" accept=".pdf" class="form-control" name="project_file" >
-                                    </div>
-                                  </div>
-                                  
-                                  
-                                  
-
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button name="add_research" class="btn btn-primary">Save</button>
-                            </div>
-                            </form>
-
-                        </div>
+            </div>
+        </div>
+        <div class="modal fade" id="modelId" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add New Research</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
                     </div>
-                </div>
-                <section class="project-page-content">
-                <div class="col-md-12">
-                    <div class="add-research">
-                        <button type="button" class="add-research-button item-meta" data-toggle="modal" data-target="#modelId">
-                        <i class="ti-plus m-r-4"></i> Add New Research
-                        </button>
-                    </div>
-                    <!-- <div class="advance-filter-search">
-                        <p class="font-black bold">Filter</p>
-                        <div class="mb-3 mb-sm-0">
-                            <label for="" class="item-meta">Select Department</label>
-                            <select id="inputDepartment_search" name="department" class="selectpicker form-control item-meta" required>
-                            <option value=""></option>
+
+                    <form action="" method="POST" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="form-group">
+
+                            <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                            <label for="">Research Title</label>
+                            <input type="text" class="form-control" name="project_title" placeholder="Enter Research Title...">
+                            </div>
+
+                            <div class="col-sm-6">
+                            <label for="">Enter a year</label>
+                            <input type="number" class="form-control" name="year" min="1900" max="2100" placeholder="Ex: 2024">
+                            </div>
+                            </div>
+                            
+                            <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                            <label for="">Select Department</label>
+                            <select id="inputDepartment" name="department" class="selectpicker form-control" required title="Select Department">
+                            <option></option>
                             <?php 
                                 $res = $db->showDepartments_WHERE_ACTIVE();
 
@@ -230,52 +170,54 @@ require_once 'templates/admin_navbar.php';
                             ?>
                             
                             </select>
-                        </div>
-                        <div class="mb-3 mb-sm-0">
-                            <label class="item-meta" for="course">Course:</label>
-                            <select id="department_course" name="department_course" class="selectpicker form-control" required> 
-                            <option value=""></option>
-                            </select>
-                        </div>
-                        <fieldset>
-                            <div class="input-filter-group">
-                                <label class="item-meta" for="info-label">Document Status:</label>
-                                <select class="item-meta" style="width: auto;" name="documentStatus" id="documentStatus">
-                                    <option value="">All</option>
-                                    <option value="Accepted">Published</option>
-                                    <option value="Not Accepted">Not yet published</option>
-                                </select>
-                        </fieldset>
-                        <fieldset>
-                            <div class="input-filter-group">
-                                <label class="item-meta" for="info-label">From:</label>
-                                <select class="item-meta" name="fromYear" id="fromYear">
-                                    <option value=""></option>
-                                    <?php 
-                                        $defaultYear = 1999;
-                                        for ($year = 1999; $year <= 2024; $year++) {
-                                            $selected = ($year == $defaultYear) ? 'selected' : ''; 
-                                            echo "<option value =\"$year\">$year</option>";
-                                        }
-                                    ?>
-                                </select>
                             </div>
-                            <div class="input-filter-group">
-                                <label class="item-meta" for="info-label">To:</label>
-                                <select class="item-meta" name="toYear" id="toYear">
-                                    <option value=""></option>
-                                    <?php 
-                                        $defaultYear = date('Y');
-                                        for ($year = date('Y'); $year >= 1999; $year--) {
-                                            $selected = ($year == $defaultYear) ? 'selected' : ''; 
-                                            echo "<option value =\"$year\">$year</option>";
-                                        }
-                                    ?>
-                                </select>
+
+                            <div class="col-sm-6">
+                            <label for="">Select Course</label>
+                            <div class="course_dropdown" id="course"></div>
                             </div>
-                        </fieldset>
+                            </div>
+                            
+                            <label for="">Abstract</label>
+                            <textarea class="form-control" name="abstract" placeholder="The Research Abstract..."></textarea>
+                            
+                            <label for="">Project Members</label>
+                            <input type="text" class="form-control" name="project_members" placeholder="Ex: John Doe, Peter Parker, Tony Stark">
+                            
+
+                            <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                            <label for="">Project Owner Email</label>
+                            <input type="email" class="form-control" name="owner_email" placeholder="johndoe@example.com">
+                            </div>
+
+                            <div class="col-sm-6">
+                            <label for="">Project File (PDF)</label>
+                            <input type="file" accept=".pdf" class="form-control" name="project_file" >
+                            </div>
+                            </div>
+                            
+                            
+                            
+
+                        </div>
                     </div>
-                </div> -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button name="add_research" class="btn btn-primary">Save</button>
+                    </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+        <section class="project-page-content">
+            <div class="col-sm-12 col-md-12 col-xl-12">
+                <div class="add-research">
+                    <button type="button" class="add-research-button item-meta" data-toggle="modal" data-target="#modelId">
+                        <i class="ti-plus m-r-4"></i> Add New Research
+                    </button>
+                </div>
                 <div class="list-container">
                     <table id="datatablesss" class="table list-table" style="width:100%">
                         <colgroup>
@@ -291,9 +233,9 @@ require_once 'templates/admin_navbar.php';
                             <thead>
                                 <tr>
                                     <th class="list-th">Date Created</th>
-                                    <th class="list-th">Archive Code</th>
+                                    <th class="list-th">Archive ID</th>
                                     <th class="list-th">Research Title</th>
-                                    <th class="list-th">College</th>
+                                    <th class="list-th">Department</th>
                                     <th class="list-th">Course</th>
                                     <th class="list-th">Plagiarized</th>
                                     <th class="list-th">Status</th>
@@ -309,7 +251,7 @@ require_once 'templates/admin_navbar.php';
                                 foreach ($data as $result) {
                                 ?>
                                 <tr>
-                                    <td class="list-td"><?= DateTime::createFromFormat("Y-m-d", $result['dateOFSubmit'])->format("F d Y"); ?></td>
+                                    <td class="list-td"><?= (new DateTime($result['dateOFSubmit']))->format("d M Y") ?></td>
                                     <td class="list-td"><?= $result['aid'] ?></td>
                                     <td class="list-td text-ellipsis"><?= $result['project_title'] ?></td>
                                     <td class="list-td"><?= $result['name'] ?></td>
@@ -345,15 +287,17 @@ require_once 'templates/admin_navbar.php';
                                             </div>
                                             <div class="dropdown-action" id="dropdown_<?= $result['archiveID'] ?>" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
                                                 <div role="none">
-                                                <a href="view_archive_research.php?archiveID=<?= $result['aid'] ?>" class="dropdown-action-item">View</a>
+                                                <a href="view_archive_research.php?archiveID=<?= $result['aid'] ?>" class="dropdown-action-item">View paper</a>
+                                                <a href="download_file.php?archiveID=<?= $result['aid'] ?>" class="dropdown-action-item" download>Download PDF</a>
                                                 <?php 
-                                                 $document_status = $result['document_status'];
-                                                 if ($document_status === 'Accepted'){
+                                                $document_status = $result['document_status'];
+                                                if ($document_status === 'Accepted'){
                                                     echo '<a href="unpublish_research.php?archiveID='.$result['archiveID'].'" class="dropdown-action-item">Unpublish</a>';
-                                                 } elseif ($document_status === 'Not Accepted'){
+                                                } elseif ($document_status === 'Not Accepted'){
                                                     echo '<a href="publish_research.php?archiveID='.$result['archiveID'].'" class="dropdown-action-item">Publish</a>';
-                                                 }
+                                                }
                                                 ?>
+                                                <a target="_blank" href="generate_reports/view_details.php?full_details=research_paper&archiveID=<?=  $result['aid'] ?>" class="dropdown-action-item">See details</a>
                                                 <a href="delete_research.php?archiveID=<?= $result['archiveID'] ?>" class="dropdown-action-item">Delete</a>
                                                 </div>
                                             </div>
@@ -366,76 +310,57 @@ require_once 'templates/admin_navbar.php';
                             </tbody>
                     </table>
                 </div>
-            </section>
-        </div>
+            </div>
+        </section>
     </div>
+</div>
 
 
 <script>
-    new DataTable('#datatablesss');
-    $('#datatablesss_filter label input').removeClass('form-control form-control-sm');
-    $('#datatablesss_wrapper').children('.row').eq(1).find('.col-sm-12').css({
-    'padding-left': 0,
-    'padding-right': 0
+new DataTable('#datatablesss');
+$('#datatablesss_filter label input').removeClass('form-control form-control-sm');
+let currentOpenDropdown = null;
+
+const closeAllDropdowns = () => {
+    document.querySelectorAll(".dropdown-action").forEach((dropdown) => {
+        dropdown.classList.remove('active');
     });
-    // $('#datatablesss_wrapper').children('.row').eq(1).children('.col-sm-12').children('.dataTables_wrapper').find('.dataTables_length, .dataTables_filter').css({
-    // 'display': 'none'
-    // });
-    $('#inputDepartment_search').change(function() {
-        var department = $(this).val();
-        table.columns(3).search(department).draw(); // 3 is the column index of "Department"
-    });
-</script>
+    currentOpenDropdown = null;
+};
 
-<!-- Add this script after including the DataTables and jQuery libraries -->
-<script>
-//     const department = document.getElementById('#inputDepartment');
-//     var dept = department.val();
-//     console.log(dept);
-// $("#inputDepartment").change(function(){
-    
-//     if(department != " "){
-//             $.ajax({
-//                 url:"show_course.php",
-//                 method:"POST",
-//                 data:{"send_department_set":1, "send_department":department},
-
-//                 success:function(data){
-//                 $("#department_course").html(data);
-//                 $("#department_course").css("display","block");
-//                 }
-//             });
-//             }else{
-//             $("#department_course").css("display","none");
-//             }
-
-//     });
-</script>
-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
-<script src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
-<script>
 document.addEventListener("click", function(event) {
-    // Check if the clicked element has the class 'action-button'
-    if (event.target.classList.contains("action-button")) {
-        // Get the student ID from the button's ID attribute
-        const studentId = event.target.id.split("_")[1];
-        console.log(studentId); // For debugging: log the student ID
+    if (!event.target.closest('.action-button') && !event.target.closest('.dropdown-action')) {
+        closeAllDropdowns();
+        return;
+    }
 
-        // Get the corresponding dropdown menu based on the button's ID
+    if (event.target.classList.contains("action-button")) {
+        event.stopPropagation();
+        
+        const studentId = event.target.id.split("_")[1];
+        
         const dropdown = document.getElementById(`dropdown_${studentId}`);
         
-        // Hide all other dropdowns first
-        document.querySelectorAll(".dropdown-action").forEach((dropdown) => {
-            dropdown.style.display = "none";
-        });
-
-        // Toggle the display of the clicked button's dropdown
         if (dropdown) {
-            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+            if (currentOpenDropdown === dropdown) {
+                dropdown.classList.remove('active');
+                currentOpenDropdown = null;
+            }
+            else {
+                closeAllDropdowns();
+                dropdown.classList.add('active');
+                currentOpenDropdown = dropdown;
+            }
         }
     }
 });
+
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeAllDropdowns();
+    }
+});
+
         function filteredData(){
         var department = $('#inputDepartment_search').val();
         var fromYear = $('#fromYear').val();

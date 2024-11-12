@@ -32,7 +32,7 @@ if($_SESSION['auth_user']['admin_id']==0){
     <title>Admin Dashboard: Student Research Archiving Management System</title>
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo1.png">
+    <link rel="shortcut icon" href="images/logo2.png">
     <!-- Retina iPad Touch Icon-->
     <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
     <!-- Retina iPhone Touch Icon-->
@@ -287,12 +287,15 @@ require_once 'templates/admin_navbar.php';
                                             $rows = $db->SELECT_PLAGIARIZED_RESEARCH_CONTENT();
                                             if (!empty($rows)){
                                                 foreach ($rows as $row) {
-                                                    $percentage = $row['plagiarism_percentage'];
+                                                    $percentage = $row['total_percentage'];
+                                                    if ($percentage > 100){
+                                                        $percentage = 100;
+                                                    }
                                                     echo '
                                                     <li class="flex justify-content-between">
                                                         <div class="w-100">
-                                                            <p class="mb-0"><a href="view_archive_research.php?archiveID='.$row['aid'].'" style="color: #333; font-size: 14px; font-weight:700">'.$row['project_title'].'</a></p>
-                                                            <p class="" style=" font-size: 12px;">'.DateTime::createFromFormat("Y-m-d", $row['dateOFSubmit'])->format("d F Y").'</p>
+                                                            <p class="mb-0"><a href="plagiarism_result.php?archiveID='.$row['aid'].'" style="color: #333; font-size: 14px; font-weight:700">'.$row['project_title'].'</a></p>
+                                                            <p class="" style=" font-size: 12px;">'.(new DateTime($row['dateOFSubmit']))->format("d F Y h:i:s A").'</p>
                                                         </div>
                                                         <div class="d-flex align-items-center w-100">
                                                             <div class="progress w-100" style="height: 10px">

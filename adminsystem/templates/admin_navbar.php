@@ -1,5 +1,6 @@
 <?php
 $db = new Database();
+
 ?>
 <style type="text/css">
     .menu-container {
@@ -68,18 +69,35 @@ $db = new Database();
     background-color: #f3f4f6; /* bg-gray-100 */
     color: #1f2937; /* text-gray-900 */
 }
+@media (max-width: 582px) {
+    .meta-header {
+        padding: 0;
+    }
+    .logo-home {
+        margin-left: 5px;
+    }
+    #menu-button {
+        text-indent: -9999px;
+    }
+    .title-system {
+        display: none;
+    }
+    .logo-w-name {
+        margin: 0;
+    }
+}
 </style>
 
 <div class="sidebar sidebar-hide-to-small sidebar-shrink sidebar-gestures">
     <div class="nano">
         <div class="nano-content">
             <ul class="navbar">
-                <li><a href="dashboard.php"><i class="ti-home"></i> Home</a></li>
-                <li><a href="archive_list.php"><i class="ti-folder"></i> Research </a></li>
-                <li><a href="student_list.php"><i class="ti-layout-list-thumb"></i><span>Student</span></a></li>
-                <li><a href="department_list.php"><i class="ti-agenda"></i><span>Department</span></a></li>
-                <li><a href="course_list.php"><i class="ti-layout-menu-v"></i><span>Course</span></a></li>
-                <li><a href="admin_list.php"><i class="ti-user"></i><span>Admin</span></a></li>
+                <li><a href="dashboard.php"><img src="../../images/home.svg" style="width: 2.225rem; height: 2.225rem;">Home</a></li>
+                <li><a href="archive_list.php"><img src="../../images/documents.svg" style="width: 2.225rem; height: 2.225rem;">Research </a></li>
+                <li><a href="student_list.php"><img src="../../images/students.svg" style="width: 2.225rem; height: 2.225rem;"><span>Student</span></a></li>
+                <li><a href="department_list.php"><img src="../../images/department.svg" style="width: 2.225rem; height: 2.225rem;"><span>Department</span></a></li>
+                <li><a href="course_list.php"><img src="../../images/course.svg" style="width: 2.225rem; height: 2.225rem;"><span>Course</span></a></li>
+                <li><a href="admin_list.php"><img src="../../images/admin.svg" style="width: 2.225rem; height: 2.225rem;"><span>Admin</span></a></li>
             </ul>
         </div>
     </div>
@@ -107,24 +125,24 @@ $db = new Database();
                 </a>
             </div>
             <div class="" style="display: flex; flex-direction: row; align-items: center">
+                <?php
+                    if(isset($_SESSION['auth_user']['admin_id'])) {
+                    
+                        $adminID = $_SESSION['auth_user']['admin_id'];
+                    }
+                ?>
                 <div class="dropdown dib">
-                    <div class="header-icon" data-toggle="dropdown">
-                        <i class="ti-bell">
-                            <span class="badge badge-danger" style="border-radius: 50%;" id="notification-badge">
+                    <div class="header-icon" style="padding: 5px 15px 0 15px !important" data-toggle="dropdown">
+                        <img class="" src="../../images/notification-bell.svg" style="position: relative; width: 1.525rem; height: 1.525rem">
+                            <span class="" style="position: absolute; right: 5px; top: 0; border-radius: 50%; font-size: 10px; background-color: #a33333; padding: 5px; color: white" id="notification-badge">
                             <?php
-                                if(isset($_SESSION['auth_user']['admin_id'])) {
-                                    
-                                    $adminID = $_SESSION['auth_user']['admin_id'];
-                                    $unread = 'Unread';
+                                $unread = 'Unread';
+                                $total_unread = $db->adminsystemNOTIFICATION_COUNT($adminID, $unread);
 
-                                    // Adjust your SQL query based on your database schema
-                                    $total_unread = $db->adminsystemNOTIFICATION_COUNT($adminID, $unread);
-
-                                    echo $total_unread;
-                                }
+                                echo $total_unread;
                             ?>
                             </span>
-                        </i>
+                        </img>
                         <div class="drop-down dropdown-menu dropdown-menu-right" style="position: absolute; transform: translate3d(-227px, -3px, 0px); top: 0px; left: 0px; will-change: transform; height: 300px; overflow: auto; border: 1px solid #ccc;">
                             <div class="dropdown-content-heading">
                                 <span class="text-left">Recent Notifications</span>
@@ -135,12 +153,7 @@ $db = new Database();
                                         <a href="#" class="more-link" id="markASread"><i class="ti-email"></i> Mark all as read</a>
                                 </li>
                                 <?php
-                                if(isset($_SESSION['auth_user']['admin_id'])) {
-                                    $coordinatorID = $_SESSION['auth_user']['admin_id'];
-                                    
-                                    // Adjust your SQL query based on your database schema
-                                    $notifications = $db->adminsystemNOTIFICATION_Read_Unread($coordinatorID);
-                                    
+                                    $notifications = $db->adminsystemNOTIFICATION_Read_Unread($adminID);
                                     foreach ($notifications as $notification) {
                                 ?>
                                         <li>
@@ -156,7 +169,6 @@ $db = new Database();
                                         </li>
                                 <?php
                                     }
-                                }
                                 ?>
 
                                 </ul>

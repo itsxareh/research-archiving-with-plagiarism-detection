@@ -63,6 +63,7 @@ if(isset($_SESSION['auth_user']['student_id'])){
     
 }
 ?>
+<strong>Security</strong><br>
 <div class="edit-info-details">
     <form action="" method="POST" class="needs-validation">
         <div class="col-sm-12 col-md-12 col-xl-12">

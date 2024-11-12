@@ -130,10 +130,17 @@ require_once 'templates/admin_navbar.php';
     <div class="content-wrap">
         <div class="main">
             <div class="container-fluid">
-                <div class="col-lg-12 p-r-0 title-page">
+                <div class="col-sm-12 col-md-12 col-xl-12 title-page">
                     <div class="page-header">
-                        <div class="page-title">
-                            <h1>Departments</h1>
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12 col-xl-12  flex justify-content-between align-items-center page-title">
+                                <h1 style="display: flex; ">Departments</h1>
+                                <div class="generate-report ">
+                                    <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=all_departments" class="btn print-button">
+                                        Print
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -299,25 +306,46 @@ require_once 'templates/admin_navbar.php';
 </script>
 
 <script>
-document.addEventListener("click", function(event) {
-    // Check if the clicked element has the class 'action-button'
-    if (event.target.classList.contains("action-button")) {
-        // Get the student ID from the button's ID attribute
-        const studentId = event.target.id.split("_")[1];
-        console.log(studentId); // For debugging: log the student ID
 
-        // Get the corresponding dropdown menu based on the button's ID
+let currentOpenDropdown = null;
+
+const closeAllDropdowns = () => {
+    document.querySelectorAll(".dropdown-action").forEach((dropdown) => {
+        dropdown.classList.remove('active');
+    });
+    currentOpenDropdown = null;
+};
+
+document.addEventListener("click", function(event) {
+    if (!event.target.closest('.action-button') && !event.target.closest('.dropdown-action')) {
+        closeAllDropdowns();
+        return;
+    }
+
+    if (event.target.classList.contains("action-button")) {
+        event.stopPropagation();
+        
+        const studentId = event.target.id.split("_")[1];
+        
         const dropdown = document.getElementById(`dropdown_${studentId}`);
         
-        // Hide all other dropdowns first
-        document.querySelectorAll(".dropdown-action").forEach((dropdown) => {
-            dropdown.style.display = "none";
-        });
-
-        // Toggle the display of the clicked button's dropdown
         if (dropdown) {
-            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+            if (currentOpenDropdown === dropdown) {
+                dropdown.classList.remove('active');
+                currentOpenDropdown = null;
+            }
+            else {
+                closeAllDropdowns();
+                dropdown.classList.add('active');
+                currentOpenDropdown = dropdown;
+            }
         }
+    }
+});
+
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeAllDropdowns();
     }
 });
 
@@ -354,7 +382,7 @@ if(department != " "){
 
 $('.toggle-status').change(function() {
         var departmentID = $(this).data('id');
-        var status = $(this).prop('checked') ? 'Active' : 'Not Activated';
+        var status = $(this).prop('checked') ? 'Active' : 'Not Active';
 
         $.ajax({
             url: 'update_department_status.php',
