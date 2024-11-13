@@ -50,7 +50,7 @@ header("location:all_project_list.php");
   <main>
     <div class="content-wrapper h-100">
       <div class="col-xl-12 col-md-12-col sm-12">
-        <div class="row p-4">
+        <div class="row login-content" style="padding: 1.5rem">
           <div class="col-sm-12 col-md-6 col-xl-6">
               <div class="intro">
                 <h2>Archive with Ease</h2>
@@ -75,15 +75,15 @@ header("location:all_project_list.php");
                     <div class="form-input">
                       <label for="password">Password</label>
                       <input type="password" name="password" id="password" required>
+                      <a href="forgot_password.php" style="color: #666; font-size: 11px; text-align:end ">Forgot password</a>
                     </div>
-                    <a href="forgot_password.php" style="color: #666; font-size: 11px; text-align:end ">Forgot password</a>
                   </div>
                 </div>
                 <div class="row mt-4">
                   <div class="col-xl-12 col-md-12 col-sm-12">
                     <div class="flex align-items-center">
                       <button name="submit" type="submit" class="login-btn" style="text-wrap: nowrap;">Log in</button>
-                      <p class="m-0 ml-4">Don't have an account? <a class="signup-link" href="sign_up.php">Sign up</a></p>
+                      <p style="font-size: 12px; margin-left: 1.5rem" class="mb-0 no-account">Don't have an account? <a class="signup-link" href="sign_up.php">Sign up</a></p>
                     </div>
                   </div>
                 </div>

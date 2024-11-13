@@ -33,7 +33,7 @@ main {
     display: flex;
     align-items: center;
     padding: 0 1.875rem;
-    justify-content: space-between;
+    justify-content:space-between;
 }
 .logo {
     width: 45px;
@@ -186,4 +186,37 @@ main {
 .login-link:hover, .signup-link:hover {
     text-decoration: underline;
     color: #333;
+}
+@media (max-width: 552px) {
+    .content-wrapper {
+        height: auto;
+    }
+    .intro {
+        padding: .725rem 1.125rem;
+    }
+    .log-in-container, .sign-up-container {
+        padding-inline: 1.625rem;
+    }
+    .login-content, .sign-up-content {
+        padding: 0 !important;
+        margin: 0;
+    }
+    .search-bar {
+        margin: 0 !important;
+    }
+    .search-bar input {
+        width: 200px !important;
+    }
+    .nav-header {
+        padding: 0;
+    } 
+    .no-account {
+        margin-left: .5rem !important;
+    }
+}
+@media (max-width: 767px) {
+    .content-wrapper {
+        height: auto;
+        padding-block: 1.125rem;
+    }
 }

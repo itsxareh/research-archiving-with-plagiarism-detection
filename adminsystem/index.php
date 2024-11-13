@@ -29,14 +29,14 @@ header("location:dashboard.php");
   <main class="p-0">
     <div class="content-wrapper h-100">
       <div class="col-xl-12 col-md-12-col sm-12">
-        <div class="row p-4">
-          <div class="col-sm-12 col-md-4 col-xl-6">
+        <div class="row login-content" style="padding: 1.25rem;">
+          <div class="col-sm-12 col-md-6 col-xl-6">
               <div class="intro">
                 <h2>Admin Portal</h2>
                 <p>Access a full of research resources and manage your work efficiently.</p>
               </div>
           </div>
-          <div class="col-sm-12 col-md-8 col-xl-6">
+          <div class="col-sm-12 col-md-6 col-xl-6">
             <div class="log-in-container">
               <form class="form-container" action="../php/admin_loginCode.php" method="POST">
                 <input type="hidden" name="redirect_to" value="<?= isset($_GET['redirect_to']) ? $_GET['redirect_to'] : '' ?>">

@@ -317,3 +317,10 @@ ul {
   .dropdown-profile li:last-child {
     padding: 7px 15px;
   }
+
+  
+@media (max-width: 552px) {
+    .nav-header {
+        padding: 0;
+    } 
+}

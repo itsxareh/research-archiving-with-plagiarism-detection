@@ -22,7 +22,7 @@ $toYear = isset($_GET['toYear']) ? $_GET['toYear'] : '';
 $document_status = isset($_GET['documentStatus']) ? $_GET['documentStatus'] : '';
 $research_date = isset($_GET['research_date']) ? $_GET['research_date'] : '';
 $page = isset($_GET['page']) ? $_GET['page'] : 1;
-$limit = isset($_POST['limit']) ? $_POST['limit'] : 10;
+$limit = isset($_POST['limit']) ? $_POST['limit'] : 20;
 $offset = ($page - 1) * $limit;
 
 if ($searchInput || $keywords || $fromYear || $toYear || $research_date) {
@@ -334,7 +334,7 @@ require_once 'templates/student_navbar.php';
                                             
                                         </div>
                                         <div class="item-title">
-                                            <h3><a href="view_project_research.php?archiveID=<?= $result['archive_id'] ?>"><?php echo $result['project_title'];?></a></h3>
+                                            <h4><a href="view_project_research.php?archiveID=<?= $result['archive_id'] ?>"><?php echo $result['project_title'];?></a></h4>
                                         </div>
                                         <div class="item-content">
                                             <p><?php echo $result['project_members'];?></p>

@@ -53,9 +53,9 @@ header("location:all_project_list.php");
   </div>
   <!-- Index Content -->
   <main>
-    <div class="content-wrapper h-100">
+    <div class="content-wrapper">
       <div class="col-xl-12 col-md-12-col sm-12">
-        <div class="row p-4">
+        <div class="row sign-up-content" style="padding-inline: 1.5rem">
           <div class="col-sm-12 col-md-6 col-xl-6">
               <div class="intro">
                 <h2>Archive with Ease</h2>
@@ -146,7 +146,7 @@ header("location:all_project_list.php");
                     <div class="form-input">
                       <div class="flex align-items-center">
                         <button type="submit" name="sign-up" class="sign-up-btn" style="text-wrap: nowrap ;">Sign up</button>
-                        <p class="m-0 ml-4">Already have an account? <a class="login-link" href="login.php">Log in</a></p>
+                        <p style="font-size: 12px; margin-left: 1.5rem" class="mb-0 no-account">Already have an account? <a class="login-link" href="login.php">Log in</a></p>
                       </div>
                     </div>
                   </div>

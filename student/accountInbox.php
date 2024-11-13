@@ -6,8 +6,8 @@ if($_SESSION['auth_user']['student_id']==0){
 $inbox = $db->SELECT_ACCOUNT_INBOX($student_id);
 ?>
 <strong>Inbox</strong><br>
-    <div class="d-flex justify-content-end align-items-center mb-4">
-        <div class="d-flex gap-2">
+    <div class="d-flex justify-content-end align-items-center mb-2">
+        <div class="d-flex gap-2 inbox-container">
             <div class="input-group">
                 <input id="searchInbox" type="text" class="form-control" placeholder="Search inbox...">
                 <!-- <button class="btn btn-outline-secondary" type="button">

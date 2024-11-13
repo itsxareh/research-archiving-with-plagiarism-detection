@@ -1355,16 +1355,16 @@ option {
 }
 .project-tag{
   display: flex;
+  transform: rotate(-45deg);
   align-items: center;
   position: absolute;
-  right: -2.625rem;
-  top: .225rem;
+  right: -2.925rem;
+  bottom: -.225rem;
   width: 12rem;
   height: 6rem;
 }
 .tag {
-  width: 150px;
-  transform: rotate(45deg);
+  width: 120%;
   padding: .625rem .875rem;
   border-radius: 4px;
 }

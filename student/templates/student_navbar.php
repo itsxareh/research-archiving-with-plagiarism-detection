@@ -94,6 +94,9 @@ $db = new Database();
     .search-bar input {
         width: 150px !important;
     }
+    .inbox-container {
+        width: 100%;
+    }
 }
 </style>
 <?php 
