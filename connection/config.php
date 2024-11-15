@@ -826,7 +826,8 @@ public function delete_research($archive_id) {
 
       $sql = $connection->prepare("DELETE FROM archive_research WHERE id = ?");
       $sql->execute([$archive_id]);
-
+      
+      return true;
   } catch (Exception $e) {
       throw $e;
   }
@@ -1288,9 +1289,14 @@ public function UPDATE_student_info_onSETTINGS($fname, $mname, $lname, $departme
 
   $stmt = $connection->prepare("UPDATE students_data SET first_name=?, middle_name=?, last_name=?, department_id=?, course_id=? WHERE id=?");
   $result = $stmt->execute([$fname, $mname, $lname, $department, $course, $student_id]);
-
-  return $result;
-
+  
+  if($result){
+    $stmt1 = $connection->prepare("SELECT * FROM students_data WHERE student_id = ?");
+    $stmt1->execute([$student_id]);
+    $data = $stmt1->fetch(PDO::FETCH_ASSOC);
+    
+    return $data;
+  }
 }
 
 
@@ -1352,11 +1358,11 @@ public function studentNOTIFICATION_COUNT($studentID, $unread) {
   $connection = $this->getConnection();
 
   $stmt = $connection->prepare("SELECT COUNT(*) AS total_unread FROM system_notification WHERE student_id = ? AND status = ?");
-    $stmt->execute([$studentID, $unread]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    $totalUnread = $result['total_unread'];
+  $stmt->execute([$studentID, $unread]);
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+  $totalUnread = $result['total_unread'];
 
-    echo $totalUnread;
+  echo $totalUnread;
 
 }
 

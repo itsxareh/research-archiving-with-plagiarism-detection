@@ -18,7 +18,6 @@ header("location:dashboard.php");
   <link rel="shortcut icon" href="images/logo1.png">
   <link rel="stylesheet" href="../css/login-sign-up.css">
   <link rel="stylesheet" href="../css/bootstrap.min.css">
-  <link href="css/lib/themify-icons.css" rel="stylesheet">
   <link href="css/lib/sweetalert/sweetalert.css" rel="stylesheet">
   
   <script src="https://code.jquery.com/jquery-3.7.0.js"></script>

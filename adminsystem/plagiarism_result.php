@@ -70,7 +70,6 @@ function highlightPlagiarizedWords($submitted_sentence, $existing_sentence) {
 
     <!-- Common -->
     <link href="css/lib/font-awesome.min.css" rel="stylesheet">
-    <link href="css/lib/themify-icons.css" rel="stylesheet">
     <link href="css/lib/menubar/sidebar.css" rel="stylesheet">
     <link href="css/lib/bootstrap.min.css" rel="stylesheet">
     <link href="css/lib/helper.css" rel="stylesheet">

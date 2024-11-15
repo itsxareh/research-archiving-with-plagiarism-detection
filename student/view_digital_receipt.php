@@ -129,6 +129,10 @@ if(isset($_GET['archiveID'])) {
 
         <div class="receipt-details">
             <div class="detail-row">
+                <div class="detail-label">Archive ID:</div>
+                <div class="detail-value"><?php echo htmlspecialchars($row['archiveID']); ?></div>
+            </div>
+            <div class="detail-row">
                 <div class="detail-label">Uploader name:</div>
                 <div class="detail-value"><?php echo htmlspecialchars($row['fname']. ' ' .$row['mname']. ' ' .$row['lname']); ?></div>
             </div>
@@ -160,19 +164,15 @@ if(isset($_GET['archiveID'])) {
                 <div class="detail-label">Date uploaded:</div>
                 <div class="detail-value"><?php echo htmlspecialchars((new DateTime($row['dateOFSubmit']))->format('d M Y H:i:s A')); ?></div>
             </div>
-            <div class="detail-row">
-                <div class="detail-label">Archive ID:</div>
-                <div class="detail-value"><?php echo htmlspecialchars($row['archiveID']); ?></div>
-            </div>
         </div>
 
         <!-- QR Code for verification -->
-        <div class="text-center mt-8">
+        <!-- <div class="text-center mt-8">
             <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=<?php echo urlencode('submission_verification.php?archiveID=' . $row['archiveID']); ?>" 
                  alt="Verification QR Code" 
                  class="qr-code">
             <p class="small text-muted mt-2">Scan to verify submission</p>
-        </div>
+        </div> -->
     </div>
 
     <!-- Include html2pdf library -->

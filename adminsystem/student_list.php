@@ -43,7 +43,6 @@ $admin_id = $_SESSION['auth_user']['admin_id'];
      
     <link rel="stylesheet" href="../css/login-sign-up.css">
     <link href="css/lib/font-awesome.min.css" rel="stylesheet">
-    <link href="css/lib/themify-icons.css" rel="stylesheet">
     <link href="css/lib/owl.carousel.min.css" rel="stylesheet" />
     <link href="css/lib/owl.theme.default.min.css" rel="stylesheet" />
     <link href="css/lib/menubar/sidebar.css" rel="stylesheet">

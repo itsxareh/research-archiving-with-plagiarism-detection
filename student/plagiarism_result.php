@@ -128,15 +128,13 @@ require_once 'templates/student_navbar.php';
             ?>
         </div>
       <div class="form-group" style="padding-top: 1rem;">
-        <iframe src="<?php echo $data['documents']; ?>" width="100%" height="900px" allowfullscreen></iframe>
-    </div>
+        <iframe src="<?php echo $data['documents']; ?>" style="width: 100%; height: 100svh;" allowfullscreen></iframe>
+      </div>
     </div>
     <div class="col-md-4">
-    <div class="title-margin-left">
-      <div class="page-header">
-        <div class="page-title information-meta">
-        <span class="info-font text-white"></i>RESULTS</span>
-        </div>
+    <div class="page-header">
+      <div class="page-title information-meta">
+      <span class="info-font text-white"></i>RESULTS</span>
       </div>
     </div>
     <?php
@@ -210,7 +208,15 @@ require_once 'templates/student_navbar.php';
       </div>
     </div>
   </div>
+  <script src="js/lib/jquery.min.js"></script>
+    <script src="js/lib/jquery.nanoscroller.min.js"></script>
+    <script src="js/lib/menubar/sidebar.js"></script>
+    <script src="js/lib/preloader/pace.min.js"></script>
+    <script src="js/lib/bootstrap.min.js"></script>
+    <script src="js/scripts.js"></script>
 
+    <script src="js/lib/sweetalert/sweetalert.min.js"></script>
+    <script src="js/lib/sweetalert/sweetalert.init.js"></script>
 <script>
 $('.plagiarized-container').on('click', 'a.result-title', function(event){
         console.log('clicked');

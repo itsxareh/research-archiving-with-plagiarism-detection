@@ -193,11 +193,11 @@ def upload_file():
     print("Form Data:", request.form) 
     print("Files Data:", request.files)
     if 'file' not in request.files:
-        return jsonify(error="No file part"), 400
+        return jsonify({'status' : 'error', 'message': "No file part"}), 400
 
     file = request.files['file']
     if file.filename == '':
-        return jsonify(error="No selected file"), 400
+        return jsonify({'status' : 'error', 'message': "No selected file"}), 400
 
     archive_id = request.form.get('archive_id')
     student_id = request.form.get('student_id')
@@ -214,13 +214,11 @@ def upload_file():
     owner_email = request.form.get('owner_email')
     
     if not student_id:
-        return jsonify(error="No student ID provided"), 400
-    
+        return jsonify({'status' : 'error', 'message': "No student ID provided"}), 400
     try:
         upload_folder = os.path.join(os.getcwd(), 'pdf_files')
         os.makedirs(upload_folder, exist_ok=True)
         file_path = os.path.join(upload_folder, file.filename)
-        file.save(file_path)
 
         file_metrics, content = get_file_metrics(file_path, file.content_type)
 
@@ -229,7 +227,7 @@ def upload_file():
         current_time = datetime.now(manila_tz)
 
         if not content:
-            return jsonify(error="Failed to extract content from file"), 400
+            return jsonify({'status' : 'error', 'message': "Failed to extract content from file"}), 400
 
         with get_db() as conn:
             cursor = conn.cursor()
@@ -303,8 +301,49 @@ def upload_file():
                     print(similar_id, "Total sentences", results['total_sentences'])
                     print(similar_id, "Plagiarism percentage", plagiarism_percentage)
             conn.commit()
-            print("Plagiarism summary:", plagiarism_results)
+
+            cursor.execute(
+                """
+                SELECT *, COUNT(plagiarism_summary.id) as total_ids, SUM(plagiarism_percentage) as total_percentage 
+                FROM plagiarism_summary 
+                LEFT JOIN archive_research ON plagiarism_summary.archive_id = archive_research.id
+                LEFT JOIN departments ON departments.id = archive_research.department_id
+                WHERE plagiarism_summary.archive_id = %s 
+                GROUP BY plagiarism_summary.archive_id;
+                """, 
+                (new_archive_id,)
+            )
+            plagiarism_results_db = cursor.fetchall()
+            print(plagiarism_results_db)
+            sum_of_percentage = plagiarism_results_db[0][-1] if plagiarism_results_db else 0
+            if sum_of_percentage < 20:
+                document_status = "Accepted"
+                date_publish = current_time.strftime('%Y-%m-%d')
+            else:
+                document_status = "Not Accepted"
+                date_publish = ''
+
+            cursor.execute(
+                """
+                UPDATE archive_research SET document_status = %s, date_published = %s WHERE id = %s;
+                """, 
+                (document_status, date_publish, new_archive_id,)
+            )
+            conn.commit()
+
+            cursor.execute(
+                """
+                SELECT departments.name as department FROM archive_research LEFT JOIN departments ON departments.id = archive_research.department_id WHERE archive_research.id = %s;
+                """, 
+                (new_archive_id,)
+            )
+            department_db = cursor.fetchall()
+            department = department_db[0][0] if department_db else 0
+
             return jsonify({
+                'archive_id' : archive_id,
+                'document_status': document_status,
+                'department' : department,
                 'status': 'success',
                 'file_metrics': file_metrics,
                 'plagiarism_results': [
@@ -317,7 +356,7 @@ def upload_file():
             })
     except Exception as e:
         print(f"Error: {str(e)}")
-        return jsonify(error=str(e)), 500
+        return jsonify({'status': 'error', 'message': str(e)}), 500
     
 
 @app.route('/check_db_connection', methods=['GET'])

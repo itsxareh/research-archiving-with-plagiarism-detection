@@ -45,7 +45,6 @@ if($_SESSION['auth_user']['admin_id']==0){
     <link href="css/lib/calendar2/pignose.calendar.min.css" rel="stylesheet">
     <link href="css/lib/chartist/chartist.min.css" rel="stylesheet">
     <link href="css/lib/font-awesome.min.css" rel="stylesheet">
-    <link href="css/lib/themify-icons.css" rel="stylesheet">
     <link href="css/lib/owl.carousel.min.css" rel="stylesheet" />
     <link href="css/lib/owl.theme.default.min.css" rel="stylesheet" />
     <link href="css/lib/weather-icons.css" rel="stylesheet" />

@@ -39,78 +39,7 @@ if ($searchInput || $keywords || $fromYear || $toYear || $research_date) {
     $displaySearchInfo = true;
 }
 
-if(ISSET($_POST['add_research'])){
 
-    $student_id = $_SESSION['auth_user']['student_id'];
-    $project_title = $_POST['project_title'];
-    $year = $_POST['year'];
-    $department = $_SESSION['auth_user']['department_id'];
-    $department_course = $_SESSION['auth_user']['course_id'];
-    $abstract = $_POST['abstract'];
-    $keywords = $_POST['keywords'];
-    $project_members = $_POST['project_members'];
-    $owner_email = $_SESSION['auth_user']['student_email'];
-    $randomNumber = rand(1000000000, 9999999999);
-
-    date_default_timezone_set('Asia/Manila');
-    $date = date('Y-m-d');
-
-    $uploadDirectoryFILES = '../pdf_files/'; 
-
-    $uniqueFilenamePDF = uniqid() . '-' . $_FILES['project_file']['name'];
-
-
-    $pdfPath = $uploadDirectoryFILES . $uniqueFilenamePDF;
-
-    if (move_uploaded_file($_FILES['project_file']['tmp_name'], $pdfPath)) {
-        $file = new CURLFile($pdfPath, 'application/pdf', $_FILES['project_file']['name']);
-        //$sql = $db->insert_Archive_Research($randomNumber, $student_id, $department, $department_course, $project_title, $date, $year, $abstract, $owner_email, $project_members, $pdfPath);
-        
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "http://127.0.0.1:3000/upload_research");
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, [
-            'file' => $file,
-            'archive_id' => $randomNumber,
-            'student_id' => $student_id,
-            'project_title' => $project_title,
-            'date_of_submit' => $date,
-            'year' => $year,
-            'department_id' => $department,
-            'course_id' => $department_course,
-            'abstract' => $abstract,
-            'keywords' => $keywords,
-            'project_members' => $project_members,
-            'pdf_path' => $pdfPath,
-            'owner_email' => $owner_email
-        ]);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($ch);
-        if (curl_errno($ch)) {
-            echo 'Curl error: ' . curl_error($ch);
-        }
-        curl_close($ch);
-    
-        $responseData = json_decode($response, true);
-        print_r($responseData);
-        if ($responseData['status'] == 'success') {
-            date_default_timezone_set('Asia/Manila');
-            $date = date('F / d l / Y');
-            $time = date('g:i A');
-            $logs = 'You successfully submitted your research paper.';
-
-            $sql1 = $db->student_Insert_NOTIFICATION($student_id, $logs, $date, $time);
-
-            $_SESSION['alert'] = "Success";
-            $_SESSION['status'] = "You successfully submitted your research paper.";
-            $_SESSION['status-code'] = "success";
-        }
-    } else {
-        $_SESSION['alert'] = "Oppss...";
-        $_SESSION['status'] = "Failed to move image file.";
-        $_SESSION['status-code'] = "error";
-    }
-}
 
 ?>
 
@@ -151,7 +80,7 @@ if(ISSET($_POST['add_research'])){
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
-
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 </head>
 
 <body>
@@ -320,7 +249,7 @@ require_once 'templates/student_navbar.php';
                                 if (count($projects) > 0) {
                                     foreach ($projects as $result) {
                             ?>
-                                <li class="project-list item" style="--i: <?=$i;?>;">
+                                <li class="project-list item" id="li_<?= $result['archiveID'] ?>" style="--i: <?=$i;?>;">
                                     <div class="item-body">
                                         <div class="project-tag">
                                             <?php 
@@ -334,7 +263,7 @@ require_once 'templates/student_navbar.php';
                                             
                                         </div>
                                         <div class="item-title">
-                                            <h4><a href="view_project_research.php?archiveID=<?= $result['archive_id'] ?>"><?php echo $result['project_title'];?></a></h4>
+                                            <h4><a href="view_project_research.php?archiveID=<?= $result['archive_id'] ?>"><?php echo ucwords($result['project_title']);?></a></h4>
                                         </div>
                                         <div class="item-content">
                                             <p><?php echo $result['project_members'];?></p>
@@ -366,7 +295,7 @@ require_once 'templates/student_navbar.php';
                                         </div>
                                     </div>
                                     <div class="project-action">
-                                        <a href="delete_research.php?archiveID=<?= $result['archiveID'] ?>" class="btn"><img style="width: 20px; height: 20px" src="images/svg/delete.svg" title="Delete Research"></img></a>            
+                                        <button  onclick="confirmDelete(<?= $result['archiveID'] ?>)" class="btn"><img style="width: 20px; height: 20px" src="images/svg/delete.svg" title="Delete Research"></img></a>            
                                     </div>
                                 </li>
                                 <?php
@@ -445,6 +374,49 @@ require_once 'templates/student_navbar.php';
     </div>
 </div>
 <script>
+    function confirmDelete(archiveID){
+        swal({
+            title: "Are you sure you want to delete?",
+            text: "You will not be able to recover this file!",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#a33333",
+            confirmButtonText: "Delete",
+            cancelButtonText: "Cancel",
+            closeOnConfirm: false,
+            closeOnCancel: true
+    }, function(isConfirm){
+        if (isConfirm) {
+        $.ajax({
+            url: "delete_research.php",
+            type: "GET",
+            data: { archiveID: archiveID },
+            success: function(response) {
+                swal({
+                    title: "Deleted!",
+                    text: "The research has been deleted.",
+                    type: "success",
+                    confirmButtonText: 'Okay',
+                }, 
+                function (isConfirm) {
+                    if (isConfirm) {
+                        const listItem = document.getElementById(`li_${archiveID}`)
+                        if (listItem){
+                            listItem.remove();
+                        }
+                    }
+                });
+            }
+        });
+    }
+    });
+
+    }
+    function disableSubmitButton() {
+        const saveButton = document.querySelector('button[name="add_research"]');
+        saveButton.disabled = true;
+        saveButton.textContent = 'Saving...';
+    }
     window.onpopstate = function(event) {
         filteredData();
     }; 
@@ -465,7 +437,6 @@ require_once 'templates/student_navbar.php';
             enabled: 0 
         }
     });
-
     function prepareKeywords() {
         document.getElementById('keywords').value = tagify.value.map(tag => tag.value).join(',');
     }
@@ -483,7 +454,122 @@ require_once 'templates/student_navbar.php';
     function getURLParameter(name) {
         return new URLSearchParams(window.location.search).get(name);
     }
+    const addModal = $('#modelId')
+    const form = document.querySelector('form');
+    const submitButton = document.querySelector('button[name="add_research"]');
+    const ulResult = document.getElementById('search-result');
+    const modalBackdrop = document.getElementsByClassName('modal-backdrop');
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        if (form.submitted) return;
+        
+        if (!validateForm()) return;
+        
+        submitButton.disabled = true;
+        submitButton.textContent = 'Submitting...';
+        
+        const formData = new FormData(form);
+        
+        try {
+            const response = await fetch('add_research.php', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            console.log(result)
+            if (result.status === 'success') {
+                $(".sa-confirm-button-container button").attr("data-dismiss", "modal");
+                swal({
+                    title: result.stats,
+                    text: result.message,
+                    type    : result.status,
+                    confirmButtonText: 'Okay',
+                }, 
+                function (isConfirm) {
+                    if(isConfirm) {
+                        $('#modelId').modal('hide');  // Hides the Bootstrap modal
+                        $('.modal-backdrop').remove();
 
+                        form.reset();
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Save';
+                        const newLi = document.createElement('li');
+                        newLi.className = 'project-list-item';
+
+                        newLi.innerHTML = `<div class="item-body">
+                            <div class="project-tag">
+                                <span class="badge badge-${result.document_status === 'Accepted' ? 'success' : 'danger'} tag" style="font-size: 12px;">
+                                    ${result.document_status === 'Accepted' ? 'Published' : 'Not Published'}
+                                </span>
+                            </div>
+                            <div class="item-title">
+                                <h4><a href="view_project_research.php?archiveID=${result.archive_id}">${result.project_title}</a></h4>
+                            </div>
+                            <div class="item-content">
+                                <p>${result.project_members}</p>
+                            </div>
+                            <div class="item-meta">
+                                <p>${result.department}</p>
+                                <p>Archive ID: ${result.archive_id}</p>
+                                <p>${result.date_published ? `Published: ${result.date_published}` : 'Not yet published'}</p>
+                            </div>
+                            <div class="item-abstract">
+                                <h3 class="abstract-title"><a href="#"><span>Abstract</span><img src="../images/arrow-down.svg" style="width: .675rem; height: .675rem" alt=""></a></h3>
+                                <div class="abstract-group" style="display:none">
+                                    <section class="item-meta">
+                                        <div class="abstract-article">
+                                            <p>${result.project_abstract}</p>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                        </div>`;
+
+                        ulResult.prepend(newLi);
+                    }
+                });
+            } else {
+                const errorMessage = result.message || 'Submission failed: Unknown error';
+                swal({
+                    title: 'Error',
+                    text: errorMessage,
+                    type    : 'error',
+                    confirmButtonText: 'Okay'
+                });
+                submitButton.disabled = false;
+                submitButton.textContent = 'Save';
+            }
+        } catch (error) {
+            const errorMessage = error || 'An error occurred during submission';
+                swal({
+                    title: 'Error',
+                    text: errorMessage,
+                    type    : 'error',
+                    confirmButtonText: 'Okay'
+                });
+            submitButton.disabled = false;
+            submitButton.textContent = 'Save';
+        }
+    });
+    function validateForm() {
+        const projectTitle = document.querySelector('input[name="project_title"]');
+        const abstract = document.querySelector('textarea[name="abstract"]');
+        const fileInput = document.querySelector('input[name="project_file"]');
+        
+        if (!projectTitle.value || !abstract.value || !fileInput.files[0]) {
+            alert('Please fill all required fields');
+            return false;
+        }
+        
+        if (fileInput.files[0].type !== 'application/pdf') {
+            alert('Please upload a PDF file');
+            return false;
+        }
+        
+        return true;
+    }
     document.addEventListener("DOMContentLoaded", () => {
         // Get parameters from the URL
         const searchInput = getURLParameter('searchInput');

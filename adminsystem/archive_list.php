@@ -86,7 +86,6 @@ if(ISSET($_POST['add_research'])){
     <link rel="apple-touch-icon" sizes="57x57" href="http://placehold.it/57.png/000/fff">
     <!-- Styles -->
     <link href="css/lib/font-awesome.min.css" rel="stylesheet">
-    <link href="css/lib/themify-icons.css" rel="stylesheet">
     <link href="css/lib/owl.carousel.min.css" rel="stylesheet" />
     <link href="css/lib/owl.theme.default.min.css" rel="stylesheet" />
     <link href="css/lib/menubar/sidebar.css" rel="stylesheet">
@@ -297,7 +296,7 @@ require_once 'templates/admin_navbar.php';
                                                     echo '<a href="publish_research.php?archiveID='.$result['archiveID'].'" class="dropdown-action-item">Publish</a>';
                                                 }
                                                 ?>
-                                                <a target="_blank" href="generate_reports/view_details.php?full_details=research_paper&archiveID=<?=  $result['aid'] ?>" class="dropdown-action-item">See details</a>
+                                                <a target="_blank" href="generate_reports/view_details.php?full_details=research_paper&archiveID=<?=  $result['aid'] ?>" class="dropdown-action-item">View receipt</a>
                                                 <a href="delete_research.php?archiveID=<?= $result['archiveID'] ?>" class="dropdown-action-item">Delete</a>
                                                 </div>
                                             </div>

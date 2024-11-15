@@ -188,9 +188,6 @@ main {
     color: #333;
 }
 @media (max-width: 552px) {
-    .content-wrapper {
-        height: auto;
-    }
     .intro {
         padding: .725rem 1.125rem;
     }
@@ -216,7 +213,6 @@ main {
 }
 @media (max-width: 767px) {
     .content-wrapper {
-        height: auto;
         padding-block: 1.125rem;
     }
 }

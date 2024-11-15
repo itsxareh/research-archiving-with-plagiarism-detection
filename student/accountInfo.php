@@ -3,39 +3,7 @@ if($_SESSION['auth_user']['student_id']==0){
   echo"<script>window.location.href='login.php'</script>";
   
 }
-if (isset($_POST['updateInfo'])) {
-    $student_id = $_SESSION['auth_user']['student_id'];
-    $fname = $_POST['first_name'];
-    $mname = $_POST['middle_name'];
-    $lname = $_POST['last_name'];
-    $department = $_SESSION['auth_user']['department_id'];
-    $course = $_SESSION['auth_user']['course_id'];
 
-    $currentData = $db->student_profile($student_id);
-
-    if ($fname !== $currentData['first_name'] ||
-        $mname !== $currentData['middle_name'] ||
-        $lname !== $currentData['last_name'] || 
-        $department !== $currentData['department_id'] ||
-        $course !== $currentData['course_id']) {
-
-        $stmt = $db->UPDATE_student_info_onSETTINGS($fname, $mname, $lname, $department, $course, $student_id);
-
-        if ($stmt) {
-            $_SESSION['alert'] = "Success";
-            $_SESSION['status'] = "Profile updated";
-            $_SESSION['status-code'] = "success";
-        } else {
-            $_SESSION['alert'] = "Error";
-            $_SESSION['status'] = "Update failed";
-            $_SESSION['status-code'] = "error";
-        }
-    } else {
-        $_SESSION['alert'] = "Info";
-        $_SESSION['status'] = "Nothing has changed.";
-        $_SESSION['status-code'] = "info";
-    }
-}
 if (isset($_FILES['img_student'])) {
   $student_id = $_SESSION['auth_user']['student_id'];
 
@@ -104,7 +72,7 @@ if (isset($_FILES['img_student'])) {
         </div>
         <div class="item-detail">
             <span class="info-label">Name</span>
-            <span class="profile-info"><?php echo $data['first_name'].' '.$data['middle_name'].' '.$data['last_name']; ?></span>
+            <span class="profile-info" id="studentName"><?php echo $data['first_name'].' '.$data['middle_name'].' '.$data['last_name']; ?></span>
         </div>
         <div class="item-detail">
             <span class="info-label">Course</span>
@@ -134,42 +102,17 @@ if (isset($_FILES['img_student'])) {
                     <input class="info-input" type="text" id="last_name" name="last_name" value="<?php echo $data['last_name'];?>">
                 </div>
                 <div class="item-detail">
-                    <label class="info-label" for="department">Department</label>
-                    <select id="inputDepartment" name="department" class="selectpicker form-control item-meta " required title="Select Department" disabled>
-                    <?php 
-                        $res = $db->showDepartments_WHERE_ACTIVE();
-
-                        foreach ($res as $item) {
-                            if ($item['id'] == $data['department_id']) {
-                                echo '<option value="' .$item['id'].'" selected>'.$item['name'].'</option>';
-                            } else {
-                                echo '<option value="' .$item['id'].'" >'.$item['name'].'</option>';
-                            }
-                            
-                        }
-                    ?>
-                    </select>
+                    <label class="info-label" for="course">Course</label>
+                    <input class="info-input" style="font-size: 12px" id="department_course" name="department_course" value="<?= $data['course_name'] ?>" required disabled>
                 </div>
                 <div class="item-detail">
-                    <label class="info-label" for="course">Course</label>
-                    <select id="department_course" name="department_course" class="selectpicker form-control" required disabled>
-                        
-                        <?php 
-                            $res = $db->showCourse_WHERE_ACTIVE($data['department_id']);
-                            foreach ($res as $item) {
-                                if ($item['id'] == $data['course_id']) {
-                                    echo '<option value="' .$item['id'].'" selected>'.$item['course_name'].'</option>';
-                                } else {
-                                    echo '<option value="' .$item['id'].'" >'.$item['course_name'].'</option>';
-                                }
-                            }
-                        ?>
-                    </select>
+                    <label class="info-label" for="department">Department</label>
+                    <input class="info-input" style="font-size: 12px" id="department" name="department" value="<?= $data['name'] ?>" required disabled>
                 </div>
             </div>
             <div class="submit-container">
                 <button class="close-button info-label m-r-8 m-t-10">Close</button>
-                <button class="update-button info-label m-t-10" name="updateInfo">Update</button>
+                <button class="update-button info-label m-t-10" id="updateButton" name="updateInfo">Update</button>
             </div>
         </form>
     </div>
@@ -190,6 +133,65 @@ if (isset($_FILES['img_student'])) {
 
 
 <script>
+    const infoForm = document.getElementById('update-form');
+const submitButton = document.getElementById('updateButton');
+const studentName = document.getElementById('studentName');
+
+infoForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    submitButton.disabled = true;
+    submitButton.textContent = 'Saving...';
+
+    // Create a FormData object from the form
+    const formData = new FormData(infoForm);
+
+    try {
+        const response = await fetch('updateInfo.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json(); // Parse JSON response
+        console.log(result);
+
+        if (result.status === 'success') {
+            swal({
+                    title: result.stats,
+                    text: result.message,
+                    type    : result.status,
+                    confirmButtonText: 'Okay',
+                }, 
+                function (isConfirm) {
+                    if (isConfirm) {
+                        $(".edit-info-details").hide();
+                        $(".edit-button").show();
+                        $(".info-details").show();
+                    }
+                });
+            studentName.innerText = result.first_name + " " + result.middle_name + " " + result.last_name;
+            
+        } else {
+            const errorMessage = result.message || 'Updating info failed';
+            swal({
+                title: 'Error',
+                text: errorMessage,
+                type: 'error',
+                confirmButtonText: 'Okay'
+            }, function (isConfirm) {
+                if (isConfirm) {
+                    
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred during submission: ' + error.message);
+    } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Save';
+    }
+});
 
     $("#inputDepartment").change(function(){
     var department = $(this).val();
