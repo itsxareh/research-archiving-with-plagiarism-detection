@@ -29,7 +29,7 @@ if($_SESSION['auth_user']['admin_id']==0){
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- theme meta -->
     <meta name="theme-name" content="focus" />
-    <title>Admin Dashboard: Student Research Archiving Management System</title>
+    <title>Admin Dashboard: Research Archiving System</title>
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
     <link rel="shortcut icon" href="images/logo2.png">
@@ -52,6 +52,7 @@ if($_SESSION['auth_user']['admin_id']==0){
     <link href="css/lib/bootstrap.min.css" rel="stylesheet">
     <link href="css/lib/helper.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
+    <link href="../css/action-dropdown.css" rel="stylesheet">
     <link href="css/lib/sweetalert/sweetalert.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -81,9 +82,26 @@ require_once 'templates/admin_navbar.php';
                         <div class="col-md-12 col-xl-8">
                             <div class="card h-100">
                                 <div class="card-body">
-                                    <h4 class="card-title mb-3">Published Research/Month</h4>
+                                    <div class="flex justify-content-between">
+                                        <h4 class="card-title mb-3">Published Research/Month</h4>
+                                        <div class="action-container">
+                                            <div>
+                                                <button type="button" class="action-button"  id="action-button_published-research" aria-expanded="true" aria-haspopup="true">
+                                                    <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><line x1="5.99" y1="12" x2="6" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="11.99" y1="12" x2="12" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="17.99" y1="12" x2="18" y2="12" stroke-linecap="round" stroke-width="2"></line>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_published-research" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                                                <div role="none">
+                                                    <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=all_published-research"  class="dropdown-action-item">
+                                                        Generate PDF
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="chart-container">
-                                        <canvas id="publishedResearchPerMonthChart" width="400" height="500"></canvas>
+                                        <canvas id="publishedResearchPerMonthChart" width="400" height="400"></canvas>
                                     </div>
                                 </div>
                             </div>
@@ -101,10 +119,10 @@ require_once 'templates/admin_navbar.php';
                                             <?php
                                                 $rows = $db->SELECT_COUNT_ALL_ARCHIVE_RESEARCH();
                                                 
-                                                echo "<h1>{$rows}</h1>";
+                                                echo "<h3>{$rows}</h3>";
                                             ?>
                                             </div>
-                                            <p class="mb-0" style="font-size: 18px">Total</p>
+                                            <p class="mb-0" style="font-size: 14px">Total</p>
                                             
                                         </div>
                                     </div>
@@ -117,8 +135,8 @@ require_once 'templates/admin_navbar.php';
                                             <?php
                                                 $row = $db->SELECT_COUNT_ALL_RESEARCH();
                                                 $rows = $db->SELECT_COUNT_ALL_PUBLISHED_RESEARCH();
-
-                                                echo "<h1 class='mb-4'>{$rows['count']}</h1>";
+                                            
+                                                echo "<h3 class='mb-4'>{$rows['count']}</h3>";
                                             ?>
                                             </div>
                                             <div class="avatar flex-shrink-0 mb-2" style="width:50px; height:50px">
@@ -127,7 +145,7 @@ require_once 'templates/admin_navbar.php';
                                             <?php 
                                                 
                                                 $published_percentage = ($rows['count'] / $row['count']) * 100;
-                                                echo '<p class="mb-0" style="font-size: 18px">'.round($published_percentage, 1).'%</p>';  
+                                                echo '<p class="mb-0" style="font-size: 14px">'.round($published_percentage, 1).'%</p>';  
                                             ?>
                                         </div>
                                     </div>
@@ -135,7 +153,24 @@ require_once 'templates/admin_navbar.php';
                                 <div class="col-md-12 col-xl-12" >
                                     <div class="card h-100">
                                         <div class="card-body">
-                                            <h4 class="card-title mb-3">Research Papers/Department</h4>
+                                            <div class="flex justify-content-between">
+                                                <h4 class="card-title mb-3">Research Papers/Department</h4>
+                                                <div class="action-container">
+                                                    <div>
+                                                        <button type="button" class="action-button"  id="action-button_research-paper-per-dept" aria-expanded="true" aria-haspopup="true">
+                                                            <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><line x1="5.99" y1="12" x2="6" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="11.99" y1="12" x2="12" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="17.99" y1="12" x2="18" y2="12" stroke-linecap="round" stroke-width="2"></line>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                    <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_research-paper-per-dept" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                                                        <div role="none">
+                                                            <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=all_research-paper-per-dept"  class="dropdown-action-item">
+                                                                Generate PDF
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <div class="card-text" style="white-space: nowrap; overflow-x: auto;">
                                             <?php
                                                 $rows = $db->Archive_Research_BasedOn_Department();
@@ -144,7 +179,7 @@ require_once 'templates/admin_navbar.php';
                                                 if (is_array($rows) || is_object($rows)) {
                                                     foreach ($rows as $row) {
                                                         echo "<div class='b-row justify-content-between '>
-                                                                <p class='no-wrap b-text-ellipsis p-0'>{$row['name']} ({$row['dept_code']})</p>
+                                                                <p class='no-wrap b-text-ellipsis p-0' style='font-size: 12px; color: #666'>{$row['name']} ({$row['dept_code']})</p>
                                                                 <strong>{$row['count']}</strong>
                                                             </div>";
                                                     }
@@ -163,10 +198,27 @@ require_once 'templates/admin_navbar.php';
                         <div class="col-md-12 col-xl-6">
                             <div class="card h-100">
                                 <div class="card-body" style="overflow-x: hidden;">
-                                    <div class="flex align-items-center justify-content-between mb-3" style="gap: 15px">
-                                        <h4 class="card-title ">Top Views Research Paper</h4>
-                                        <div class="avatar flex-shrink-0" style="width:50px; height:50px">
-                                            <img src="../adminsystem/images/top.png" alt="publish">
+                                    <div class="flex justify-content-between">
+                                        <div class="flex align-items-center justify-content-between mb-3" style="gap: 15px">
+                                            <h4 class="card-title ">Most Viewed Research Paper</h4>
+                                            <div class="avatar flex-shrink-0" style="width:50px; height:50px">
+                                                <img src="../adminsystem/images/top.png" alt="publish">
+                                            </div>
+                                        </div>
+                                        <div class="action-container">
+                                            <div>
+                                                <button type="button" class="action-button"  id="action-button_most-viewed-paper" aria-expanded="true" aria-haspopup="true">
+                                                    <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><line x1="5.99" y1="12" x2="6" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="11.99" y1="12" x2="12" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="17.99" y1="12" x2="18" y2="12" stroke-linecap="round" stroke-width="2"></line>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_most-viewed-paper" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                                                <div role="none">
+                                                    <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=most-viewed-paper"  class="dropdown-action-item">
+                                                        Generate PDF
+                                                    </a>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="card-text">
@@ -234,7 +286,24 @@ require_once 'templates/admin_navbar.php';
                                 <div class="card-body">
                                     <div class="card-text">
                                         <div class="card-list-container">
-                                            <h4 class="card-title mb-3">Recent Published Research</h4>
+                                            <div class="flex justify-content-between">
+                                                <h4 class="card-title mb-3">Recent Published Research</h4>
+                                                <div class="action-container">
+                                                    <div>
+                                                        <button type="button" class="action-button"  id="action-button_recent-published-paper" aria-expanded="true" aria-haspopup="true">
+                                                            <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><line x1="5.99" y1="12" x2="6" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="11.99" y1="12" x2="12" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="17.99" y1="12" x2="18" y2="12" stroke-linecap="round" stroke-width="2"></line>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                    <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_recent-published-paper" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                                                        <div role="none">
+                                                            <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=recent-published-paper"  class="dropdown-action-item">
+                                                                Generate PDF
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <div class="card-text mt-4">
                                                 <ul>
                                                 <?php 
@@ -279,7 +348,24 @@ require_once 'templates/admin_navbar.php';
                         <div class="col-md-12 col-xl-8">
                             <div class="card h-100">
                                 <div class="card-body">
+                                    <div class="flex justify-content-between">
                                     <h4 class="card-title mb-3">Plagiarized Research Content </h4>
+                                        <div class="action-container">
+                                            <div>
+                                                <button type="button" class="action-button"  id="action-button_plagiarized-content" aria-expanded="true" aria-haspopup="true">
+                                                    <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><line x1="5.99" y1="12" x2="6" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="11.99" y1="12" x2="12" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="17.99" y1="12" x2="18" y2="12" stroke-linecap="round" stroke-width="2"></line>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_plagiarized-content" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                                                <div role="none">
+                                                    <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=plagiarized-content"  class="dropdown-action-item">
+                                                        Generate PDF
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="card-text">
                                         <ul>
                                         <?php 
@@ -308,7 +394,7 @@ require_once 'templates/admin_navbar.php';
                                                     ';
                                                 }
                                             } else {
-                                                 echo '<p class="text-center" style="color: #333; font-size: 14px; font-weight:700">No plagiarized research content found.</p>';
+                                                 echo '<p class="text-center" style="color: #666; font-size: 12px;" >No plagiarized research content found.</p>';
  
                                             }
                                         ?>
@@ -320,29 +406,53 @@ require_once 'templates/admin_navbar.php';
                         <div class="col-md-12 col-xl-4">
                             <div class="card h-100">
                                 <div class="card-body">
-                                    <h4 class="card-title mb-3">Top Contributor</h4>
-                                    <div class="card-text">
-                                    <div class='b-row justify-content-between'>
-                                                        <p class='no-wrap b-text-ellipsis p-0' style='color: #333; font-size: 14px; font-weight:700'>Name</p>
-                                                        <p class='no-wrap b-text-ellipsis p-0' style='color: #333; font-size: 14px; font-weight:700'>Email Address</p>
-                                                        <strong style='color: #333; font-size: 14px; font-weight:700'>Total</strong>
-                                                    </div>
-                                    <?php
-                                        $rows = $db->SELECT_TOP_RESEARCH_CONTRIBUTOR();
-                                        $data = json_encode($rows);
-                                        
-                                        if (is_array($rows) || is_object($rows)) {
-                                            foreach ($rows as $row) {
-                                                echo "<div class='b-row justify-content-between'>
-                                                        <p class='no-wrap b-text-ellipsis p-0' style='color: #333; font-size: 14px; font-weight:700'>{$row['first_name']} {$row['middle_name']} {$row['last_name']}</p>
-                                                        <p class='no-wrap b-text-ellipsis p-0'><a href='view_profile.php?studID={$row['studID']}'> {$row['research_owner_email']}<i class='ti-arrow-top-right'></i></a></p>
-                                                        <strong>{$row['count']}</strong>
-                                                    </div>";
+                                    <div class="flex justify-content-between">
+                                        <h4 class="card-title mb-3">Top Contributor</h4>
+                                        <div class="action-container">
+                                            <div>
+                                                <button type="button" class="action-button"  id="action-button_top-contributor" aria-expanded="true" aria-haspopup="true">
+                                                    <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><line x1="5.99" y1="12" x2="6" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="11.99" y1="12" x2="12" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="17.99" y1="12" x2="18" y2="12" stroke-linecap="round" stroke-width="2"></line>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_top-contributor" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                                                <div role="none">
+                                                    <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=top-contributor"  class="dropdown-action-item">
+                                                        Generate PDF
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-text" style="overflow-x: auto;">
+                                    <table class="table list-table w-100">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Email Address</th>
+                                                <th>Published Research</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php
+                                            $rows = $db->SELECT_TOP_RESEARCH_CONTRIBUTOR();
+                                            $data = json_encode($rows);
+                                            
+                                            if (is_array($rows) || is_object($rows)) {
+                                                foreach ($rows as $row) {
+                                                    echo "<tr>
+                                                            <td class='list-td'>{$row['first_name']} {$row['middle_name']} {$row['last_name']}</td>
+                                                            <td class='list-td'><a href='view_profile.php?studID={$row['studID']}'> {$row['research_owner_email']}<i class='ti-arrow-top-right'></i></a></td>
+                                                            <td class='list-td'>{$row['count']}</td>
+                                                        </tr>";
+                                                }
+                                            } else {
+                                                echo "<p class='text-center' style='color: #333; font-size: 14px; font-weight:700'>No data available.</p>";
                                             }
-                                        } else {
-                                            echo "<p class='text-center' style='color: #333; font-size: 14px; font-weight:700'>No data available.</p>";
-                                        }
-                                    ?>
+                                            
+                                            ?>
+                                        </tbody>
+                                    </table>
                                     </div>
                                 </div>
                             </div>  
@@ -352,75 +462,93 @@ require_once 'templates/admin_navbar.php';
             </div>
         </div>
     </div>
-    <!-- bootstrap -->
-
-<script src="js/lib/calendar-2/moment.latest.min.js"></script>
+<!-- <script src="js/lib/calendar-2/moment.latest.min.js"></script>
 <script src="js/lib/calendar-2/pignose.calendar.min.js"></script>
-<script src="js/lib/calendar-2/pignose.init.js"></script>
+<script src="js/lib/calendar-2/pignose.init.js"></script> -->
 <script>
 <?php 
     $result = $db->Archive_Research_Views_BasedOn_Departments();
     $data = json_encode($result);
 ?>
 
-    const departmentViewsData = <?php echo $data; ?>;
+const departmentViewsData = <?php echo $data; ?>;
     const departmentLabels = departmentViewsData.map(item => item.name);
     const viewCounts = departmentViewsData.map(item => item.count);
 
     const departmentColors = departmentLabels.map((_, index) => {
-    const colors = [
-        'rgba(255, 99, 132, 0.6)', // Red
-        'rgba(54, 162, 235, 0.6)', // Blue
-        'rgba(255, 206, 86, 0.6)', // Yellow
-        'rgba(75, 192, 192, 0.6)', // Green
-        'rgba(153, 102, 255, 0.6)', // Purple
-        'rgba(255, 159, 64, 0.6)',  // Orange
-        'rgba(201, 203, 207, 0.6)'  // Grey
-    ];
-    return colors[index % colors.length];
-});
+        const colors = [
+            'rgba(255, 99, 132, 0.6)', // Red
+            'rgba(54, 162, 235, 0.6)', // Blue
+            'rgba(255, 206, 86, 0.6)', // Yellow
+            'rgba(75, 192, 192, 0.6)', // Green
+            'rgba(153, 102, 255, 0.6)', // Purple
+            'rgba(255, 159, 64, 0.6)',  // Orange
+            'rgba(201, 203, 207, 0.6)'  // Grey
+        ];
+        return colors[index % colors.length];
+    });
 
-const ctx1 = document.getElementById('viewsPerDepartmentChart').getContext('2d');
-const viewsPerDepartmentChart = new Chart(ctx1, {
-    type: 'bar',
-    data: {
-        labels: departmentLabels,
-        datasets: [{
-            label: 'Research Views',
-            data: viewCounts,
-            backgroundColor: departmentColors,
-            borderColor: departmentColors.map(color => color.replace('0.6', '1')), // Make border color solid
-            borderWidth: 1,
-            hoverBackgroundColor: '#A33333',
-            hoverBorderColor: '#333333',
-            hoverBorderWidth: 1,
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            x: {
-                grid: { display: false },
-                ticks: { color: '#333', font: { size: 12, weight: 'bold' } }
+    const ctx1 = document.getElementById('viewsPerDepartmentChart').getContext('2d');
+
+    const createViewsChart = () => {
+        const hideXAxisLabels = window.innerWidth <= 567;
+
+        return new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: departmentLabels,
+                datasets: [{
+                    label: 'Research Views',
+                    data: viewCounts,
+                    backgroundColor: departmentColors,
+                    borderColor: departmentColors.map(color => color.replace('0.6', '1')), // Make border color solid
+                    borderWidth: 1,
+                    hoverBackgroundColor: '#A33333',
+                    hoverBorderColor: '#333333',
+                    hoverBorderWidth: 1,
+                }]
             },
-            y: {
-                beginAtZero: true,
-                grid: { color: 'rgba(200, 200, 200, 0.3)' },
-                ticks: { color: '#666', font: { size: 12, weight: 'bold' } }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        display: !hideXAxisLabels,
+                        grid: { display: false },
+                        ticks: { color: '#333', font: { size: 12, weight: 'bold' } }
+                    },
+                    y: {
+                        display: true,
+                        beginAtZero: true,
+                        grid: { color: 'rgba(200, 200, 200, 0.3)' },
+                        ticks: { color: '#666', font: { size: 12, weight: 'bold' } }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: { color: '#333', font: { size: 14, weight: 'bold' } }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        displayColors: false
+                    }
+                }
             }
-        },
-        plugins: {
-            legend: { display: true, labels: { color: '#333', font: { size: 14, weight: 'bold' } } },
-            tooltip: {
-                backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                titleColor: '#ffffff',
-                bodyColor: '#ffffff',
-                displayColors: false
-            }
+        });
+    };
+
+    let viewsPerDepartmentChart = createViewsChart();
+
+    // Recreate the chart on window resize to handle dynamic updates
+    window.addEventListener('resize', () => {
+        if (viewsPerDepartmentChart) {
+            viewsPerDepartmentChart.destroy();
         }
-    }
-});
+        viewsPerDepartmentChart = createViewsChart(); 
+    });
 
 <?php
     $rows = $db->SELECT_RESEARCH_PUBLISHED_PER_WEEK();
@@ -630,76 +758,92 @@ const viewsPerDepartmentChart = new Chart(ctx1, {
         '#FF7043', '#26C6DA', '#FFCA28', '#8D6E63', '#78909C'
     ];
     const ctx4 = document.getElementById('topViewsChart').getContext('2d');
-    const myChart = new Chart(ctx4, {
-        type: 'bar',
-        data: {
-            labels: labels1,
-            datasets: [{
-                label: 'Views',
-                data: values1,
-                backgroundColor: backgroundColors,
-                borderColor: backgroundColors,
-                borderWidth: 1,
-                hoverBackgroundColor: '#A33333',
-                hoverBorderColor: '#333333',
-                hoverBorderWidth: 1,
-                barThickness: 30,
-                maxBarThickness: 50,
-                minBarLength: 5,
-            }]
-        },
-        options: {
-            indexAxis: 'y', // Ensures horizontal orientation
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    beginAtZero: true,
-                    ticks: {
-                        color: '#666',
-                        font: {
-                            family: 'Segoe UI',
-                            size: 12,
-                            weight: 'bold'
-                        }
-                    }
-                },
-                y: {
-                    ticks: {
-                        color: '#333',
-                        font: {
-                            family: 'Segoe UI',
-                            size: 12,
-                            weight: 'bold'
-                        }
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top',
-                    labels: {
-                        color: '#333',
-                        font: {
-                            family: 'Segoe UI',
-                            size: 14,
-                            weight: 'bold'
-                        }
-                    }
-                },
-                tooltip: {
-                    enabled: true,
-                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                    titleColor: '#ffffff',
-                    bodyColor: '#ffffff',
-                    borderColor: '#1E88E5',
+
+    const createChart = () => {
+        const hideYAxisLabels = window.innerWidth <= 567;
+
+        return new Chart(ctx4, {
+            type: 'bar',
+            data: {
+                labels: labels1,
+                datasets: [{
+                    label: 'Views',
+                    data: values1,
+                    backgroundColor: backgroundColors,
+                    borderColor: backgroundColors,
                     borderWidth: 1,
-                    cornerRadius: 8,
-                    displayColors: false
+                    hoverBackgroundColor: '#A33333',
+                    hoverBorderColor: '#333333',
+                    hoverBorderWidth: 1,
+                    barThickness: 30,
+                    maxBarThickness: 50,
+                    minBarLength: 5,
+                }]
+            },
+            options: {
+                indexAxis: 'y', // Horizontal bar chart
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#666',
+                            font: {
+                                family: 'Segoe UI',
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    y: {
+                        display: !hideYAxisLabels, // Hide Y-axis if max-width <= 567
+                        ticks: {
+                            color: '#333',
+                            font: {
+                                family: 'Segoe UI',
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            color: '#333',
+                            font: {
+                                family: 'Segoe UI',
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#1E88E5',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        displayColors: false
+                    }
                 }
             }
+        });
+    };
+
+    // Create the chart
+    let myChart = createChart();
+
+    window.addEventListener('resize', () => {
+        if (myChart) {
+            myChart.destroy();
         }
+        myChart = createChart();
     });
 </script>
 <script>

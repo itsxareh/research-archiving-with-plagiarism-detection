@@ -159,10 +159,10 @@ require_once 'templates/admin_navbar.php';
                                 <div class="form-group">
 
                                     <label for="info-label">Department Code</label>
-                                    <input type="text" class="form-control" name="department_code" placeholder="Enter Department Code...">
+                                    <input type="text" class="form-control" name="department_code">
                                     
                                     <label for="info-label">Department</label>
-                                    <input type="text" class="form-control" name="department_name" placeholder="Enter Department Name...">
+                                    <input type="text" class="form-control" name="department_name">
                                     
                                     <!-- <label for="">Description</label>
                                     <textarea class="form-control" name="description" placeholder="Description..."></textarea> -->
@@ -244,8 +244,8 @@ require_once 'templates/admin_navbar.php';
                                         </div>
                                         <div class="dropdown-action" id="dropdown_<?= $result['id'] ?>" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
                                             <div role="none">
-                                                <a href="#" data-toggle="modal" data-target="#modelId_<?= $result['id'] ?>" class="dropdown-action-item">Edit course</a>
-                                                <a href="#" data-toggle="delete-modal" data-target="#delete_modelId_<?= $result['id'] ?>" class="dropdown-action-item">Delete course</a>
+                                                <a href="#" data-toggle="modal" data-target="#modelId_<?= $result['id'] ?>" class="dropdown-action-item">Edit department</a>
+                                                <a href="#" data-toggle="delete-modal" data-target="#delete_modelId_<?= $result['id'] ?>" class="dropdown-action-item">Delete department</a>
                                             </div>
                                         </div>
                                     </div>
@@ -305,54 +305,11 @@ require_once 'templates/admin_navbar.php';
 </script>
 
 <script>
-
-let currentOpenDropdown = null;
-
-const closeAllDropdowns = () => {
-    document.querySelectorAll(".dropdown-action").forEach((dropdown) => {
-        dropdown.classList.remove('active');
-    });
-    currentOpenDropdown = null;
-};
-
-document.addEventListener("click", function(event) {
-    if (!event.target.closest('.action-button') && !event.target.closest('.dropdown-action')) {
-        closeAllDropdowns();
-        return;
-    }
-
-    if (event.target.classList.contains("action-button")) {
-        event.stopPropagation();
-        
-        const studentId = event.target.id.split("_")[1];
-        
-        const dropdown = document.getElementById(`dropdown_${studentId}`);
-        
-        if (dropdown) {
-            if (currentOpenDropdown === dropdown) {
-                dropdown.classList.remove('active');
-                currentOpenDropdown = null;
-            }
-            else {
-                closeAllDropdowns();
-                dropdown.classList.add('active');
-                currentOpenDropdown = dropdown;
-            }
-        }
-    }
-});
-
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        closeAllDropdowns();
-    }
-});
-
-    $('#datatablesss_filter label input').removeClass('form-control form-control-sm');
-    $('#datatablesss_wrapper').children('.row').eq(1).find('.col-sm-12').css({
+$('#datatablesss_filter label input').removeClass('form-control form-control-sm');
+$('#datatablesss_wrapper').children('.row').eq(1).find('.col-sm-12').css({
     'padding-left': 0,
     'padding-right': 0
-    });
+});
 $(document).ready(function(){
   $("#inputDepartment").change(function(){
     var department = $(this).val();

@@ -79,8 +79,11 @@ $db = new Database();
     .logo-home {
         margin-left: 5px;
     }
+    .user-name {
+        display: none;
+    }
     #menu-button {
-        text-indent: -9999px;
+        padding: .5rem;
     }
     .title-system {
         display: none;
@@ -91,11 +94,20 @@ $db = new Database();
     .search-bar {
         margin: 0 !important;
     }
-    .search-bar input {
-        width: 150px !important;
-    }
     .inbox-container {
         width: 100%;
+    }
+    .left-side-nav {
+        padding-inline: .875rem;
+    }
+    .advance-filter-search p, .advance-filter-search > .mb-3 {
+        margin-bottom: 0 !important;
+    }
+    .advance-filter-search label {
+        margin-bottom: .445rem;
+    }
+    .login-btn {
+        padding: .545rem 1.165rem;
     }
 }
 </style>
@@ -142,19 +154,21 @@ if (isset($_SESSION['auth_user']['student_id'])){
                         </div>
                     </a>
                 </div>
-                    <div style="display: flex; flex-direction: row; justify-content:end; align-items: center; flex:1">
-                        <div class="search-bar m-r-16">
-                            <input id="searchInput" name="searchInput" type="text" class="form-control" placeholder="Search...">
-                            <button class="search-btn" id="search-btn" style="background-color: transparent"><img style="width: 1.275rem; height: 1.275rem;" src="../../images/search.svg" alt=""></button>
+                    <div class="left-side-nav" style="display: flex; flex-direction: row; justify-content:end; align-items: center; flex:1">
+                        <div class="search-bar flex-1" style="padding: 0.675rem;">
+                            <input id="searchInput" name="searchInput" type="text" class="form-control" style="font-size: 12px; height: auto" placeholder="Search...">
+                            <button class="search-btn" id="search-btn" style="background-color: transparent">
+                                <img style="width: 1.275rem; height: 1.275rem; " src="../../images/search.svg" alt="">
+                            </button>
                         </div>
                         <?php
                             if(isset($_SESSION['auth_user']['student_id'])) {
                             $studentID = $_SESSION['auth_user']['student_id'];
                         ?>
                         <div class="dropdown dib">
-                            <div class="header-icon" style="padding: 5px 15px 0 15px !important" data-toggle="dropdown">
+                            <div class="header-icon" style="padding-left: 0px !important" data-toggle="dropdown">
                                 <img class="" src="../../images/notification-bell.svg" style="position: relative; width: 1.525rem; height: 1.525rem">
-                                    <span class="" style="position: absolute; right: 5px; top: 0; border-radius: 50%; font-size: 10px; background-color: #a33333; padding: 5px; color: white" id="notification-badge">
+                                    <span class="" style="position: absolute; right: 10px; top: 5px; border-radius: 50%; font-size:8px; background-color: #a33333; padding: 5px; color: white" id="notification-badge">
                                     <?php
                                         $unread = 'Unread';
                                         $total_unread = $db->studentNOTIFICATION_COUNT($studentID, $unread);
@@ -163,15 +177,16 @@ if (isset($_SESSION['auth_user']['student_id'])){
                                     ?>
                                     </span>
                                 </img>
-                                <div class="drop-down dropdown-menu dropdown-menu-right" style="position: absolute; transform: translate3d(-227px, -3px, 0px); top: 0px; left: 0px; will-change: transform; height: 300px; overflow: auto; border: 1px solid #ccc;">
+                                <div class="drop-down dropdown-menu dropdown-menu-right" style="position: absolute; transform: translate3d(-227px, -3px, 0px); top: 0px; left: 0px; will-change: transform; max-height: 300px; overflow: auto; border: 1px solid #ccc;">
                                     <div class="dropdown-content-heading">
-                                        <span class="text-left">Recent Notifications</span>
+                                        <span class="text-left" style="font-size: 11px">Recent Notifications</span>
+                                        <span class="text-center">
+                                                <a href="#" style="font-size: 10px" class="more-link" id="markASread">Mark all as read</a>
+                                        </span>
                                     </div>
                                     <div class="dropdown-content-body">
                                         <ul>
-                                        <li class="text-center">
-                                                <a href="#" class="more-link" id="markASread"><i class="ti-email"></i> Mark all as read</a>
-                                        </li>
+                                        
                                         <?php
                                             $notifications = $db->studentNOTIFICATION_Read_Unread($studentID);
                                             foreach ($notifications as $notification) {
@@ -207,12 +222,12 @@ if (isset($_SESSION['auth_user']['student_id'])){
                         ?>
                         <div class="menu-container">
                             <div>
-                                <button type="button" style="text-wrap: nowrap" class="menu-button" id="menu-button" aria-expanded="true" aria-haspopup="true">
-                                    <?php echo $result['first_name']; ?> <?php echo $result['last_name']; ?>
+                                <a href="#" type="button" style="text-wrap: nowrap" class="menu-button" id="menu-button" aria-expanded="true" aria-haspopup="true">
+                                    <span class="user-name"><?php echo $result['first_name']; ?> <?php echo $result['last_name']; ?></span>
                                     <svg class="menu-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
                                         <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
                                     </svg>
-                                </button>
+                                </a>
                             </div>
                             <div class="dropdown-profile" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
                                 <div role="none">
@@ -221,34 +236,6 @@ if (isset($_SESSION['auth_user']['student_id'])){
                                 </div>
                             </div>
                         </div>
-                        <!-- <div class="dropdown dib">
-                            <div class="header-icon" data-toggle="dropdown">
-                            
-                                <span class="user-avatar">
-                                    <i class="ti-angle-down f-s-10"></i>
-                                </span>
-
-                                <div class="drop-down dropdown-profile dropdown-menu dropdown-menu-right">
-                                    <div class="dropdown-content-body">
-                                        <ul>
-                                            <li>
-                                                <a href="#" onclick="profile();">
-                                                    <i class="ti-user"></i>
-                                                    <span>My Info</span>
-                                                </a>
-                                            </li>
-                                            
-                                            <li>
-                                                <a href="#" onclick="logout();">
-                                                    <i class="ti-power-off"></i>
-                                                    <span>Logout</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> -->
                         <?php
                         } else {
                            echo '<a class="login-btn" href="login.php">Log in</a>';
@@ -276,16 +263,11 @@ if (isset($_SESSION['auth_user']['student_id'])){
                 dataType: "json",
                 success: function(response) {
                     if (response.success) {
-                        // Update the notification count
                         notificationCount = 0;
                         notificationRead = 'Read';
                         $("#notification-badge").text(notificationCount);
                         $("#unreadTORead").text(notificationRead);
-
-                        alert("Notifications marked as read");
-                    } else {
-                        alert("Failed to mark notifications as read");
-                    }
+                    } 
                 },
                 error: function() {
                     alert("An error occurred while processing the request");

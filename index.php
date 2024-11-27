@@ -147,7 +147,7 @@ session_start();
                     <p class="search-description">Enter research title so we could help you in your research.</p>
                     <div class="row form-input align-items-start">
                         <div class="col-sm-8 col-md-10 col-xl-10 m-t-2 p-0">
-                            <input id="searchInput" type="text" placeholder="Research Paper Title">
+                            <input id="searchInput" type="text">
                         </div>
                         <div class="col-sm-4 col-md-2 col-xl-2 m-t-2 p-0">
                             <button id="searchButton" class="search-btn">Search</button>

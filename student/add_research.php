@@ -8,13 +8,15 @@ class FileUploadHandler {
     private $db;
     private $uploadDirectory;
     private $flaskEndpoint;
-    
+    private $maxFileSize;
+
     public function __construct(Database $db) {
         $this->db = $db;
         $this->uploadDirectory = '../pdf_files/';
         $this->flaskEndpoint = "http://127.0.0.1:3000/upload_research";
-        
+        $this->maxFileSize = 20 * 1024 * 1024;
         // Ensure upload directory exists
+
         if (!file_exists($this->uploadDirectory)) {
             mkdir($this->uploadDirectory, 0777, true);
         }
@@ -35,19 +37,24 @@ class FileUploadHandler {
         if ($_FILES['project_file']['type'] !== 'application/pdf') {
             throw new Exception('Only PDF files are allowed');
         }
+        if ($_FILES['project_file']['size'] > $this->maxFileSize) {
+            $maxSizeMB = $this->maxFileSize / (1024 * 1024);
+            throw new Exception("File size exceeds maximum limit of {$maxSizeMB} MB");
+        }
     }
     
     private function handleFileUpload() {
         $uniqueFilename = uniqid() . '-' . $_FILES['project_file']['name'];
         $pdfPath = $this->uploadDirectory . $uniqueFilename;
         
+
         if (!move_uploaded_file($_FILES['project_file']['tmp_name'], $pdfPath)) {
             throw new Exception('Failed to move uploaded file');
         }
         
         return $pdfPath;
     }
-    
+
     private function sendToFlaskServer($pdfPath) {
         $curlOpts = [
             CURLOPT_URL => $this->flaskEndpoint,
@@ -139,6 +146,5 @@ class FileUploadHandler {
     }
 }
 
-// Usage
 $handler = new FileUploadHandler(new Database());
 echo json_encode($handler->process());

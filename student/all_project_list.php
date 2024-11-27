@@ -122,11 +122,11 @@ if(ISSET($_POST['add_research'])){
 
     <!---------------------DATATABLES------------------------->
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" rel="stylesheet">
-
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <link href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/datetime/1.5.1/css/dataTables.dateTime.min.css" rel="stylesheet">
 
-    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
 
@@ -157,7 +157,7 @@ require_once 'templates/student_navbar.php';
                 </div>
             </div>
             <section class="project-page-content row" >
-                <div class="col-sm-12 col-md-3 ">
+                <div class="col-sm-12 col-md-3">
                     <div class="advance-filter-search">
                         <p class="font-black bold">Filter</p>
                         <div class="mb-3">
@@ -252,7 +252,7 @@ require_once 'templates/student_navbar.php';
                                     </div>
                                     <div class="item-abstract">
                                         <h3 class="abstract-title"><a href="#"><span>Abstract</span><img src="../images/arrow-down.svg" style="width: .675rem; height: .675rem" alt=""></a></h3>
-                                        <div class="abstract-group" style="display:none">
+                                        <div class="abstract-group" style="display:none; cursor: pointer;">
                                             <section class="item-meta">
                                                 <div class="abstract-article">
                                                     <p><?= $result['project_abstract']; ?></p>
@@ -340,14 +340,27 @@ require_once 'templates/student_navbar.php';
     window.onpopstate = function(event) {
         filteredData();
     }; 
-    $('#search-result').on('click', 'h3.abstract-title', function(event){
-        console.log('clicked');
-        event.preventDefault();
-        $(this).closest('.item-abstract').find('.abstract-group').slideToggle(200);
+
+    $('#search-result').on('click', '.item-abstract', function(event) {
+        const $target = $(event.target);
+
+        if ($target.closest('h3.abstract-title').length) {
+            event.preventDefault();
+            const abstractGroup = $(this).find('.abstract-group');
+            const img = $(this).find('h3.abstract-title img');
+            
+            abstractGroup.slideToggle(200);
+            
+            const isArrowDown = img.attr('src').includes('arrow-down');
+            img.attr('src', isArrowDown ? '../images/arrow-up.svg' : '../images/arrow-down.svg');
+        }
         
-        const img = $(this).find('img');
-        const isArrowDown = img.attr('src').includes('arrow-down');
-        img.attr('src', isArrowDown ? '../images/arrow-up.svg' : '../images/arrow-down.svg');
+        else if ($target.closest('.abstract-group').length) {
+            $(this).find('.abstract-group').slideToggle(200);
+            const img = $(this).find('h3.abstract-title img');
+            const isArrowDown = img.attr('src').includes('arrow-up');
+            img.attr('src', isArrowDown ? '../images/arrow-down.svg' : '../images/arrow-up.svg');
+        }
     });
 
     const keywordsInput = document.getElementById('keywords');
@@ -418,7 +431,7 @@ require_once 'templates/student_navbar.php';
             if(response.count > 0) {
                 $('#search-result').html(response.html);
             } else {
-                $('#search-result').html("<p class='text-center' style='color: #666; font-size: 14px; font-weight:400'>No projects found.</p>");
+                $('#search-result').html("<p class='text-center' style='color: #666; font-size: 14px; font-weight:400'>No research paper found.</p>");
             }
             if (searchInput.length > 0) {
                 $('#inputSearch').show();

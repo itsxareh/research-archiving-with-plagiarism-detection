@@ -52,7 +52,7 @@ foreach ($resp as $row) {
                 }
             echo '</div>
                 <div class="item-title">
-                    <h3><a href="view_project_research.php?archiveID=' . $row['archive_id'] . '">' . $row['project_title'] . '</a></h3>
+                    <h4><a href="view_project_research.php?archiveID=' . $row['archive_id'] . '">' . $row['project_title'] . '</a></h4>
                 </div>
                 <div class="item-content">
                     <p>' . $row['project_members'] . '</p>

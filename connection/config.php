@@ -76,11 +76,13 @@ public function admin_update_verify_status($verified, $adminID) {
     while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $admin_id = $data['id'];
         $admin_UNIQUEid = $data['uniqueID'];
+        $admin_email = $data['admin_email'];
         $pword = $data['admin_password'];
         $verifystatus = $data['verify_status'];
+        $admin_status = $data['admin_status'];
     }
 
-    if ($pword == $password) {
+    if ($pword == $password && $admin_status == 'Active') {
         if ($verifystatus == 'Not Verified') {
             // Handle account verification if needed
             $_SESSION['alert'] = "Account Verification";
@@ -104,7 +106,8 @@ public function admin_update_verify_status($verified, $adminID) {
             $_SESSION['auth'] = true;
             $_SESSION['auth_user'] = [
                 'admin_id' => $admin_id,
-                'admin_uniqueID' => $admin_UNIQUEid
+                'admin_uniqueID' => $admin_UNIQUEid,
+                'admin_email' => $admin_email,
             ];
 
             $_SESSION['alert'] = "Success";
@@ -112,6 +115,11 @@ public function admin_update_verify_status($verified, $adminID) {
             $_SESSION['status-code'] = "success";
             header("location: ../adminsystem/dashboard.php");
         }
+    } elseif($admin_status == 'Not Active') {
+        $_SESSION['alert'] = "Oppss...";
+        $_SESSION['status'] = "Sorry, but your account is now inactive.";
+        $_SESSION['status-code'] = "info";
+        header("location: ../adminsystem/index.php");
     } else {
         // Handle incorrect login details
         $_SESSION['alert'] = "Oppss...";
@@ -233,7 +241,7 @@ public function UPDATE_admin_profile($imagePath, $admin_id) {
 public function UPDATE_admin_info_onSETTINGS($fname, $mname, $lname,  $cp_number, $adminID) {
   $connection = $this->getConnection();
 
-  $stmt = $connection->prepare("UPDATE admin_account SET first_name=?, middle_name=?, last_name=?, complete_address=?, phone_number=? WHERE id=?");
+  $stmt = $connection->prepare("UPDATE admin_account SET first_name=?, middle_name=?, last_name=?, phone_number=? WHERE id=?");
   $result = $stmt->execute([$fname, $mname, $lname, $cp_number, $adminID]);
 
   return $result;
@@ -310,7 +318,15 @@ public function showCourse_WHERE_ACTIVE($department){
 
   return $result;
 }
+public function SELECT_ALL_AdminsData(){
+  $connection = $this->getConnection();
+  $stmt = $connection->prepare(
+    "SELECT * FROM admin_account");
+  $stmt->execute();
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+  return $result;
+}
 public function SELECT_ALL_StudentsData(){
   $connection = $this->getConnection();
   $stmt = $connection->prepare(
@@ -495,7 +511,17 @@ public function SELECT_COUNT_ALL_ARCHIVE_RESEARCH(){
 public function SELECT_RECENT_RESEARCH_PAPER(){
   $connection = $this->getConnection();
 
-  $stmt = $connection->prepare("SELECT archive_research.date_published, archive_research.project_title as project_title, archive_research.archive_id as aid, archive_research.id as ari FROM archive_research WHERE archive_research.document_status = 'Accepted' ORDER BY ari DESC LIMIT 5;");
+  $stmt = $connection->prepare("SELECT archive_research.date_published, archive_research.dateOFSubmit, archive_research.page_count, archive_research.project_title as project_title, archive_research.archive_id as aid, archive_research.id as ari FROM archive_research WHERE archive_research.document_status = 'Accepted' ORDER BY ari DESC LIMIT 5;");
+  $stmt->execute();
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+
+public function SELECT_ALL_PUBLISHED_RESEARCH_PAPER(){
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT archive_research.date_published, archive_research.dateOFSubmit, archive_research.page_count, archive_research.project_title as project_title, archive_research.archive_id as aid, archive_research.id as ari FROM archive_research WHERE archive_research.document_status = 'Accepted' ORDER BY ari DESC");
   $stmt->execute();
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -644,6 +670,30 @@ public function SELECT_ARCHIVE_RESEARCH($archiveID){
 
   return $result;
 }
+
+public function SELECT_UPLOADED_ADMIN_ARCHIVE_RESEARCH($archiveID){
+  $connection = $this->getConnection();
+  $stmt = $connection->prepare("SELECT 
+    archive_research.*,
+    archive_research.archive_id AS archiveID,
+    archive_research.id AS aid,
+    admin_account.uniqueID AS sid,
+    admin_account.first_name as fname,
+    admin_account.middle_name as mname,
+    admin_account.last_name as lname,
+    departments.*,
+    course.*,
+    (SELECT COUNT(id) FROM archive_research_views WHERE archive_research_views.archive_research_id = archive_research.archive_id) AS view_count
+    FROM archive_research
+    LEFT JOIN departments ON departments.id = archive_research.department_id
+    LEFT JOIN course ON course.id = archive_research.course_id
+    LEFT JOIN admin_account ON admin_account.uniqueID = archive_research.student_id
+    WHERE archive_research.archive_id = ?");
+  $stmt->execute([$archiveID]);
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+}
 public function SELECT_PLAGIARISM_RESULTS_RESEARCH($archiveID, $similar_archive_id){
   $connection = $this->getConnection();
   $stmt = $connection->prepare("SELECT * FROM plagiarism_results WHERE plagiarism_results.archive_id = ? AND similar_archive_id = ? ORDER BY id DESC");
@@ -758,6 +808,22 @@ public function SELECT_ALL_DEPARTMENTS_WHERE_ACTIVE(){
   return $result;
 }
 
+public function insert_Admin($uniqueId, $first_name, $last_name, $complete_address, $phone_number, $email, $password){
+  $connection = $this->getConnection();
+
+  $sql = $connection->prepare("INSERT INTO admin_account(uniqueID, first_name, last_name, complete_address, phone_number, admin_email, admin_password) VALUES (?, ?, ?, ?, ?, ?, ?)");
+  
+  return $sql->execute([$uniqueId, $first_name, $last_name, $complete_address, $phone_number, $email, md5($password)]);
+  
+}
+public function update_Admin($first_name, $last_name, $complete_address, $phone_number, $email, $password, $id){
+  $connection = $this->getConnection();
+
+  $sql = $connection->prepare("UPDATE admin_account SET first_name = ?, last_name = ?, complete_address = ?, phone_number = ?, admin_email = ?, admin_password = ? WHERE id = ?");
+  
+  return $sql->execute([$first_name, $last_name, $complete_address, $phone_number, $email, md5($password), $id]);
+  
+}
 public function insert_Department($department_code, $department_name, $description){
   $connection = $this->getConnection();
 
@@ -875,7 +941,15 @@ public function update_department_status($departmentID, $status) {
 
   return $stmt->execute();
 }
+public function update_admin_status($adminID, $status) {
+  $query = "UPDATE admin_account SET admin_status = :status WHERE id = :adminID";
+  $stmt = $this->conn->prepare($query);
+  
+  $stmt->bindParam(':status', $status, PDO::PARAM_STR);
+  $stmt->bindParam(':adminID', $adminID, PDO::PARAM_INT);
 
+  return $stmt->execute();
+}
 public function update_course_status($courseID, $status) {
   $query = "UPDATE course SET course_status = :status WHERE id = :courseID";
   $stmt = $this->conn->prepare($query);
@@ -948,6 +1022,28 @@ public function Archive_Research_BasedOn_Department(){
   $connection = $this->getConnection();
   $stmt = $connection->prepare("SELECT dept_code, name, COUNT(*) as count FROM archive_research 
   LEFT JOIN departments ON departments.id = archive_research.department_id GROUP BY department_id ORDER BY count DESC");
+  $stmt->execute();
+
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  return $result;
+}
+public function Research_BasedOn_Department_AND_Status(){
+  $connection = $this->getConnection();
+  $stmt = $connection->prepare("SELECT 
+    dept_code, 
+    name, 
+    COUNT(CASE WHEN archive_research.document_status = 'Accepted' THEN 1 END) AS accepted_count, 
+    COUNT(CASE WHEN archive_research.document_status = 'Not Accepted' THEN 1 END) AS not_accepted_count
+FROM 
+    archive_research 
+LEFT JOIN 
+    departments 
+ON 
+    departments.id = archive_research.department_id 
+GROUP BY 
+    department_id, dept_code, name 
+ORDER BY 
+    accepted_count DESC;");
   $stmt->execute();
 
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -1260,9 +1356,9 @@ public function studentLogin($email, $password, $redirect_to) {
               'course_id' => $course_id,
           ];
 
-          $_SESSION['alert'] = "Success";
-          $_SESSION['status'] = "Log In Success";
-          $_SESSION['status-code'] = "success";
+          // $_SESSION['alert'] = "Success";
+          // $_SESSION['status'] = "Log In Success";
+          // $_SESSION['status-code'] = "success";
           
           if (isset($redirect_to) || !empty($redirect_to) || $redirect_to !== '') {
             $redirect_url = urldecode($redirect_to);
@@ -1387,6 +1483,14 @@ public function studentNOTIFICATION_MarkASRead($read, $student_id) {
 
 }
 
+
+public function studentINBOX_MarkASRead($read, $archive_id) {
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("UPDATE archive_research SET inbox_read = ? WHERE archive_id = ?");
+  return $stmt->execute([$read, $archive_id]);
+
+}
 
 public function SELECT_student_profile($student_id) {
   $connection = $this->getConnection();

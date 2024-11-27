@@ -94,8 +94,6 @@ require_once 'templates/student_navbar.php';
     $archiveID = $_GET['archiveID'];
 
     $data = $db->SELECT_ARCHIVE_RESEARCH($archiveID);
-      
-  }
   ?>
     <div class="col-md-8">
         <div class="short-info">
@@ -114,7 +112,7 @@ require_once 'templates/student_navbar.php';
     </div>
     </div>
     <div class="col-md-4">
-      <div class="title-margin-left">
+      <div class="">
         <div class="page-header">
           <div class="page-title information-meta">
             <span class="info-font text-white"><i class="ti-info text-black" style="background-color: white; border-radius: 50%; margin-right:6px"></i>Information</span>
@@ -152,13 +150,20 @@ require_once 'templates/student_navbar.php';
                   <ul class="ul-keywords">';
                   $keywords = explode(',', $data['keywords']);
                   foreach ($keywords as $keyword) {
-                    echo '<li class="info-meta"><span class="info-keywords">'.$keyword.'</span></li>'; 
+                    echo '<li class="info-meta"><a href="all_project_list.php?keywords='.$keyword.'"><span class="info-keywords">'.$keyword.'</span></a></li>';
                   }
                   echo '</ul>
                 </div>';
         }
       ?>
     </div>
+    <?php 
+    } else {
+      echo "<div class='col-md-12'>
+              <p style='text-align: center'>No research found.</p>
+            </div>";
+    }
+    ?>
     </div>
   </div>
 </div>

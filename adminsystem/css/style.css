@@ -97,7 +97,7 @@
 }
 .card-title {
   font-weight: 400;
-  font-size: 18px;
+  font-size: 14px;
   margin: 0;
 }
 .card-title h4 {
@@ -799,6 +799,35 @@ input:checked + .slider:before {
   display: block;
   margin: 1.275rem 0 2rem;
 } */
+ 
+.info-input-file {
+  position: relative;
+  font-size: 12px;
+  line-height: 1.5;
+  transition: border-color 0.3s ease-in-out;
+
+  &::file-selector-button {
+    padding: .625rem .9375rem .625rem 2.125rem;
+    color: #fff;
+    background: #a33333;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  &::before {
+    content: "";
+    background-image: url("../images/svg/upload-svgrepo-com.svg");
+    background-size: 1.25rem 1.25rem;
+    position: absolute;
+    width: 1.25rem;
+    height: 1.25rem;
+    top: 50%;
+    color: #fff;
+    left: .575rem; 
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+}
 .add-research, .add-course, .add-department{
   width: 200px;
   display: block;
@@ -926,7 +955,7 @@ input:checked + .slider:before {
   border-collapse: collapse;
 }
 .list-th {
-  font-size: 1.075rem; 
+  font-size: .950rem; 
   line-height: 1.25rem;
   text-wrap: balance;
   white-space: nowrap;
@@ -948,7 +977,6 @@ input:checked + .slider:before {
 .b-text-ellipsis {
   overflow: hidden;       
   text-overflow: ellipsis; 
-  max-width: 350px; 
 }
 .flex {
   display: flex;
@@ -1118,12 +1146,12 @@ input:checked + .slider:before {
   border-radius: 3px;
 }
 .main .page-header h1 {
-  font-size: 18px;
+  font-size: 14px;
   padding: 14px 0;
   margin: 0;
 }
 .main .page-header h1 span {
-  font-size: 14px;
+  font-size: 12px;
 }
 .main .page-header .breadcrumb {
   margin: 0;
@@ -2152,11 +2180,13 @@ footer p {
 /*    Input Style
 ------------------------*/
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 0px !important;
 }
 .form-control {
-  height: 42px;
-  border-radius: 0px;
+  height: auto !important;
+  padding: .575rem;
+  border-radius: 5px;
+  font-size: 12px;
   box-shadow: none;
   border-color: #e7e7e7;
   font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
@@ -2169,6 +2199,9 @@ footer p {
 .form-control.active {
   box-shadow: none;
   border-color: #878787;
+}
+[contenteditable]:hover, [contenteditable]:focus {
+  background: transparent ;
 }
 .input-default {
   border-radius: 4px;
@@ -2328,7 +2361,8 @@ footer p {
 ----------------------*/
 label {
   font-weight: 400;
-  margin-bottom: 10px;
+  font-size: 12px;
+  margin-bottom: 2px;
 }
 /*    Form Horizontal
 ----------------------*/
@@ -4681,13 +4715,21 @@ h6.h1 {
     margin-left: 7px !important;
   }
 }
+@media (max-width: 767px) {
+  .b-text-ellipsis {
+    max-width: calc(80%)
+  }
+  .modal-dialog {
+    width: 90%;
+  }
+}
 @media (min-width: 320px) and (max-width: 767px) {
   #datatablesss_wrapper>.row>.col-sm-12:has(.dataTables_filter, .dataTables_length) {
     display: flex;
     justify-content: center;
 
   }
-  .add-department, .add-course {
+  .add-department, .add-course, .add-research, .add-admin {
     justify-self: center ;
   }
   #datatablesss_wrapper>.row:has(.dataTables_filter, .dataTables_length) {

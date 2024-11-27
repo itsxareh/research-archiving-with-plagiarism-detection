@@ -20,7 +20,7 @@ if(isset($_GET['archiveID'])){
     $_SESSION['alert'] = "Success";
     $_SESSION['status'] = "Research DELETED";
     $_SESSION['status-code'] = "success";
-
+    
     header('location: archive_list.php');
     
     

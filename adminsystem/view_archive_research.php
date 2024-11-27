@@ -92,7 +92,7 @@ require_once 'templates/admin_navbar.php';
             </div>
             <div class="form-group" style="padding-top: 1rem;">
               <div class="abstract-group">
-               <p style="font-size: 26px; color: #313131; margin-bottom: .275rem">Abstract</p>
+               <p style="font-size: 22px; color: #313131; margin-bottom: .275rem">Abstract</p>
                <p style="height: auto; background:none; border: none; margin: 0" class="detail-font" id="projectAbstract" readonly><?php echo $data['project_abstract']; ?></p>
               </div>
               <br>

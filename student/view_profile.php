@@ -138,8 +138,8 @@ if(isset($_GET['contact_email'])){
         echo '<p>No profile data found.</p>';
     }
   ?>
-  <div class="col-md-4 p-r-0">
-    <div class="content">
+  <div class="col-md-4 p-0">
+    <div class="content w-100">
       <div class="profile-img">
         <img id="viewImage" src="<?= isset($data['profile_picture']) ? $data['profile_picture'] : '../images/default-profile.svg' ?>" alt="Profile Image">
       </div>

@@ -38,10 +38,12 @@ header("location:all_project_list.php");
       <div class="nav-side">
         <div class="search-bar m-r-16">
             <input id="searchInput" name="searchInput" type="text" class="form-control" placeholder="Search...">
-            <button class="search-btn" id="search-btn"><i class="ti-search"></i></button>
+            <button class="search-btn" id="search-btn" style="background-color: transparent">
+                <img style="width: 1.275rem; height: 1.275rem; " src="../../images/search.svg" alt="">
+            </button>
         </div>
         <div class="nav-signup">
-            <a href="sign_up.php" class="signup-btn">Sign up</a>
+            <a href="sign_up.php" class="signup-btn no-wrap">Sign up</a>
         </div>
       </div>
     </div>
@@ -81,9 +83,11 @@ header("location:all_project_list.php");
                 </div>
                 <div class="row mt-4">
                   <div class="col-xl-12 col-md-12 col-sm-12">
-                    <div class="flex align-items-center">
-                      <button name="submit" type="submit" class="login-btn" style="text-wrap: nowrap;">Log in</button>
-                      <p style="font-size: 12px; margin-left: 1.5rem" class="mb-0 no-account">Don't have an account? <a class="signup-link" href="sign_up.php">Sign up</a></p>
+                    <div class="form-input">
+                      <div class="flex align-items-center">
+                        <button name="submit" type="submit" class="login-btn" style="text-wrap: nowrap;">Log in</button>
+                        <p style="font-size: 12px; margin-left: 1.5rem" class="mb-0 no-account">Don't have an account? <a class="signup-link" href="sign_up.php">Sign up</a></p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -95,16 +99,21 @@ header("location:all_project_list.php");
     </div>
   </main>
 <script>
-    const searchInput = document.getElementById("searchInput");
-    const searchButton = document.getElementById("search-btn");
+const searchInput = document.getElementById("searchInput");
+const searchButton = document.getElementById("search-btn");
 
-    searchButton.addEventListener("click", () => {
-        if(searchInput.value) {
-            window.location.href = `all_project_list.php?searchInput=${encodeURIComponent(searchInput.value)}`;
-        } else {
-            alert("Please enter a research title");
-        }
-    });
+searchInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+      event.preventDefault();
+      searchButton.click();
+  }
+});
+
+searchButton.addEventListener("click", () => {
+  if (searchInput.value.length > 0) {
+      window.location.href = `all_project_list.php?searchInput=${encodeURIComponent(searchInput.value)}`;
+  }
+});
 </script>
 
 <?php 

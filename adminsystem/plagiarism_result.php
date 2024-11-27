@@ -58,7 +58,7 @@ function highlightPlagiarizedWords($submitted_sentence, $existing_sentence) {
 
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo1.png">
+    <link rel="shortcut icon" href="images/logo2.png">
     <!-- Retina iPad Touch Icon-->
     <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
     <!-- Retina iPhone Touch Icon-->
@@ -164,7 +164,10 @@ require_once 'templates/admin_navbar.php';
     $result = $db-> SELECT_SUMMARY_PLAGIARISM_RESULTS_RESEARCH($archive_id);
     if (!empty($result)) {
         foreach ($result as $results) {
-            
+          $plagiarism_percentage = $results['plagiarism_percentage'];
+          if ($plagiarism_percentage >= 100){
+            $plagiarism_percentage = 100;
+          }
             echo '
             <li class="plagiarized-card">
               <div class="plagiarized-card-content">
@@ -172,7 +175,7 @@ require_once 'templates/admin_navbar.php';
                 <a class="info-meta" style="font-size: 10px; padding-top: 0;" href="read_full.php?archiveID='.$results['archive_id'].'"><i class="pread">Read full here</i></a>
                 <div class="plagiarized-card-meta">
                   <a class="info-meta p-0 result-title" href="#">
-                    <p class="info-meta p-r-4" style="font-size: 12px; margin-bottom: 0; padding-top: 6px; font-weight: 500; color: #a33333">'.round($results['plagiarism_percentage'], 1).'%</p>
+                    <p class="info-meta p-r-4" style="font-size: 12px; margin-bottom: 0; padding-top: 6px; font-weight: 500; color: #a33333">'.round($plagiarism_percentage, 1).'%</p>
                     <img class="plagiarized-button" src="../images/arrow-down.svg" style="width: 8px; height: 8px">
                   </a>                  
                   <div class="plagiarized-result" id="plagiarized-result" style="display:none">';

@@ -1,15 +1,20 @@
 <?php
 include '../../connection/config.php';
 $db = new Database();
-
+session_start();
+if($_SESSION['auth_user']['admin_id']==0){
+    header('Location:../../bad-request.php');
+    exit();
+}
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-session_start();
 
 if(isset($_GET['archiveID'])) {
     $archive_id = $_GET['archiveID'];
     $row = $db->SELECT_ARCHIVE_RESEARCH($archive_id);
-
+    if ($row['fname'] == '') {
+        $row = $db->SELECT_UPLOADED_ADMIN_ARCHIVE_RESEARCH($archive_id);
+    }
     $path = $row['documents'];
     preg_match('/[a-zA-Z0-9]+-([\s\S]+)$/', $path, $matches);
     $document_name = $matches[1];

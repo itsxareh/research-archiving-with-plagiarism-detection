@@ -67,7 +67,8 @@ main {
     flex: 1;
     width: auto;
     min-width: 0;
-    height: 100%;
+    padding: .545rem .675rem;
+
 }
 .search-bar .search-btn {
     width: 40px;
@@ -187,6 +188,9 @@ main {
     text-decoration: underline;
     color: #333;
 }
+.no-wrap {
+    text-wrap: nowrap;
+}
 @media (max-width: 552px) {
     .intro {
         padding: .725rem 1.125rem;
@@ -202,7 +206,8 @@ main {
         margin: 0 !important;
     }
     .search-bar input {
-        width: 200px !important;
+        max-width: 200px !important;
+        font-size: 12px;
     }
     .nav-header {
         padding: 0;
@@ -210,9 +215,41 @@ main {
     .no-account {
         margin-left: .5rem !important;
     }
+    .nav-login > .login-btn, .nav-signup > .signup-btn {
+        padding: .545rem 1.165rem;
+    }
 }
 @media (max-width: 767px) {
     .content-wrapper {
+        height: auto;
         padding-block: 1.125rem;
+    }
+    .intro h2 {
+        font-size: 20px;
+    }
+    .intro p {
+        font-size: 14px;
+    }
+    .sign-up-container, .log-in-container {
+        padding-block: 1.125rem;
+    }
+    .form-container h4 {
+        font-size: 18px;
+        line-height: 44px;
+    }
+    .form-input {
+        margin-bottom: .575rem;
+    }
+    .form-input input, .form-input select{
+        font-size: 12px;
+    }
+    .form-input label {
+        font-size: 11px;
+    }
+    .form-input button[type="submit"], .no-account {
+        font-size: 11px !important;
+    }
+    .nav-side {
+        gap: .625rem
     }
 }

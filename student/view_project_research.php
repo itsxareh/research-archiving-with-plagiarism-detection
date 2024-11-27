@@ -129,7 +129,13 @@ require_once 'templates/student_navbar.php';
               <p class="detail-font"><?php echo $data['project_members']; ?></p>
               <?php if (!empty($data['date_published'])) {
                   $first_published = DateTime::createFromFormat("Y-m-d", $data['date_published'])->format("d F Y");
-                  echo '<p class="detail-font">Published: '.$first_published.' | Archive ID: '. $data['archive_id'] .'<span class="float-right"><i class="ti-eye m-r-4 "></i>'.$data['view_count'].'</span></p>'; 
+                  echo '<div class="flex justify-content-between" style="gap: 5px">
+                          <p class="detail-font">Published: '.$first_published.' | Archive ID: '. $data['archive_id'] .'</p>
+                          <span class="float-right" style="font-size: 12px">
+                            <i class="ti-eye m-r-4 "></i>'
+                            .$data['view_count'].'
+                          </span>
+                        </div>'; 
                   } else {
                     echo '<p class="detail-font">Not yet published | Archive ID: '. $data['archive_id'] .'</p>';
                   }
@@ -137,7 +143,7 @@ require_once 'templates/student_navbar.php';
             </div>
             <div class="form-group" style="padding-top: 1rem;">
                 <div class="abstract-group">
-               <p style="font-size: 26px; color: #313131; margin-bottom: .275rem">Abstract</p>
+               <p style="font-size: 22px; color: #313131; margin-bottom: .275rem">Abstract</p>
                <p style="height: auto; background:none; border: none; margin: 0" class="detail-font" id="projectAbstract" readonly><?php echo $data['project_abstract']; ?></p>
               </div>
               <br>
@@ -188,7 +194,7 @@ require_once 'templates/student_navbar.php';
                       <ul class="ul-keywords">';
                       $keywords = explode(',', $data['keywords']);
                       foreach ($keywords as $keyword) {
-                        echo '<li class="info-meta"><span class="info-keywords">'.$keyword.'</span></li>'; 
+                        echo '<li class="info-meta"><a href="all_project_list.php?keywords='.$keyword.'"><span class="info-keywords">'.$keyword.'</span></a></li>'; 
                       }
                       echo '</ul>
                     </div>';

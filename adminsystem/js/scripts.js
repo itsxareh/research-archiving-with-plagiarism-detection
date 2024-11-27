@@ -66,8 +66,46 @@
     });
 
 
-    
+    let currentOpenDropdown = null;
 
+    const closeAllDropdowns = () => {
+        document.querySelectorAll(".dropdown-action").forEach((dropdown) => {
+            dropdown.classList.remove('active');
+        });
+        currentOpenDropdown = null;
+    };
+
+    document.addEventListener("click", function(event) {
+        if (!event.target.closest('.action-button') && !event.target.closest('.dropdown-action')) {
+            closeAllDropdowns();
+            return;
+        }
+
+        const actionButton = event.target.closest('.action-button');
+        if (actionButton) {
+            event.stopPropagation();
+
+            const studentId = actionButton.id.split("_")[1];
+            const dropdown = document.getElementById(`dropdown_${studentId}`);
+
+            if (dropdown) {
+                if (currentOpenDropdown === dropdown) {
+                    dropdown.classList.remove('active');
+                    currentOpenDropdown = null;
+                } else {
+                    closeAllDropdowns();
+                    dropdown.classList.add('active');
+                    currentOpenDropdown = dropdown;
+                }
+            }
+        }
+    });
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeAllDropdowns();
+        }
+    });
+    
 
 
 })(jQuery);

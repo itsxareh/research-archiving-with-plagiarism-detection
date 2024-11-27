@@ -13,9 +13,10 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from datetime import datetime
+from threading import Thread
 import pytz
 import numpy as np
-
+import string
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
@@ -129,22 +130,42 @@ def normalize_text(text):
     # Remove leading and trailing spaces
     text = text.strip()
     
+    # Replace unicode punctuation with standard punctuation
+    text = text.translate(str.maketrans('', '', string.punctuation))
+    
     # Remove multiple spaces between words
     text = re.sub(r'\s+', ' ', text)
     
-    # Normalize hyphenated words (removes spaces around hyphens)
+    # Normalize hyphenated words (removes spaces around hyphens)    
     text = re.sub(r'\s*-\s*', '-', text)
     
     # Remove non-alphanumeric characters except spaces and hyphens
     text = re.sub(r'[^\w\s-]', '', text)
+
+    # Handle redundant punctuation like multiple dots
+    text = re.sub(r'\.\.+', '.', text)
+
+    # Replace multiple consecutive hyphens with a single hyphen
+    text = re.sub(r'-{2,}', '-', text)
     
     return text
+    
 
 def split_into_sentences(text):
+    try:
+        nltk.data.find('tokenizers/punkt')
+    except LookupError:
+        nltk.download('punkt')
+    
     sentences =  sent_tokenize(text)
-    return [sentence for sentence in sentences if len(sentence.split()) >= 8]
 
-def calculate_similarity(submitted_content, submissions):
+    filtered_sentences = [
+        sentence for sentence in sentences
+        if 8 <= len(sentence.split()) <= 50
+    ]
+    return filtered_sentences
+
+def calculate_similarity(submitted_content, submissions, similarity_threshold=0.7):
     submitted_sentences = [normalize_text(sentence) for sentence in split_into_sentences(submitted_content)]
 
     # Prepare a list of sentences and their corresponding submission IDs
@@ -173,7 +194,7 @@ def calculate_similarity(submitted_content, submissions):
     for i, submitted_sentence in enumerate(submitted_sentences):
         for j, existing_sentence in enumerate(all_existing_sentences):
             similarity_score = similarity_matrix[i][j]
-            if similarity_score > 0.7:
+            if similarity_score > similarity_threshold:
                 matching_results.append({
                     'submitted_sentence': submitted_sentence,
                     'existing_sentence': existing_sentence,
@@ -189,21 +210,19 @@ def index():
 
 @app.route('/upload_research', methods=['POST'])
 def upload_file():
-    print("Received a request")
-    print("Form Data:", request.form) 
+    print("Form Data:", request.form)
     print("Files Data:", request.files)
     if 'file' not in request.files:
-        return jsonify({'status' : 'error', 'message': "No file part"}), 400
+        return jsonify({'status': 'error', 'message': "No file part"}), 400
 
     file = request.files['file']
     if file.filename == '':
-        return jsonify({'status' : 'error', 'message': "No selected file"}), 400
+        return jsonify({'status': 'error', 'message': "No selected file"}), 400
 
+    # Extract form data
     archive_id = request.form.get('archive_id')
     student_id = request.form.get('student_id')
-    print("Student Id:", student_id)
     project_title = request.form.get('project_title')
-    date_of_submit = request.form.get('date_of_submit')
     project_year = request.form.get('year')
     department_id = request.form.get('department_id')
     course_id = request.form.get('course_id')
@@ -212,53 +231,91 @@ def upload_file():
     project_members = request.form.get('project_members')
     pdf_path = request.form.get('pdf_path')
     owner_email = request.form.get('owner_email')
-    
+
     if not student_id:
-        return jsonify({'status' : 'error', 'message': "No student ID provided"}), 400
+        return jsonify({'status': 'error', 'message': "No student ID provided"}), 400
+
     try:
+        # Step 1: Save the file
         upload_folder = os.path.join(os.getcwd(), 'pdf_files')
         os.makedirs(upload_folder, exist_ok=True)
         file_path = os.path.join(upload_folder, file.filename)
 
+        # File metrics and content
         file_metrics, content = get_file_metrics(file_path, file.content_type)
+        if not content:
+            return jsonify({'status': 'error', 'message': "Failed to extract content from file"}), 400
 
-        # Asia/Manila timezone
+        # Save the uploaded file details in the database
         manila_tz = pytz.timezone('Asia/Manila')
         current_time = datetime.now(manila_tz)
-
-        if not content:
-            return jsonify({'status' : 'error', 'message': "Failed to extract content from file"}), 400
-
+        
         with get_db() as conn:
             cursor = conn.cursor()
-
-            # Insert into archive_research with file metrics
+            # First, insert the research with initial status
             cursor.execute("""
                 INSERT INTO archive_research (
-                    archive_id, student_id, department_id, course_id, 
+                    archive_id, student_id, department_id, course_id,
                     project_title, dateOfSubmit, project_year, project_abstract,
                     keywords, content, research_owner_email, project_members,
-                    documents, file_size, page_count, word_count, character_count
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    documents, file_size, page_count, word_count, character_count,
+                    document_status  -- Added initial status
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """, (
                     archive_id, student_id, department_id, course_id,
                     project_title, current_time, project_year, abstract,
                     keywords, content, owner_email, project_members,
                     pdf_path, file_metrics['file_size'], file_metrics['page_count'],
-                    file_metrics['word_count'], file_metrics['character_count']
+                    file_metrics['word_count'], file_metrics['character_count'],
+                    'Processing'  # Initial status while plagiarism check runs
                 ))
             conn.commit()
             new_archive_id = cursor.lastrowid
 
-            # Get existing submissions for comparison
+            # Get department info for response
+            cursor.execute("SELECT * FROM departments WHERE id = %s", (department_id,))
+            departments_db = cursor.fetchall()
+            department = departments_db[0][2]
+
+        # Prepare response before starting plagiarism check
+        response = {
+            'status': 'success',
+            'department': department,
+            'document_status': 'Processing',  # Initial status
+            'file_metrics': file_metrics,
+            'archive_id': archive_id,
+            'message': 'File uploaded successfully. Plagiarism check is running in the background.'
+        }
+
+        plagiarism_check(new_archive_id, student_id, content, current_time)
+
+        return jsonify(response)
+
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+def plagiarism_check(new_archive_id, student_id, content, current_time):
+    """Separate function for background plagiarism checking"""
+    try:
+        with get_db() as conn:
+            cursor = conn.cursor()
+            
+            # Update status to show plagiarism check is in progress
+            cursor.execute("""
+                UPDATE archive_research 
+                SET document_status = 'Checking Plagiarism' 
+                WHERE id = %s
+            """, (new_archive_id,))
+            conn.commit()
+
+            # Fetch existing submissions for comparison
             cursor.execute("SELECT id, content FROM archive_research WHERE student_id != %s", (student_id,))
             submissions = cursor.fetchall()
 
-            plagiarism_results = {} # Dictionary to store results per similar document
-            
+            plagiarism_results = {}
             if submissions:
                 matching_sentences = calculate_similarity(content, submissions)
-                total_sentences = 0  
                 for match in matching_sentences:
                     similar_id = match['similar_archive_id']
 
@@ -272,11 +329,10 @@ def upload_file():
                             existing_sentence, similarity_percentage, is_plagiarized
                         ) VALUES (%s, %s, %s, %s, %s, %s)
                         """, (
-                            new_archive_id, similar_id, match['submitted_sentence'],
-                            match['existing_sentence'], match['similarity_percentage'], True
-                        ))
+                        new_archive_id, similar_id, match['submitted_sentence'],
+                        match['existing_sentence'], match['similarity_percentage'], True
+                    ))
 
-                    # Accumulate results for summary
                     if similar_id not in plagiarism_results:
                         plagiarism_results[similar_id] = {
                             'matched_sentences': 0,
@@ -286,78 +342,42 @@ def upload_file():
                     plagiarism_results[similar_id]['matched_sentences'] += 1
                     plagiarism_results[similar_id]['total_similarity'] += match['similarity_percentage']
 
-               
                 for similar_id, results in plagiarism_results.items():
                     avg_similarity = results['total_similarity'] / results['matched_sentences']
                     plagiarism_percentage = (results['total_similarity'] / results['total_sentences']) if results['total_sentences'] > 0 else 0
-                    
+
                     cursor.execute("""
                         INSERT INTO plagiarism_summary (
                             archive_id, similar_archive_id, plagiarism_percentage
                         ) VALUES (%s, %s, %s)
                         """, (new_archive_id, similar_id, plagiarism_percentage))
-                    print(similar_id, "Total matched sentences", results['matched_sentences'])
-                    print(similar_id, 'Total similarity', results['total_similarity'])
-                    print(similar_id, "Total sentences", results['total_sentences'])
-                    print(similar_id, "Plagiarism percentage", plagiarism_percentage)
             conn.commit()
 
-            cursor.execute(
-                """
-                SELECT *, COUNT(plagiarism_summary.id) as total_ids, SUM(plagiarism_percentage) as total_percentage 
+            print(plagiarism_results)
+            # Calculate final plagiarism results and update status
+            cursor.execute("""
+                SELECT COUNT(plagiarism_summary.id) as total_ids, 
+                       SUM(plagiarism_percentage) as total_percentage 
                 FROM plagiarism_summary 
-                LEFT JOIN archive_research ON plagiarism_summary.archive_id = archive_research.id
-                LEFT JOIN departments ON departments.id = archive_research.department_id
-                WHERE plagiarism_summary.archive_id = %s 
-                GROUP BY plagiarism_summary.archive_id;
-                """, 
-                (new_archive_id,)
-            )
-            plagiarism_results_db = cursor.fetchall()
-            print(plagiarism_results_db)
-            sum_of_percentage = plagiarism_results_db[0][-1] if plagiarism_results_db else 0
-            if sum_of_percentage < 20:
-                document_status = "Accepted"
-                date_publish = current_time.strftime('%Y-%m-%d')
-            else:
-                document_status = "Not Accepted"
-                date_publish = ''
+                WHERE archive_id = %s
+                GROUP BY archive_id
+                """, (new_archive_id,))
+            
+            result = cursor.fetchone()
+            sum_of_percentage = result[1] if result else 0
+            document_status = "Accepted" if sum_of_percentage < 20 else "Not Accepted"
+            date_publish = current_time.strftime('%Y-%m-%d') if document_status == "Accepted" else None
 
-            cursor.execute(
-                """
-                UPDATE archive_research SET document_status = %s, date_published = %s WHERE id = %s;
-                """, 
-                (document_status, date_publish, new_archive_id,)
-            )
+            cursor.execute("""
+                UPDATE archive_research 
+                SET document_status = %s, 
+                    date_published = %s 
+                WHERE id = %s
+                """, (document_status, date_publish, new_archive_id))
             conn.commit()
 
-            cursor.execute(
-                """
-                SELECT departments.name as department FROM archive_research LEFT JOIN departments ON departments.id = archive_research.department_id WHERE archive_research.id = %s;
-                """, 
-                (new_archive_id,)
-            )
-            department_db = cursor.fetchall()
-            department = department_db[0][0] if department_db else 0
-
-            return jsonify({
-                'archive_id' : archive_id,
-                'document_status': document_status,
-                'department' : department,
-                'status': 'success',
-                'file_metrics': file_metrics,
-                'plagiarism_results': [
-                    {
-                        'similar_archive_id': similar_id,
-                        'plagiarism_percentage': (results['total_similarity'] / results['matched_sentences']) if results['matched_sentences'] > 0 else 0
-                    }
-                    for similar_id, results in plagiarism_results.items()
-                ]
-            })
     except Exception as e:
-        print(f"Error: {str(e)}")
-        return jsonify({'status': 'error', 'message': str(e)}), 500
-    
+        print(f"Error during plagiarism check: {str(e)}")
 
 @app.route('/check_db_connection', methods=['GET'])
 def check_db_connection():

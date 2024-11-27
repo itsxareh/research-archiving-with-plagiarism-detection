@@ -263,11 +263,9 @@ require_once 'templates/admin_navbar.php';
                                             <form action="" method="post">
                                                 <div class="modal-body">
                                                     <div class="form-group">
-                                                        
                                                         <label for="">Course Name</label>
                                                         <input type="hidden" class="form-control" name="course_id" value="<?= $result['course_ID'] ?>" readonly>
                                                         <input type="text" class="form-control" name="course_name" value="<?= $result['course_name'] ?>">
-
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
@@ -295,53 +293,10 @@ require_once 'templates/admin_navbar.php';
 </div>
 
 <script>
-    new DataTable('#datatablesss');
-</script>
+new DataTable('#datatablesss');
 
-<script>
+$('#datatablesss_filter label input').removeClass('form-control form-control-sm');
 
-let currentOpenDropdown = null;
-
-const closeAllDropdowns = () => {
-    document.querySelectorAll(".dropdown-action").forEach((dropdown) => {
-        dropdown.classList.remove('active');
-    });
-    currentOpenDropdown = null;
-};
-
-document.addEventListener("click", function(event) {
-    if (!event.target.closest('.action-button') && !event.target.closest('.dropdown-action')) {
-        closeAllDropdowns();
-        return;
-    }
-
-    if (event.target.classList.contains("action-button")) {
-        event.stopPropagation();
-        
-        const studentId = event.target.id.split("_")[1];
-        
-        const dropdown = document.getElementById(`dropdown_${studentId}`);
-        
-        if (dropdown) {
-            if (currentOpenDropdown === dropdown) {
-                dropdown.classList.remove('active');
-                currentOpenDropdown = null;
-            }
-            else {
-                closeAllDropdowns();
-                dropdown.classList.add('active');
-                currentOpenDropdown = dropdown;
-            }
-        }
-    }
-});
-
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        closeAllDropdowns();
-    }
-});
-    $('#datatablesss_filter label input').removeClass('form-control form-control-sm');
 $(document).ready(function(){
   $("#inputDepartment").change(function(){
     var department = $(this).val();

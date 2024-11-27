@@ -133,77 +133,96 @@ require_once 'templates/admin_navbar.php';
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Add New Research</h5>
+                        <h6 class="modal-title">Add New Research</h6>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                     </div>
 
-                    <form action="" method="POST" enctype="multipart/form-data">
+                    <form action="" method="POST" enctype="multipart/form-data" onsubmit="prepareKeywords()">
                     <div class="modal-body">
                         <div class="form-group">
-
                             <div class="form-group row">
-                            <div class="col-sm-6 mb-3 mb-sm-0">
-                            <label for="">Research Title</label>
-                            <input type="text" class="form-control" name="project_title" placeholder="Enter Research Title...">
+                                <div class="col-sm-6 first:mb-sm-0">
+                                    <label for="">Research Title</label>
+                                    <input type="text" class="form-control" name="project_title">
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <label for="" class="info-label m-l-4">Project year</label>
+                                    <select class="form-control" style="height: auto !important;" name="year" id="year">
+                                        <?php 
+                                            $defaultYear = date('Y');
+                                            for ($year = date('Y'); $year >= 1999; $year--) {
+                                                $selected = ($year == $defaultYear) ? 'selected' : ''; 
+                                                echo "<option value =\"$year\">$year</option>";
+                                            }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group row">
+                            <div class="col-sm-6  mb-sm-0">
+                                <label for="">Select Department</label>
+                                <select id="department" name="department" class="selectpicker form-control" required title="Select Department">
+                                    <option value=""></option>
+                                <?php 
+                                    $res = $db->showDepartments_WHERE_ACTIVE();
+
+                                    foreach ($res as $item) {
+                                    echo '<option value="'.$item['id'].'">'.$item['name'].'</option>';
+                                    }
+                                ?>
+                                
+                                </select>
                             </div>
 
                             <div class="col-sm-6">
-                            <label for="">Enter a year</label>
-                            <input type="number" class="form-control" name="year" min="1900" max="2100" placeholder="Ex: 2024">
+                                <label for="">Select Course</label>
+                                <div class="course_dropdown">
+                                    <select class="form-control" name="course" id="course" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
                             </div>
                             </div>
                             
                             <div class="form-group row">
-                            <div class="col-sm-6 mb-3 mb-sm-0">
-                            <label for="">Select Department</label>
-                            <select id="inputDepartment" name="department" class="selectpicker form-control" required title="Select Department">
-                            <option></option>
-                            <?php 
-                                $res = $db->showDepartments_WHERE_ACTIVE();
-
-                                foreach ($res as $item) {
-                                echo '<option value="'.$item['id'].'">'.$item['name'].'</option>';
-                                }
-                            ?>
-                            
-                            </select>
+                                <div class="col-sm-12">
+                                    <label for="">Abstract</label>
+                                    <textarea class="form-control" name="abstract" required></textarea>
+                                </div>
                             </div>
-
-                            <div class="col-sm-6">
-                            <label for="">Select Course</label>
-                            <div class="course_dropdown" id="course"></div>
-                            </div>
-                            </div>
-                            
-                            <label for="">Abstract</label>
-                            <textarea class="form-control" name="abstract" placeholder="The Research Abstract..."></textarea>
-                            
-                            <label for="">Project Members</label>
-                            <input type="text" class="form-control" name="project_members" placeholder="Ex: John Doe, Peter Parker, Tony Stark">
-                            
-
                             <div class="form-group row">
-                            <div class="col-sm-6 mb-3 mb-sm-0">
-                            <label for="">Project Owner Email</label>
-                            <input type="email" class="form-control" name="owner_email" placeholder="johndoe@example.com">
+                                <div class="col-sm-12">
+                                <label for="">Project Members</label>
+                                <input type="text" class="form-control" name="project_members" required>
+                                </div>
                             </div>
+                            <div class="form-group row">
+                                <div class="col-sm-12">
+                                <label for="">Keywords</label>
+                                <input type="text" class="info-input" id="keywords" name="keywords" required>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-sm-0">
+                                    <label for="">Project Owner Email</label>
+                                    <input type="email" class="form-control" name="owner_email" required>
+                                </div>
 
-                            <div class="col-sm-6">
-                            <label for="">Project File (PDF)</label>
-                            <input type="file" accept=".pdf" class="form-control" name="project_file" >
+                                <div class="col-sm-6">
+                                    <label for="">Project File (PDF)</label>
+                                    <input type="file" accept=".pdf" class="info-input-file" style="border:none" name="project_file" required>
+                                </div>
                             </div>
-                            </div>
                             
-                            
-                            
-
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button name="add_research" class="btn btn-primary">Save</button>
+                        <button name="add_research" class="btn btn-danger">Save</button>
                     </div>
                     </form>
 
@@ -250,7 +269,10 @@ require_once 'templates/admin_navbar.php';
                                 foreach ($data as $result) {
                                 ?>
                                 <tr>
-                                    <td class="list-td"><?= (new DateTime($result['dateOFSubmit']))->format("d M Y") ?></td>
+                                    <td class="list-td" 
+                                        data-order="<?= (new DateTime($result['submission_date']))->format("Y-m-d") ?>">
+                                        <?= (new DateTime($result['submission_date']))->format("d M Y") ?>
+                                    </td>
                                     <td class="list-td"><?= $result['aid'] ?></td>
                                     <td class="list-td text-ellipsis"><?= $result['project_title'] ?></td>
                                     <td class="list-td"><?= $result['name'] ?></td>
@@ -297,7 +319,7 @@ require_once 'templates/admin_navbar.php';
                                                 }
                                                 ?>
                                                 <a target="_blank" href="generate_reports/view_details.php?full_details=research_paper&archiveID=<?=  $result['aid'] ?>" class="dropdown-action-item">View receipt</a>
-                                                <a href="delete_research.php?archiveID=<?= $result['archiveID'] ?>" class="dropdown-action-item">Delete</a>
+                                                <a href="#" onclick="confirmDelete(<?= $result['archiveID'] ?>)" class="dropdown-action-item">Delete</a>
                                                 </div>
                                             </div>
                                         </div>
@@ -316,130 +338,210 @@ require_once 'templates/admin_navbar.php';
 
 
 <script>
-new DataTable('#datatablesss');
-$('#datatablesss_filter label input').removeClass('form-control form-control-sm');
-let currentOpenDropdown = null;
-
-const closeAllDropdowns = () => {
-    document.querySelectorAll(".dropdown-action").forEach((dropdown) => {
-        dropdown.classList.remove('active');
-    });
-    currentOpenDropdown = null;
-};
-
-document.addEventListener("click", function(event) {
-    if (!event.target.closest('.action-button') && !event.target.closest('.dropdown-action')) {
-        closeAllDropdowns();
-        return;
-    }
-
-    if (event.target.classList.contains("action-button")) {
-        event.stopPropagation();
-        
-        const studentId = event.target.id.split("_")[1];
-        
-        const dropdown = document.getElementById(`dropdown_${studentId}`);
-        
-        if (dropdown) {
-            if (currentOpenDropdown === dropdown) {
-                dropdown.classList.remove('active');
-                currentOpenDropdown = null;
-            }
-            else {
-                closeAllDropdowns();
-                dropdown.classList.add('active');
-                currentOpenDropdown = dropdown;
-            }
-        }
+const keywordsInput = document.getElementById('keywords');
+const tagify = new Tagify(keywordsInput, {
+    delimiters: ",",
+    maxTags: 7,   
+    dropdown: {
+        enabled: 0 
     }
 });
-
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        closeAllDropdowns();
-    }
-});
-
-        function filteredData(){
-        var department = $('#inputDepartment_search').val();
-        var fromYear = $('#fromYear').val();
-        var toYear = $('#toYear').val();
-        var searchInput = $('#searchInput').val();
-        var course = $('#department_course').val();
-        $.ajax({
-            url: 'fetch_filtered_projects.php',
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                searchInput: searchInput,
-                department: department,
-                course: course,
-                fromYear: fromYear,
-                toYear: toYear
-            },
-            success: function(response){
-                $('#search-result').html(response.html);
-                $('#resultNumber').text(response.count);
-
-                if (searchInput.length > 0 && response.count > 0 || searchInput.length > 0){
-                    $('#data-result').show();
-                } else {
-                    $('#data-result').hide();
-                }
-            },
-            error: function(xhr, status, error){
-                console.log(xhr);
-                console.log(status);
-                console.log(error);
-            }
+function prepareKeywords() {
+    document.getElementById('keywords').value = tagify.value.map(tag => tag.value).join(',');
+}
+const addModal = $('#modelId')
+const form = document.querySelector('form');
+const submitButton = document.querySelector('button[name="add_research"]');
+const ulResult = document.getElementById('search-result');
+const modalBackdrop = document.getElementsByClassName('modal-backdrop');
+form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    if (form.submitted) return;
+    
+    if (!validateForm()) return;
+    
+    submitButton.disabled = true;
+    submitButton.textContent = 'Submitting...';
+    
+    const formData = new FormData(form);
+    
+    try {
+        const response = await fetch('add_research.php', {
+            method: 'POST',
+            body: formData
         });
-    }
-    $('#department_course, #fromYear, #toYear').change(filteredData);
-    $('#searchInput').on('keyup', function() {
-        if ($(this).val().length > 0) { 
-            filteredData();
-        } else {
-            filteredData();
-            $('#data-result').hide();
-        }
-        $('#inputSearch').html($(this).val());
-    });
-
-    $("#inputDepartment_search").change(function(){
-    var department = $(this).val();
-    filteredData();
-    if(department != " "){
-            $.ajax({
-                url:"show_course.php",
-                method:"POST",
-                data:{
-                    "send_department_set":1, 
-                    "send_department":department
-
-                },
-                success:function(data){
-                if (data.trim() !== ""){
-                    $("#department_course").html(data);
-                    $("#department_course").css("display","block");
-                } else {
-                    $("#department_course").html('<option value="">No course found</option>');
-                    $("#department_course").css("display","block");
-                }
-                },
-                error: function(xhr, status, error){
-                    console.log("AJAX Error: ", xhr);
-                    console.log("AJAX Error: ", status);
-                    console.log("AJAX Error: ", error);
+        
+        const result = await response.json();
+        console.log(result)
+        if (result.status === 'success') {
+            $(".sa-confirm-button-container button").attr("data-dismiss", "modal");
+            swal({
+                title: result.stats,
+                text: result.message,
+                type    : result.status,
+                confirmButtonText: 'Okay',
+            }, 
+            function (isConfirm) {
+                if(isConfirm) {
+                    location.reload();
                 }
             });
-    }else{
-        filteredData();
+        } else {
+            const errorMessage = result.message || 'Submission failed: Unknown error';
+            swal({
+                title: 'Error',
+                text: errorMessage,
+                type    : 'error',
+                confirmButtonText: 'Okay'
+            });
+            submitButton.disabled = false;
+            submitButton.textContent = 'Save';
+        }
+    } catch (error) {
+        const errorMessage = error || 'An error occurred during submission';
+            swal({
+                title: 'Error',
+                text: errorMessage,
+                type    : 'error',
+                confirmButtonText: 'Okay'
+            });
+        submitButton.disabled = false;
+        submitButton.textContent = 'Save';
     }
+});
+function validateForm() {
+    const projectTitle = document.querySelector('input[name="project_title"]');
+    const abstract = document.querySelector('textarea[name="abstract"]');
+    const fileInput = document.querySelector('input[name="project_file"]');
+    
+    if (!projectTitle.value || !abstract.value || !fileInput.files[0]) {
+        alert('Please fill all required fields');
+        return false;
+    }
+    
+    if (fileInput.files[0].type !== 'application/pdf') {
+        alert('Please upload a PDF file');
+        return false;
+    }
+    
+    return true;
+}
+
+new DataTable('#datatablesss', {
+    order: [[0, 'desc']],
+    columnDefs: [{
+        targets: 0,
+        type: 'date-eu'
+    }]
+});
+$('#datatablesss_filter label input').removeClass('form-control form-control-sm');
+
+function confirmDelete(archiveID){
+    swal({
+        title: "Are you sure you want to delete?",
+        text: "You will not be able to recover this file!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#a33333",
+        confirmButtonText: "Delete",
+        cancelButtonText: "Cancel",
+        closeOnConfirm: false,
+        closeOnCancel: true
+    }, function(isConfirm){
+        if (isConfirm) {
+            $.ajax({
+                url: "delete_research.php",
+                type: "GET",
+                data: { archiveID: archiveID },
+                success: function(response) {
+                    swal({
+                        title: "Deleted!",
+                        text: "The research has been deleted.",
+                        type: "success",
+                        confirmButtonText: 'Okay',
+                    }, 
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            // const listItem = document.getElementById(`li_${archiveID}`)
+                            // if (listItem){
+                            //     listItem.remove();
+                            // }
+                            location.reload();
+                        }
+                    });
+                }
+            });
+        }
     });
+}
+
+function filteredData(){
+    var department = $('#inputDepartment_search').val();
+    var fromYear = $('#fromYear').val();
+    var toYear = $('#toYear').val();
+    var searchInput = $('#searchInput').val();
+    var course = $('#department_course').val();
+    $.ajax({
+        url: 'fetch_filtered_projects.php',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            searchInput: searchInput,
+            department: department,
+            course: course,
+            fromYear: fromYear,
+            toYear: toYear
+        },
+        success: function(response){
+            $('#search-result').html(response.html);
+            $('#resultNumber').text(response.count);
+
+            if (searchInput.length > 0 && response.count > 0 || searchInput.length > 0){
+                $('#data-result').show();
+            } else {
+                $('#data-result').hide();
+            }
+        },
+        error: function(xhr, status, error){
+            console.log(xhr);
+            console.log(status);
+            console.log(error);
+        }
+    });
+}
+
+$('#department_course, #fromYear, #toYear').change(filteredData);
+$('#searchInput').on('keyup', function() {
+    if ($(this).val().length > 0) { 
+        filteredData();
+    } else {
+        filteredData();
+        $('#data-result').hide();
+    }
+    $('#inputSearch').html($(this).val());
+});
+
+$("#department").change(function(){
+    var department = $(this).val();
+
+    if(department != " "){
+    $.ajax({
+      url:"show_course.php",
+      method:"POST",
+      data:{"send_department_set":1, "send_department":department},
+
+      success:function(data){
+        console.log(data);
+        $("#course").html(data);
+        $("#course").css("display","block");
+      }
+    });
+  }else{
+    $("#course").css("display","none");
+  }
+});
 </script>
-
-    <!-- Common -->
-
 <?php 
 if (isset($_SESSION['status']) && $_SESSION['status'] != '') {
 
@@ -451,8 +553,5 @@ if (isset($_SESSION['status']) && $_SESSION['status'] != '') {
 unset($_SESSION['status']);
 }
 ?>
-
-
 </body>
-
 </html>

@@ -59,8 +59,10 @@ header("location:dashboard.php");
                 </div>
                 <div class="row mt-4">
                   <div class="col-xl-12 col-md-12 col-sm-12">
-                    <div class="flex justify-content-end">
-                      <button name="submit" type="submit" class="login-btn">Log in</button>
+                    <div class="form-input">
+                      <div class="flex justify-content-end">
+                        <button name="submit" type="submit" class="login-btn">Log in</button>
+                      </div>
                     </div>
                   </div>
                 </div>

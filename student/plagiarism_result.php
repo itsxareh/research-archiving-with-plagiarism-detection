@@ -111,8 +111,10 @@ require_once 'templates/student_navbar.php';
 
     $data = $db->SELECT_ARCHIVE_RESEARCH($archiveID);
       
-  } else { 
-    header('Location: bad-request.php');
+  } else {
+    echo "<div class='col-md-12'>
+            <p style='text-align: center'>No research found.</p>
+          </div>";
   }
   ?>
     <div class="col-md-8">
@@ -163,7 +165,10 @@ require_once 'templates/student_navbar.php';
     $result = $db-> SELECT_SUMMARY_PLAGIARISM_RESULTS_RESEARCH($archive_id);
     if (!empty($result)) {
         foreach ($result as $results) {
-            
+          $plagiarism_percentage = $results['plagiarism_percentage'];
+          if ($plagiarism_percentage >= 100){
+            $plagiarism_percentage = 100;
+          }
             echo '
             <li class="plagiarized-card">
               <div class="plagiarized-card-content">
@@ -171,10 +176,11 @@ require_once 'templates/student_navbar.php';
                 <a class="info-meta" style="font-size: 10px; padding-top: 0;" href="read_full.php?archiveID='.$results['archive_id'].'"><i class="pread">Read full here</i></a>
                 <div class="plagiarized-card-meta">
                   <a class="info-meta p-0 result-title" href="#">
-                    <p class="info-meta p-r-4" style="font-size: 12px; margin-bottom: 0; padding-top: 6px; font-weight: 500; color: #a33333">'.round($results['plagiarism_percentage'], 1).'%</p>
+                    <p class="info-meta p-r-4" style="font-size: 12px; margin-bottom: 0; padding-top: 6px; font-weight: 500; color: #a33333">'.round($plagiarism_percentage, 1).'%</p>
                     <img class="plagiarized-button" src="../images/arrow-down.svg" style="width: 8px; height: 8px">
-                  </a>                  
-                  <div class="plagiarized-result" id="plagiarized-result" style="display:none">';
+                  </a>
+                  <div class="plagiarized-result" id="plagiarized-result" style="display:none; cursor: pointer;">';
+                  
             $plagiarism_result = $db->SELECT_PLAGIARISM_RESULTS_RESEARCH($results['plaid'], $results['sai']);
             if (!empty($plagiarism_result)) {
               foreach ($plagiarism_result as $plagiarism) {
@@ -208,25 +214,38 @@ require_once 'templates/student_navbar.php';
       </div>
     </div>
   </div>
-  <script src="js/lib/jquery.min.js"></script>
-    <script src="js/lib/jquery.nanoscroller.min.js"></script>
-    <script src="js/lib/menubar/sidebar.js"></script>
-    <script src="js/lib/preloader/pace.min.js"></script>
-    <script src="js/lib/bootstrap.min.js"></script>
-    <script src="js/scripts.js"></script>
+<script src="js/lib/jquery.min.js"></script>
+<script src="js/lib/jquery.nanoscroller.min.js"></script>
+<script src="js/lib/menubar/sidebar.js"></script>
+<script src="js/lib/preloader/pace.min.js"></script>
+<script src="js/lib/bootstrap.min.js"></script>
+<script src="js/scripts.js"></script>
 
-    <script src="js/lib/sweetalert/sweetalert.min.js"></script>
-    <script src="js/lib/sweetalert/sweetalert.init.js"></script>
+<script src="js/lib/sweetalert/sweetalert.min.js"></script>
+<script src="js/lib/sweetalert/sweetalert.init.js"></script>
 <script>
-$('.plagiarized-container').on('click', 'a.result-title', function(event){
-        console.log('clicked');
+$('.plagiarized-container').on('click', '.plagiarized-card-meta', function(event) {
+    const $target = $(event.target);
+    
+    // If the click is on the <a> tag
+    if ($target.closest('a.result-title').length) {
         event.preventDefault();
-        $(this).closest('.plagiarized-card-meta').find('.plagiarized-result').slideToggle(200);
+        const resultDiv = $(this).find('.plagiarized-result');
+        const img = $(this).find('a.result-title img');
         
-        const img = $(this).find('img');
+        resultDiv.slideToggle(200);
+        
         const isArrowDown = img.attr('src').includes('arrow-down');
         img.attr('src', isArrowDown ? '../images/arrow-up.svg' : '../images/arrow-down.svg');
-    });
+    }
+    
+    else if ($target.closest('.plagiarized-result').length) {
+        $(this).find('.plagiarized-result').slideToggle(200);
+        const img = $(this).find('a.result-title img');
+        const isArrowDown = img.attr('src').includes('arrow-up');
+        img.attr('src', isArrowDown ? '../images/arrow-down.svg' : '../images/arrow-up.svg');
+    }
+});
 </script>
     <?php 
 if (isset($_SESSION['status']) && $_SESSION['status'] != '') {

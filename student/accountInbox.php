@@ -30,7 +30,7 @@ $inbox = $db->SELECT_ACCOUNT_INBOX($student_id);
                         <div class="d-flex w-100 justify-content-between align-items-center">
                             <div class="flex-grow-1">
                                 <div class="d-flex align-items-center mb-1">    
-                                    <a href="view_digital_receipt.php?archiveID=<?= $row['archive_id'] ?>" target="_blank" rel="noopener noreferrer">
+                                    <a href="view_digital_receipt.php?archiveID=<?= $row['archive_id'] ?>" target="_blank" <?= ($row['inbox_read']) == 0 ? 'onclick="markInboxRead('.$row['archive_id'].')"' : '' ?>  rel="noopener noreferrer">
                                         <h6 class="mb-0">
                                             <?= htmlspecialchars($row['project_title']) ?> Digital Receipt
                                         </h6>
@@ -40,11 +40,21 @@ $inbox = $db->SELECT_ACCOUNT_INBOX($student_id);
                                     <?php echo (new DateTime($row['dateOFSubmit']))->format("d F Y")?>
                                 </div>
                             </div>
-                            <div class="message-actions">
+                            <?php 
+                                if ($row['inbox_read'] == 0){
+                                    echo '
+                                        <div id="markRead_'.$row['archive_id'].'">
+                                            <img style="width: 20px; height: 20px" src="../images/dot.svg" alt="">
+                                        </div>
+                                        ';
+                                }
+                            ?>
+                            <!-- <div class="message-actions">
+                                
                                 <button class="btn btn-sm btn-link text-muted" title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
+                                    <img style="width: 15px; height: 15px" src="../images/trash.svg" alt="">
+                                </button> 
+                            </div> -->
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -83,6 +93,25 @@ $inbox = $db->SELECT_ACCOUNT_INBOX($student_id);
             success: function(response) {
                 console.log(response);
                 $('#search-result').html(response);
+            },
+            error: function(xhr, status, error) {
+                console.log(xhr, status, error);
+            }
+        });
+    }
+    function markInboxRead(archiveID) {
+        $.ajax({
+            url: 'mark_inbox_as_read.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                archiveID: archiveID,
+            },
+            success: function(response) {
+                console.log(response);
+                if (response.success) {
+                    $(`#markRead_${archiveID}`).remove();
+                }
             },
             error: function(xhr, status, error) {
                 console.log(xhr, status, error);

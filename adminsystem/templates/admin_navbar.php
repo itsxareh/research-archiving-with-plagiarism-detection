@@ -3,7 +3,7 @@ $db = new Database();
 
 ?>
 <style type="text/css">
-    .menu-container {
+.menu-container {
     position: relative;
     display: inline-block;
     text-align: left;
@@ -87,7 +87,8 @@ $db = new Database();
     }
 }
 </style>
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tagify/4.9.3/tagify.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tagify/4.9.3/tagify.min.js"></script>
 <div class="sidebar sidebar-hide-to-small sidebar-shrink sidebar-gestures">
     <div class="nano">
         <div class="nano-content">

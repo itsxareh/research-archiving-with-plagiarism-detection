@@ -78,9 +78,13 @@ if ($searchInput || $keywords || $fromYear || $toYear || $research_date) {
     <!---------------------DATATABLES------------------------->
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <link href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/datetime/1.5.1/css/dataTables.dateTime.min.css" rel="stylesheet">
+
+    
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
 </head>
 
 <body>
@@ -119,11 +123,11 @@ require_once 'templates/student_navbar.php';
                                     <div class="row m-0" style="justify-content:space-between">
                                         <div class="col-sm-9 item-detail p-0">
                                             <label for="" class="info-label m-l-4">Research Title</label>
-                                            <input type="text" class="info-input" name="project_title" minlength="20" placeholder="Enter Research Title..." required>
+                                            <input type="text" class="info-input" name="project_title" minlength="8" required>
                                         </div>
                                         <div class="col-sm-2 item-detail p-0">
                                             <label for="" class="info-label m-l-4">Project year</label>
-                                            <select class="info-input" style="height: auto !important;" name="year" id="year">
+                                            <select class="info-input" style="" name="year" id="year">
                                                 <?php 
                                                     $defaultYear = date('Y');
                                                     for ($year = date('Y'); $year >= 1999; $year--) {
@@ -136,238 +140,235 @@ require_once 'templates/student_navbar.php';
                                     </div>
                                     <div class="item-detail">
                                         <label for="" class="info-label m-l-4">Researchers</label>
-                                        <input type="text" class="info-input" name="project_members" placeholder="Ex: John Doe, Peter Parker, Tony Stark" required>
+                                        <input type="text" class="info-input" name="project_members" required>
                                     </div>
                                     <div class="item-detail">
                                         <label for="" class="info-label m-l-4">Abstract</label>
-                                        <textarea class="info-input" name="abstract" placeholder="Enter Project Abstract..." minlength="100" required></textarea>
+                                        <textarea class="info-input" name="abstract" minlength="50" required></textarea>
                                     </div>
                                     <div class="item-detail">
                                         <label for="" class="info-label m-l-4">Keywords</label>
-                                        <input type="text" class="info-input" id="keywords" name="keywords" placeholder="Ex: Data Analytics, Machine Learning, Invention" required>
+                                        <input type="text" class="info-input" id="keywords" name="keywords" required>
                                     </div>
                                     <div class="item-detail">
                                         <label for="" class="info-label m-l-4">Research Paper Softcopy (PDF)</label>
-                                        <input type="file" accept=".pdf" class="info-input-file" style="border:none" name="project_file" required>
+                                        <input type="file" id="pdfFile" accept=".pdf" class="info-input-file" style="border:none" name="project_file" required>
                                     </div>
                                 </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button name="add_research" class="btn btn-danger">Save</button>
+                                <button name="add_research" class="btn btn-danger">Upload</button>
                             </div>
                             </form>
 
                         </div>
                     </div>
                 </div>
-            <section class="project-page-content">
-                <div class="col-sm-12 col-md-12 col-xl-12">
-                    <div class="row">
-                        <div class="col-sm-12 col-md-4 col-xl-3">
-                            <div class="add-research">
-                                <button type="button" class="add-research-button item-meta" data-toggle="modal" data-target="#modelId">
-                                <i class="ti-plus m-r-4"></i> Add New Research
-                                </button>
-                            </div>
-                            <div class="advance-filter-search">
-                                <p class="font-black bold">Filter</p>
-                                <!-- <div class="mb-3 mb-sm-0">
-                                    <label for="" class="item-meta">Select Department</label>
-                                    <select id="inputDepartment_search" name="department" class="selectpicker form-control item-meta" required>
-                                    <option></option>
-                                    <?php 
-                                        $res = $db->showDepartments_WHERE_ACTIVE();
+            <section class="project-page-content row">
+                <div class="col-sm-12 col-md-3 col-xl-3">
+                    <div class="add-research">
+                        <button type="button" class="add-research-button item-meta" data-toggle="modal" data-target="#modelId">
+                         <img style="width: 15px; height: 15px "  src="../images/plus.svg">
+                         Create
+                        </button>
+                    </div>
+                    <div class="advance-filter-search">
+                        <p class="font-black bold">Filter</p>
+                        <!-- <div class="mb-3 mb-sm-0">
+                            <label for="" class="item-meta">Select Department</label>
+                            <select id="inputDepartment_search" name="department" class="selectpicker form-control item-meta" required>
+                            <option></option>
+                            <?php 
+                                $res = $db->showDepartments_WHERE_ACTIVE();
 
-                                        foreach ($res as $item) {
-                                        echo '<option value="'.$item['name'].'">'.$item['name'].'</option>';
+                                foreach ($res as $item) {
+                                echo '<option value="'.$item['name'].'">'.$item['name'].'</option>';
+                                }
+                            ?>
+                            
+                            </select>
+                        </div> -->
+                        <div class="mb-3">
+                        <label class="item-meta" for="research_date">Sort by</label>
+                            <select id="research_date" name="research_date" class="form-control item-meta" required>
+                                <option value=""></option>    
+                                <option value="newest">Newest</option>
+                                <option value="oldest">Oldest</option>
+                            </select>
+                        </div>
+                        <fieldset class="mb-3">
+                            <div class="input-filter-group">
+                                <label class="item-meta" for="info-label">Document Status:</label>
+                                <select class="item-meta" style="width: auto;" name="documentStatus" id="documentStatus">
+                                    <option value="">All</option>
+                                    <option value="Accepted">Published</option>
+                                    <option value="Not Accepted">Not yet published</option>
+                                </select>
+                        </fieldset>
+                        <fieldset class="mb-3">
+                            <div class="input-filter-group">
+                                <label class="item-meta" for="info-label">From:</label>
+                                <select class="item-meta" name="fromYear" id="fromYear">
+                                    <option value=""></option>
+                                    <?php 
+                                        $defaultYear = 1999;
+                                        for ($year = 1999; $year <= 2024; $year++) {
+                                            $selected = ($year == $defaultYear) ? 'selected' : ''; 
+                                            echo "<option value =\"$year\">$year</option>";
+                                        }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="input-filter-group">
+                                <label class="item-meta" for="info-label">To:</label>
+                                <select class="item-meta" name="toYear" id="toYear">
+                                    <option value=""></option>
+                                    <?php 
+                                        $defaultYear = date('Y');
+                                        for ($year = date('Y'); $year >= 1999; $year--) {
+                                            $selected = ($year == $defaultYear) ? 'selected' : ''; 
+                                            echo "<option value =\"$year\">$year</option>";
+                                        }
+                                    ?>
+                                </select>
+                            </div>
+                        </fieldset>
+                        <div class="mb-3">
+                            <label class="item-meta" for="keywords">Keywords</label>
+                            <input id="filter-keywords" name="keywords" class="form-control-keyword" value="" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div id="data-result" style="display:none">
+                        <?php if ($displaySearchInfo): ?>
+                        <p><span id="resultNumber"></span> results found <span id="inputSearch" style="display: none; font-weight:400"></span></p>
+                    </div>
+                    <?php endif; ?>
+                    <ul id="search-result" tabindex="-1">
+                    <?php
+                        $i = 1;
+                        if (count($projects) > 0) {
+                            foreach ($projects as $result) {
+                    ?>
+                        <li class="project-list item" id="li_<?= $result['archiveID'] ?>" style="--i: <?=$i;?>;">
+                            <div class="item-body">
+                                <div class="project-tag">
+                                    <?php 
+                                        if ($result['document_status'] == "Accepted") {
+                                            echo '<span class="badge badge-success tag" style="font-size: 12px;">Published</span>';
+                                        } else {
+                                                echo '<span class="badge badge-danger tag" style="font-size: 12px;">'.$result['document_status'].'</span>';
+
                                         }
                                     ?>
                                     
-                                    </select>
-                                </div> -->
-                                <div class="mb-3">
-                                <label class="item-meta" for="research_date">Sort by</label>
-                                    <select id="research_date" name="research_date" class="form-control item-meta" required>
-                                        <option value=""></option>    
-                                        <option value="newest">Newest</option>
-                                        <option value="oldest">Oldest</option>
-                                    </select>
                                 </div>
-                                <fieldset class="mb-3">
-                                    <div class="input-filter-group">
-                                        <label class="item-meta" for="info-label">Document Status:</label>
-                                        <select class="item-meta" style="width: auto;" name="documentStatus" id="documentStatus">
-                                            <option value="">All</option>
-                                            <option value="Accepted">Published</option>
-                                            <option value="Not Accepted">Not yet published</option>
-                                        </select>
-                                </fieldset>
-                                <fieldset class="mb-3">
-                                    <div class="input-filter-group">
-                                        <label class="item-meta" for="info-label">From:</label>
-                                        <select class="item-meta" name="fromYear" id="fromYear">
-                                            <option value=""></option>
-                                            <?php 
-                                                $defaultYear = 1999;
-                                                for ($year = 1999; $year <= 2024; $year++) {
-                                                    $selected = ($year == $defaultYear) ? 'selected' : ''; 
-                                                    echo "<option value =\"$year\">$year</option>";
-                                                }
-                                            ?>
-                                        </select>
-                                    </div>
-                                    <div class="input-filter-group">
-                                        <label class="item-meta" for="info-label">To:</label>
-                                        <select class="item-meta" name="toYear" id="toYear">
-                                            <option value=""></option>
-                                            <?php 
-                                                $defaultYear = date('Y');
-                                                for ($year = date('Y'); $year >= 1999; $year--) {
-                                                    $selected = ($year == $defaultYear) ? 'selected' : ''; 
-                                                    echo "<option value =\"$year\">$year</option>";
-                                                }
-                                            ?>
-                                        </select>
-                                    </div>
-                                </fieldset>
-                                <div class="mb-3">
-                                    <label class="item-meta" for="keywords">Keywords</label>
-                                    <input id="filter-keywords" name="keywords" class="form-control-keyword" value="" required />
+                                <div class="item-title">
+                                    <h4><a href="view_project_research.php?archiveID=<?= $result['archive_id'] ?>"><?php echo ucwords($result['project_title']);?></a></h4>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="col-md-8">
-                            <div id="data-result" style="display:none">
-                                <?php if ($displaySearchInfo): ?>
-                                <p><span id="resultNumber"></span> results found <span id="inputSearch" style="display: none; font-weight:400"></span></p>
-                            </div>
-                            <?php endif; ?>
-                            <ul id="search-result" tabindex="-1">
-                            <?php
-                                $i = 1;
-                                if (count($projects) > 0) {
-                                    foreach ($projects as $result) {
-                            ?>
-                                <li class="project-list item" id="li_<?= $result['archiveID'] ?>" style="--i: <?=$i;?>;">
-                                    <div class="item-body">
-                                        <div class="project-tag">
-                                            <?php 
-                                                if ($result['document_status'] == "Accepted") {
-                                                    echo '<span class="badge badge-success tag" style="font-size: 12px;">Published</span>';
-                                                } else {
-                                                        echo '<span class="badge badge-danger tag" style="font-size: 12px;">Not Published</span>';
+                                <div class="item-content">
+                                    <p><?php echo $result['project_members'];?></p>
+                                </div>
+                                <div class="item-meta">
+                                    <p><?php echo $result['name'];?></p>
+                                    <p>Archive ID: <?php echo $result['archive_id'];?></p>
+                                    <p>
+                                        <?php 
+                                            if (!empty($result['date_published'])) {
+                                                $first_published = DateTime::createFromFormat("Y-m-d", $result['date_published'])->format("d F Y");
+                                                echo "Published: ", $first_published;
+                                            } else {
+                                                echo "Not yet published";
 
-                                                }
-                                            ?>
-                                            
-                                        </div>
-                                        <div class="item-title">
-                                            <h4><a href="view_project_research.php?archiveID=<?= $result['archive_id'] ?>"><?php echo ucwords($result['project_title']);?></a></h4>
-                                        </div>
-                                        <div class="item-content">
-                                            <p><?php echo $result['project_members'];?></p>
-                                        </div>
-                                        <div class="item-meta">
-                                            <p><?php echo $result['name'];?></p>
-                                            <p>Archive ID: <?php echo $result['archive_id'];?></p>
-                                            <p>
-                                                <?php 
-                                                    if (!empty($result['date_published'])) {
-                                                        $first_published = DateTime::createFromFormat("Y-m-d", $result['date_published'])->format("d F Y");
-                                                        echo "Published: ", $first_published;
-                                                    } else {
-                                                        echo "Not yet published";
-        
-                                                    }
-                                                ?>
-                                            </p>
-                                        </div>
-                                        <div class="item-abstract">
-                                            <h3 class="abstract-title"><a href="#"><span>Abstract</span><img src="../images/arrow-down.svg" style="width: .675rem; height: .675rem" alt=""></a></h3>
-                                            <div class="abstract-group" style="display:none">
-                                                <section class="item-meta">
-                                                    <div class="abstract-article">
-                                                        <p><?= $result['project_abstract']?></p>
-                                                    </div>
-                                                </section>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="project-action">
-                                        <button  onclick="confirmDelete(<?= $result['archiveID'] ?>)" class="btn"><img style="width: 20px; height: 20px" src="images/svg/delete.svg" title="Delete Research"></img></a>            
-                                    </div>
-                                </li>
-                                <?php
-                                    $i++;
-                                    }
-                                } else {
-                                    echo "<p style='text-align: center'>No uploaded research found.</p>";
-                                }
-                                ?>
-                                <div class="pagination-container">
-                                    <?php
-                                        $params = [
-                                            'documentStatus' => isset($_GET['documentStatus']) ? $_GET['documentStatus'] : '',
-                                            'fromYear' => isset($_GET['fromYear']) ? $_GET['fromYear'] : '',
-                                            'toYear' => isset($_GET['toYear']) ? $_GET['toYear'] : '',
-                                            'research_date' => isset($_GET['research_date']) ? $_GET['research_date'] : '',
-                                            'searchInput' => isset($_GET['searchInput']) ? $_GET['searchInput'] : '',
-                                            'keywords' => isset($_GET['keywords']) ? $_GET['keywords'] : ''
-                                        ];
-
-                                        // Filter out empty parameters
-                                        $queryString = http_build_query(array_filter($params));
-
-                                        $pageUrl = function($pageNum) use ($queryString) {
-                                            return "?page=$pageNum" . ($queryString ? "&$queryString" : '');
-                                        };
-
-                                        $visiblePages = 5; 
-                                        $startPage = max(1, $page - floor($visiblePages / 2));
-                                        $endPage = min($totalPages, $startPage + $visiblePages - 1);
-                                
-                                        // Adjust startPage if near the end of pagination range
-                                        if ($endPage - $startPage + 1 < $visiblePages) {
-                                            $startPage = max(1, $endPage - $visiblePages + 1);
-                                        }
-                                
-                                        // "Prev" button
-                                        if ($page > 1) {
-                                            echo '<a class="pagination prev" href="' . $pageUrl($page - 1) . '" onclick="filteredData()">Prev</a>';
-                                        }
-                                
-                                        // First page link
-                                        if ($startPage > 1) {
-                                            echo '<a class="pagination" href="' . $pageUrl(1) . '" onclick="filteredData()">1</a>';
-                                            if ($startPage > 2) {
-                                                echo '<span>...</span>';
                                             }
-                                        }
-                                
-                                        // Display page numbers within the range
-                                        for ($i = $startPage; $i <= $endPage; $i++) {
-                                            echo '<a class="pagination" href="' . $pageUrl($i) . '" onclick="filteredData()" ' .
-                                                ($i == $page ? 'id="active"' : '') . '>' . $i . '</a>';
-                                        }
-                                
-                                        // Last page link
-                                        if ($endPage < $totalPages) {
-                                            if ($endPage < $totalPages - 1) {
-                                                echo '<span>...</span>';
-                                            }
-                                            echo '<a class="pagination" href="' . $pageUrl($totalPages) . '" onclick="filteredData()">' . $totalPages . '</a>';
-                                        }
-                                
-                                        // "Next" button
-                                        if ($page < $totalPages) {
-                                            echo '<a class="pagination next" href="' . $pageUrl($page + 1) . '" onclick="filteredData()">Next</a>';
-                                        } 
                                         ?>
+                                    </p>
                                 </div>
-                            </ul>
+                                <div class="item-abstract">
+                                    <h3 class="abstract-title"><a href="#"><span>Abstract</span><img src="../images/arrow-down.svg" style="width: .675rem; height: .675rem" alt=""></a></h3>
+                                    <div class="abstract-group" style="display:none; cursor: pointer;">
+                                        <section class="item-meta">
+                                            <div class="abstract-article">
+                                                <p><?= $result['project_abstract']?></p>
+                                            </div>
+                                        </section>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="project-action">
+                                <button  onclick="confirmDelete(<?= $result['archiveID'] ?>)" class="btn"><img style="width: 20px; height: 20px" src="images/svg/delete.svg" title="Delete Research"></img></a>            
+                            </div>
+                        </li>
+                        <?php
+                            $i++;
+                            }
+                        } else {
+                            echo "<p style='text-align: center'>No uploaded research found.</p>";
+                        }
+                        ?>
+                        <div class="pagination-container">
+                            <?php
+                                $params = [
+                                    'documentStatus' => isset($_GET['documentStatus']) ? $_GET['documentStatus'] : '',
+                                    'fromYear' => isset($_GET['fromYear']) ? $_GET['fromYear'] : '',
+                                    'toYear' => isset($_GET['toYear']) ? $_GET['toYear'] : '',
+                                    'research_date' => isset($_GET['research_date']) ? $_GET['research_date'] : '',
+                                    'searchInput' => isset($_GET['searchInput']) ? $_GET['searchInput'] : '',
+                                    'keywords' => isset($_GET['keywords']) ? $_GET['keywords'] : ''
+                                ];
+
+                                // Filter out empty parameters
+                                $queryString = http_build_query(array_filter($params));
+
+                                $pageUrl = function($pageNum) use ($queryString) {
+                                    return "?page=$pageNum" . ($queryString ? "&$queryString" : '');
+                                };
+
+                                $visiblePages = 5; 
+                                $startPage = max(1, $page - floor($visiblePages / 2));
+                                $endPage = min($totalPages, $startPage + $visiblePages - 1);
+                        
+                                // Adjust startPage if near the end of pagination range
+                                if ($endPage - $startPage + 1 < $visiblePages) {
+                                    $startPage = max(1, $endPage - $visiblePages + 1);
+                                }
+                        
+                                // "Prev" button
+                                if ($page > 1) {
+                                    echo '<a class="pagination prev" href="' . $pageUrl($page - 1) . '" onclick="filteredData()">Prev</a>';
+                                }
+                        
+                                // First page link
+                                if ($startPage > 1) {
+                                    echo '<a class="pagination" href="' . $pageUrl(1) . '" onclick="filteredData()">1</a>';
+                                    if ($startPage > 2) {
+                                        echo '<span>...</span>';
+                                    }
+                                }
+                        
+                                // Display page numbers within the range
+                                for ($i = $startPage; $i <= $endPage; $i++) {
+                                    echo '<a class="pagination" href="' . $pageUrl($i) . '" onclick="filteredData()" ' .
+                                        ($i == $page ? 'id="active"' : '') . '>' . $i . '</a>';
+                                }
+                        
+                                // Last page link
+                                if ($endPage < $totalPages) {
+                                    if ($endPage < $totalPages - 1) {
+                                        echo '<span>...</span>';
+                                    }
+                                    echo '<a class="pagination" href="' . $pageUrl($totalPages) . '" onclick="filteredData()">' . $totalPages . '</a>';
+                                }
+                        
+                                // "Next" button
+                                if ($page < $totalPages) {
+                                    echo '<a class="pagination next" href="' . $pageUrl($page + 1) . '" onclick="filteredData()">Next</a>';
+                                } 
+                                ?>
                         </div>
-                    </div>
+                    </ul>
                 </div>
             </section>
         </div>
@@ -385,33 +386,37 @@ require_once 'templates/student_navbar.php';
             cancelButtonText: "Cancel",
             closeOnConfirm: false,
             closeOnCancel: true
-    }, function(isConfirm){
-        if (isConfirm) {
-        $.ajax({
-            url: "delete_research.php",
-            type: "GET",
-            data: { archiveID: archiveID },
-            success: function(response) {
-                swal({
-                    title: "Deleted!",
-                    text: "The research has been deleted.",
-                    type: "success",
-                    confirmButtonText: 'Okay',
-                }, 
-                function (isConfirm) {
-                    if (isConfirm) {
-                        const listItem = document.getElementById(`li_${archiveID}`)
-                        if (listItem){
-                            listItem.remove();
-                        }
+        }, function(isConfirm){
+            if (isConfirm) {
+                $.ajax({
+                    url: "delete_research.php",
+                    type: "GET",
+                    data: { archiveID: archiveID },
+                    success: function(response) {
+                        swal({
+                            title: "Deleted!",
+                            text: "The research has been deleted.",
+                            type: "success",
+                            confirmButtonText: 'Okay',
+                        }, 
+                        function (isConfirm) {
+                            if (isConfirm) {
+                                const listItem = document.getElementById(`li_${archiveID}`)
+                                const searchResult = document.getElementById('search-result');
+                                if (listItem){
+                                    listItem.remove();
+                                }
+                                if (!searchResult.querySelector('.project-list')) {
+                                    searchResult.innerHTML = "<p style='text-align: center'>No uploaded research found.</p>";
+                                }
+                            }
+                        });
                     }
                 });
             }
         });
     }
-    });
-
-    }
+    
     function disableSubmitButton() {
         const saveButton = document.querySelector('button[name="add_research"]');
         saveButton.disabled = true;
@@ -420,15 +425,27 @@ require_once 'templates/student_navbar.php';
     window.onpopstate = function(event) {
         filteredData();
     }; 
-    $('#search-result').on('click', 'h3.abstract-title', function(event){
-        console.log('clicked');
+    $('#search-result').on('click', '.item-abstract', function(event) {
+    const $target = $(event.target);
+
+    if ($target.closest('h3.abstract-title').length) {
         event.preventDefault();
-        $(this).closest('.item-abstract').find('.abstract-group').slideToggle(200);
+        const abstractGroup = $(this).find('.abstract-group');
+        const img = $(this).find('h3.abstract-title img');
         
-        const img = $(this).find('img');
+        abstractGroup.slideToggle(200);
+        
         const isArrowDown = img.attr('src').includes('arrow-down');
         img.attr('src', isArrowDown ? '../images/arrow-up.svg' : '../images/arrow-down.svg');
-    });
+    }
+    
+    else if ($target.closest('.abstract-group').length) {
+        $(this).find('.abstract-group').slideToggle(200);
+        const img = $(this).find('h3.abstract-title img');
+        const isArrowDown = img.attr('src').includes('arrow-up');
+        img.attr('src', isArrowDown ? '../images/arrow-down.svg' : '../images/arrow-up.svg');
+    }
+});
     const keywordsInput = document.getElementById('keywords');
     const tagify = new Tagify(keywordsInput, {
         delimiters: ",",
@@ -459,100 +476,114 @@ require_once 'templates/student_navbar.php';
     const submitButton = document.querySelector('button[name="add_research"]');
     const ulResult = document.getElementById('search-result');
     const modalBackdrop = document.getElementsByClassName('modal-backdrop');
+    const inputFile = document.getElementById('pdfFile');
+
     form.addEventListener('submit', async function(e) {
-        e.preventDefault();
+    e.preventDefault();
+    
+    if (form.submitted) return;
+    
+    if (!validateForm()) return;
+
+    const inputFile = document.getElementById('pdfFile');
+    const file = inputFile.files[0];
+    
+    if (file && !validateFileSize(file, 20)) {
+        return; // Stop submission if file is too large
+    }
+    submitButton.disabled = true;
+    submitButton.textContent = 'Submitting...';
+    
+    const formData = new FormData(form);
+    
+    try {
+        const response = await fetch('add_research.php', {
+            method: 'POST',
+            body: formData
+        });
         
-        if (form.submitted) return;
+        inputFile.disabled = true;
+        const result = await response.json();
+        console.log(result)
         
-        if (!validateForm()) return;
-        
-        submitButton.disabled = true;
-        submitButton.textContent = 'Submitting...';
-        
-        const formData = new FormData(form);
-        
-        try {
-            const response = await fetch('add_research.php', {
-                method: 'POST',
-                body: formData
+        if (result.status === 'success') {
+            $(".sa-confirm-button-container button").attr("data-dismiss", "modal");
+            swal({
+                title: result.stats,
+                text: result.message,
+                type: result.status,
+                confirmButtonText: 'Okay',
+            }, 
+            function (isConfirm) {
+                if(isConfirm) {
+                    $('#modelId').modal('hide');
+                    $('.modal-backdrop').remove();
+
+                    form.reset();
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Save';
+                    // progressBar.style.width = '0%';
+
+                    const newLi = document.createElement('li');
+                    newLi.className = 'project-list-item';
+
+                    newLi.innerHTML = `<div class="item-body">
+                        <div class="project-tag">
+                            <span class="badge badge-${result.document_status === 'Accepted' ? 'success' : 'danger'} tag" style="font-size: 12px;">
+                                ${result.document_status === 'Accepted' ? 'Published' : result.document_status }
+                            </span>
+                        </div>
+                        <div class="item-title">
+                            <h4><a href="view_project_research.php?archiveID=${result.archive_id}">${result.project_title}</a></h4>
+                        </div>
+                        <div class="item-content">
+                            <p>${result.project_members}</p>
+                        </div>
+                        <div class="item-meta">
+                            <p>${result.department}</p>
+                            <p>Archive ID: ${result.archive_id}</p>
+                            <p>${result.date_published ? `Published: ${result.date_published}` : 'Not yet published'}</p>
+                        </div>
+                        <div class="item-abstract">
+                            <h3 class="abstract-title"><a href="#"><span>Abstract</span><img src="../images/arrow-down.svg" style="width: .675rem; height: .675rem" alt=""></a></h3>
+                            <div class="abstract-group" style="display:none">
+                                <section class="item-meta">
+                                    <div class="abstract-article">
+                                        <p>${result.project_abstract}</p>
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+                    </div>`;
+
+                    ulResult.prepend(newLi);
+                }
             });
-            
-            const result = await response.json();
-            console.log(result)
-            if (result.status === 'success') {
-                $(".sa-confirm-button-container button").attr("data-dismiss", "modal");
-                swal({
-                    title: result.stats,
-                    text: result.message,
-                    type    : result.status,
-                    confirmButtonText: 'Okay',
-                }, 
-                function (isConfirm) {
-                    if(isConfirm) {
-                        $('#modelId').modal('hide');  // Hides the Bootstrap modal
-                        $('.modal-backdrop').remove();
-
-                        form.reset();
-                        submitButton.disabled = false;
-                        submitButton.textContent = 'Save';
-                        const newLi = document.createElement('li');
-                        newLi.className = 'project-list-item';
-
-                        newLi.innerHTML = `<div class="item-body">
-                            <div class="project-tag">
-                                <span class="badge badge-${result.document_status === 'Accepted' ? 'success' : 'danger'} tag" style="font-size: 12px;">
-                                    ${result.document_status === 'Accepted' ? 'Published' : 'Not Published'}
-                                </span>
-                            </div>
-                            <div class="item-title">
-                                <h4><a href="view_project_research.php?archiveID=${result.archive_id}">${result.project_title}</a></h4>
-                            </div>
-                            <div class="item-content">
-                                <p>${result.project_members}</p>
-                            </div>
-                            <div class="item-meta">
-                                <p>${result.department}</p>
-                                <p>Archive ID: ${result.archive_id}</p>
-                                <p>${result.date_published ? `Published: ${result.date_published}` : 'Not yet published'}</p>
-                            </div>
-                            <div class="item-abstract">
-                                <h3 class="abstract-title"><a href="#"><span>Abstract</span><img src="../images/arrow-down.svg" style="width: .675rem; height: .675rem" alt=""></a></h3>
-                                <div class="abstract-group" style="display:none">
-                                    <section class="item-meta">
-                                        <div class="abstract-article">
-                                            <p>${result.project_abstract}</p>
-                                        </div>
-                                    </section>
-                                </div>
-                            </div>
-                        </div>`;
-
-                        ulResult.prepend(newLi);
-                    }
-                });
-            } else {
-                const errorMessage = result.message || 'Submission failed: Unknown error';
-                swal({
-                    title: 'Error',
-                    text: errorMessage,
-                    type    : 'error',
-                    confirmButtonText: 'Okay'
-                });
-                submitButton.disabled = false;
-                submitButton.textContent = 'Save';
-            }
-        } catch (error) {
-            const errorMessage = error || 'An error occurred during submission';
-                swal({
-                    title: 'Error',
-                    text: errorMessage,
-                    type    : 'error',
-                    confirmButtonText: 'Okay'
-                });
+        } else {
+            const errorMessage = result.message || 'Submission failed: Unknown error';
+            swal({
+                title: 'Error',
+                text: errorMessage,
+                type: 'error',
+                confirmButtonText: 'Okay'
+            });
             submitButton.disabled = false;
             submitButton.textContent = 'Save';
+            // progressBar.style.width = '0%';
         }
-    });
+    } catch (error) {
+        const errorMessage = error || 'An error occurred during submission';
+        swal({
+            title: 'Error',
+            text: errorMessage,
+            type: 'error',
+            confirmButtonText: 'Okay'
+        });
+        submitButton.disabled = false;
+        submitButton.textContent = 'Save';
+        // progressBar.style.width = '0%';
+    }
+});
     function validateForm() {
         const projectTitle = document.querySelector('input[name="project_title"]');
         const abstract = document.querySelector('textarea[name="abstract"]');
@@ -570,6 +601,42 @@ require_once 'templates/student_navbar.php';
         
         return true;
     }
+    function validateFileSize(file, maxSizeInMB) {
+        const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+        
+        if (file.size > maxSizeInBytes) {
+            swal({
+                title: 'File Too Large',
+                text: `Please upload a file smaller than ${maxSizeInMB} MB. 
+                    Current file size: ${(file.size / (1024 * 1024)).toFixed(2)} MB`,
+                type: 'error',
+                confirmButtonText: 'Okay'
+            });
+            return false;
+        }
+        return true;
+    }
+    document.getElementById('pdfFile').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.type !== 'application/pdf') {
+                swal({
+                    title: 'Invalid File Type',
+                    text: 'Only PDF files are allowed.',
+                    type: 'error',
+                    confirmButtonText: 'Okay'
+                });
+                e.target.value = '';
+                return;
+            }
+
+            // Check file size (20 MB limit)
+            if (!validateFileSize(file, 20)) {
+                e.target.value = '';
+            }
+        }
+    });
+
     document.addEventListener("DOMContentLoaded", () => {
         // Get parameters from the URL
         const searchInput = getURLParameter('searchInput');
@@ -625,7 +692,7 @@ require_once 'templates/student_navbar.php';
                 if(response.count > 0) {
                     $('#search-result').html(response.html);
                 } else {
-                    $('#search-result').html("<p class='text-center' style='color: #666; font-size: 14px; font-weight:400'>No projects found.</p>");
+                    $('#search-result').html("<p class='text-center' style='color: #666; font-size: 14px; font-weight:400'>No research paper found.</p>");
                 }
                 if (searchInput.length > 0) {
                     $('#inputSearch').show();

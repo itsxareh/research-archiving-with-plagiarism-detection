@@ -172,49 +172,6 @@ require_once 'templates/admin_navbar.php';
 
 <script>
 
-
-let currentOpenDropdown = null;
-
-const closeAllDropdowns = () => {
-    document.querySelectorAll(".dropdown-action").forEach((dropdown) => {
-        dropdown.classList.remove('active');
-    });
-    currentOpenDropdown = null;
-};
-
-document.addEventListener("click", function(event) {
-    if (!event.target.closest('.action-button') && !event.target.closest('.dropdown-action')) {
-        closeAllDropdowns();
-        return;
-    }
-
-    if (event.target.classList.contains("action-button")) {
-        event.stopPropagation();
-        
-        const studentId = event.target.id.split("_")[1];
-        
-        const dropdown = document.getElementById(`dropdown_${studentId}`);
-        
-        if (dropdown) {
-            if (currentOpenDropdown === dropdown) {
-                dropdown.classList.remove('active');
-                currentOpenDropdown = null;
-            }
-            else {
-                closeAllDropdowns();
-                dropdown.classList.add('active');
-                currentOpenDropdown = dropdown;
-            }
-        }
-    }
-});
-
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        closeAllDropdowns();
-    }
-});
-
 $('#datatablesss_filter label input').removeClass('form-control form-control-sm');
 
 <?php 

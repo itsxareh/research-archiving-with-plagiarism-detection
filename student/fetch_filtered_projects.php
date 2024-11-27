@@ -46,7 +46,7 @@ foreach ($resp as $row) {
     echo '<li>
             <div class="item-body">
                 <div class="item-title">
-                    <h3><a href="view_project_research.php?archiveID=' . $row['archive_id'] . '">' . ucwords($row['project_title']) . '</a></h3>
+                    <h4><a href="view_project_research.php?archiveID=' . $row['archive_id'] . '">' . ucwords($row['project_title']) . '</a></h4>
                 </div>
                 <div class="item-content">
                     <p>' . $row['project_members'] . '</p>
@@ -62,7 +62,7 @@ foreach ($resp as $row) {
 
     echo '      </div>
                 <div class="item-abstract">
-                    <h3 class="abstract-title"><a href="#"><span>Abstract</span><i class="ti-angle-down f-s-10"></i></a></h3>
+                    <h3 class="abstract-title"><a href="#"><span>Abstract</span><img src="../images/arrow-down.svg" style="width: .675rem; height: .675rem" alt=""></a></h3>
                     <div class="abstract-group" style="display:none">
                         <section class="item-meta">
                             <div class="abstract-article">
