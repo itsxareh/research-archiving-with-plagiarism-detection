@@ -26,9 +26,9 @@ if (isset($_POST['updateInfo'])) {
           date_default_timezone_set('Asia/Manila');
           $date = date('F / d l / Y');
           $time = date('g:i A');
-          $logs = 'You successfully updated your information.';
+          $logs = 'You have updated your information.';
 
-          $sql2 = $db->student_Insert_NOTIFICATION($admin_id, $logs, $date, $time);
+          $sql2 = $db->admin_Insert_NOTIFICATION_2($admin_id, $logs, $date, $time);
 
             $_SESSION['alert'] = "Success";
             $_SESSION['status'] = "Update Success";
@@ -61,19 +61,19 @@ if (isset($_POST['updateInfo'])) {
     <div class="info-details">
         <div class="item-detail">
             <span class="info-label">Name:</span>
-            <span class="profile-info"><?php echo $data['first_name'].' '.$data['middle_name'].' '.$data['last_name']; ?></span>
+            <span class="profile-info" id="adminName"><?php echo $data['first_name'].' '.$data['middle_name'].' '.$data['last_name']; ?></span>
         </div>
         <div class="item-detail">
-            <span class="info-label">Address:</span>
-            <span class="profile-info"><?php echo $data['complete_address']; ?></span>
+            <span class="info-label">Phone number:</span>
+            <span class="profile-info" id="adminPhone"><?php echo $data['phone_number']; ?></span>
         </div>
         <div class="item-detail">
             <span class="info-label">Status</span>
             <span class="profile-info"><?php echo $data['verify_status']; ?></span>
         </div>
     </div>
-    <div class="edit-info-details" id="edit-info" style="display: none;">
-        <form action="" method="POST">
+    <div class="edit-info-details" id="edit-info" style="display: none; width: 100%; ">
+        <form action="" id="update-form" method="POST">
             <div class="close-right">
                 <button class="close-button info-label">Close <span><i class="ti-close m-l-4"></i></span></button>
             </div>
@@ -92,12 +92,15 @@ if (isset($_POST['updateInfo'])) {
                 </div>
                 <div class="item-detail">
                 <label class="info-label" for="pnumber">Phone number</label>
-                <input class="info-input" type="text" id="pnumber" name="pnumber" value="<?php echo $data['phone_number'];?>">
+                <input class="info-input" type="text" id="pnumber" name="pnumber" value="<?php echo $data['phone_number'];?>" 
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
+                    pattern="[0-9]*"
+                    maxlength="11">
                 </div>
             </div>
             <div class="submit-container">
                 <button class="close-button info-label m-r-8 m-t-10">Close</button>
-                <button class="update-button info-label m-t-10" name="updateInfo">Update</button>
+                <button class="update-button info-label m-t-10" id="updateButton" name="updateInfo">Update</button>
             </div>
         </form>
     </div>
@@ -119,6 +122,67 @@ if (isset($_POST['updateInfo'])) {
 
 
 <script>
+const infoForm = document.getElementById('update-form');
+const submitButton = document.getElementById('updateButton');
+const adminName = document.getElementById('adminName');
+const adminPhone = document.getElementById('adminPhone');
+
+infoForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    submitButton.disabled = true;
+    submitButton.textContent = 'Saving...';
+
+    // Create a FormData object from the form
+    const formData = new FormData(infoForm);
+
+    try {
+        const response = await fetch('updateInfo.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json(); // Parse JSON response
+        console.log(result);
+
+        if (result.status === 'success') {
+            swal({
+                    title: result.stats,
+                    text: result.message,
+                    type    : result.status,
+                    confirmButtonText: 'Okay',
+                }, 
+                function (isConfirm) {
+                    if (isConfirm) {
+                        $(".edit-info-details").hide();
+                        $(".edit-button").show();
+                        $(".info-details").show();
+                    }
+                });
+            adminName.innerText = result.first_name + " " + result.middle_name + " " + result.last_name;
+            adminPhone.innerText = result.pnumber;
+        } else {
+            const errorMessage = result.message || 'Updating info failed';
+            swal({
+                title: 'Error',
+                text: errorMessage,
+                type: 'error',
+                confirmButtonText: 'Okay'
+            }, function (isConfirm) {
+                if (isConfirm) {
+                    
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred during submission: ' + error.message);
+    } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Save';
+    }
+});
+
     $("#inputDepartment").change(function(){
     var department = $(this).val();
 

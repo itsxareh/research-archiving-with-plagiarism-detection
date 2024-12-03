@@ -320,7 +320,7 @@ body {
     margin-left: 80px;
     -webkit-transition: margin-left 300ms ease-in-out;
     transition: margin-left 300ms ease-in-out;
-    height: 100svh;
+    height: 100%;
 }
 
 .sidebar-hide .sidebar.sidebar-shrink~.content-wrap {

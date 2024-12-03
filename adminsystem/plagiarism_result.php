@@ -58,7 +58,7 @@ function highlightPlagiarizedWords($submitted_sentence, $existing_sentence) {
 
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo2.png">
+    <link rel="shortcut icon" href="images/logo2.webp">
     <!-- Retina iPad Touch Icon-->
     <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
     <!-- Retina iPhone Touch Icon-->
@@ -128,6 +128,9 @@ require_once 'templates/admin_navbar.php';
         </div>
       <div class="form-group" style="padding-top: 1rem;">
         <iframe src="<?php echo $data['documents']; ?>" width="100%" height="900px" allowfullscreen></iframe>
+        <div class="text-center">
+          <a href="download_file.php?archiveID=<?= $archiveID ?>" class="download-pdf-button" download>Download PDF</a>
+        </div>
     </div>
     </div>
     <div class="col-md-4">
@@ -178,12 +181,12 @@ require_once 'templates/admin_navbar.php';
                     <p class="info-meta p-r-4" style="font-size: 12px; margin-bottom: 0; padding-top: 6px; font-weight: 500; color: #a33333">'.round($plagiarism_percentage, 1).'%</p>
                     <img class="plagiarized-button" src="../images/arrow-down.svg" style="width: 8px; height: 8px">
                   </a>                  
-                  <div class="plagiarized-result" id="plagiarized-result" style="display:none">';
+                  <div class="plagiarized-result" id="plagiarized-result" style="display:none; cursor: pointer">';
             $plagiarism_result = $db->SELECT_PLAGIARISM_RESULTS_RESEARCH($results['plaid'], $results['sai']);
             if (!empty($plagiarism_result)) {
               foreach ($plagiarism_result as $plagiarism) {
                 $highlighted_result = highlightPlagiarizedWords($plagiarism['submitted_sentence'], $plagiarism['existing_sentence']);
-                echo '<p class="info-meta p-r-4" style="font-size: 12px; margin-bottom: 0; padding-top: 6px; font-weight: 400; color: #a33333">'.$highlighted_result['existing'].'</p>';
+                echo '<p class="info-meta p-r-4" style="font-size: 12px; margin-bottom: 0; padding-top: 6px; font-weight: 400; color: #a33333; overflow-x: auto">'.$highlighted_result['existing'].'</p>';
                 }
               }
             echo '</div>
@@ -214,15 +217,28 @@ require_once 'templates/admin_navbar.php';
   </div>
 
 <script>
-$('.plagiarized-container').on('click', 'a.result-title', function(event){
-        console.log('clicked');
+$('.plagiarized-container').on('click', '.plagiarized-card-meta', function(event) {
+    const $target = $(event.target);
+    
+    // If the click is on the <a> tag
+    if ($target.closest('a.result-title').length) {
         event.preventDefault();
-        $(this).closest('.plagiarized-card-meta').find('.plagiarized-result').slideToggle(200);
+        const resultDiv = $(this).find('.plagiarized-result');
+        const img = $(this).find('a.result-title img');
         
-        const img = $(this).find('img');
+        resultDiv.slideToggle(200);
+        
         const isArrowDown = img.attr('src').includes('arrow-down');
         img.attr('src', isArrowDown ? '../images/arrow-up.svg' : '../images/arrow-down.svg');
-    });
+    }
+    
+    else if ($target.closest('.plagiarized-result').length) {
+        $(this).find('.plagiarized-result').slideToggle(200);
+        const img = $(this).find('a.result-title img');
+        const isArrowDown = img.attr('src').includes('arrow-up');
+        img.attr('src', isArrowDown ? '../images/arrow-down.svg' : '../images/arrow-up.svg');
+    }
+});
 </script>
     <?php 
 if (isset($_SESSION['status']) && $_SESSION['status'] != '') {

@@ -42,7 +42,7 @@ if($_SESSION['auth_user']['admin_id']==0){
 
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo1.png">
+    <link rel="shortcut icon" href="images/logo2.webp">
     <!-- Retina iPad Touch Icon-->
     <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
     <!-- Retina iPhone Touch Icon-->
@@ -110,6 +110,9 @@ require_once 'templates/admin_navbar.php';
         </div>
       <div class="form-group" style="padding-top: 1rem;">
         <iframe src="<?php echo $data['documents']; ?>" width="100%" height="900px" allowfullscreen></iframe>
+        <div class="text-center">
+          <a href="download_file.php?archiveID=<?= $archiveID ?>" class="download-pdf-button" download>Download PDF</a>
+        </div>
     </div>
     </div>
     <div class="col-md-4">

@@ -1,7 +1,6 @@
 <?php
 
 include '../connection/config.php';
-error_reporting(0);
 
 session_start();
 if(isset($_SESSION['auth_user']['admin_id']))
@@ -15,7 +14,7 @@ header("location:dashboard.php");
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EARIST Research Archiving System</title>
-  <link rel="shortcut icon" href="images/logo1.png">
+  <link rel="shortcut icon" href="images/logo2.webp">
   <link rel="stylesheet" href="../css/login-sign-up.css">
   <link rel="stylesheet" href="../css/bootstrap.min.css">
   <link href="css/lib/sweetalert/sweetalert.css" rel="stylesheet">

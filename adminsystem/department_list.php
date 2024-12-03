@@ -31,13 +31,13 @@ if(ISSET($_POST['add_department'])){
         date_default_timezone_set('Asia/Manila');
         $date = date('F / d l / Y');
         $time = date('g:i A');
-        $logs = 'You successfully inserted a Department.';
+        $logs = 'You added a new department.';
 
         $sql1 = $db->adminsystem_INSERT_NOTIFICATION_2($admin_id, $logs, $date, $time);
 
 
         $_SESSION['alert'] = "Success";
-        $_SESSION['status'] = "Department Added Successfully";
+        $_SESSION['status'] = "New department added";
         $_SESSION['status-code'] = "success";
     
 }
@@ -62,7 +62,7 @@ if(ISSET($_POST['edit'])){
         date_default_timezone_set('Asia/Manila');
         $date = date('F / d l / Y');
         $time = date('g:i A');
-        $logs = 'You successfully Updated a Department.';
+        $logs = 'You successfully updated a department.';
 
         $sql1 = $db->adminsystem_INSERT_NOTIFICATION_2($admin_id, $logs, $date, $time);
 
@@ -84,10 +84,10 @@ if(ISSET($_POST['edit'])){
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- theme meta -->
     <meta name="theme-name" content="focus" />
-    <title>College List: EARIST Research Archiving System</title>
+    <title>Department List: EARIST Research Archiving System</title>
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo2.png">
+    <link rel="shortcut icon" href="images/logo2.webp">
     <!-- Retina iPad Touch Icon-->
     <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
     <!-- Retina iPhone Touch Icon-->
@@ -148,31 +148,29 @@ require_once 'templates/admin_navbar.php';
                     <div class="modal-dialog modal-md" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title">Add New Department</h5>
+                                <h5 class="modal-title">Add department</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                             </div>
 
                             <form action="" method="POST" enctype="multipart/form-data">
-                            <div class="modal-body">
-                                <div class="form-group">
-
-                                    <label for="info-label">Department Code</label>
-                                    <input type="text" class="form-control" name="department_code">
-                                    
-                                    <label for="info-label">Department</label>
-                                    <input type="text" class="form-control" name="department_name">
-                                    
-                                    <!-- <label for="">Description</label>
-                                    <textarea class="form-control" name="description" placeholder="Description..."></textarea> -->
-
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <div class="item-detail">
+                                            <label for="" class="info-label m-l-4">Acronym</label>
+                                            <input type="text" class="info-input" name="department_code" required>
+                                        </div>
+                                        <div class="item-detail">
+                                            <label for="" class="info-label m-l-4">Department</label>
+                                            <input type="text" class="info-input" name="department_name" required>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button name="add_department" class="btn btn-primary">Save</button>
-                            </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button name="add_department" class="btn btn-danger">Save</button>
+                                </div>
                             </form>
 
                         </div>
@@ -182,7 +180,7 @@ require_once 'templates/admin_navbar.php';
                     <!-- Button trigger modal -->
                     <div class="add-department">
                         <button type="button" class="add-department-button item-meta" data-toggle="modal" data-target="#modelId">
-                        <i class="ti-plus m-r-4"></i> Add New Department
+                        <i class="ti-plus m-r-4"></i> Add department
                         </button>
                     </div>
 
@@ -245,7 +243,7 @@ require_once 'templates/admin_navbar.php';
                                         <div class="dropdown-action" id="dropdown_<?= $result['id'] ?>" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
                                             <div role="none">
                                                 <a href="#" data-toggle="modal" data-target="#modelId_<?= $result['id'] ?>" class="dropdown-action-item">Edit department</a>
-                                                <a href="#" data-toggle="delete-modal" data-target="#delete_modelId_<?= $result['id'] ?>" class="dropdown-action-item">Delete department</a>
+                                                <a onclick="confirmDelete(<?= $result['id'] ?>)" href="#" data-toggle="delete-modal" data-target="#delete_modelId_<?= $result['id'] ?>" class="dropdown-action-item">Delete department</a>
                                             </div>
                                         </div>
                                     </div>
@@ -255,31 +253,28 @@ require_once 'templates/admin_navbar.php';
                                     <div class="modal-dialog modal-md" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title">View/Edit Department</h5>
+                                                <h5 class="modal-title">Edit department</h5>
                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                         <span aria-hidden="true">&times;</span>
                                                     </button>
                                             </div>
                                             <form action="" method="post">
                                                 <div class="modal-body">
+                                                    <input type="hidden" class="info-input" name="dept_id" value="<?= $result['id'] ?>" readonly>
                                                     <div class="form-group">
-
-                                                        <label for="info-label" style="justify-self:left">Department Code</label>
-                                                        <input type="hidden" class="form-control" name="dept_id" value="<?= $result['id'] ?>">
-                                                        <input type="text" class="form-control" name="dept_code" value="<?= $result['dept_code'] ?>">
-                                                        
-                                                        <label for="info-label">Department</label>
-                                                        <input type="text" class="form-control" name="dept_name" value="<?= $result['name'] ?>">
-                                                        
-                                                    
-                                                        <!-- <label for="">Description</label>
-                                                        <textarea class="form-control" style="height: 150px;" name="desc" ><?= $result['description'] ?></textarea> -->
-
+                                                        <div class="item-detail">
+                                                            <label for="" class="info-label m-l-4">Acronym</label>
+                                                            <input type="text" class="info-input" name="dept_code" value="<?= $result['dept_code'] ?>" required>
+                                                        </div>
+                                                        <div class="item-detail">
+                                                            <label for="" class="info-label m-l-4">Department</label>
+                                                            <input type="text" class="info-input" name="dept_name" value="<?= $result['name'] ?>" required>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                    <button name="edit" class="btn btn-success">Update</button>
+                                                    <button name="edit" class="btn btn-danger">Update</button>
                                                 </div>
                                             </form>
 
@@ -298,6 +293,8 @@ require_once 'templates/admin_navbar.php';
             </div>
         </div>
     </div>
+    <?php include 'templates/footer.php'; ?>
+</div>
 
 
 <script>
@@ -305,6 +302,48 @@ require_once 'templates/admin_navbar.php';
 </script>
 
 <script>
+function confirmDelete(departmentID){
+    swal({
+        title: "Are you sure you want to delete?",
+        text: "You will not be able to recover this data!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#a33333",
+        confirmButtonText: "Delete",
+        cancelButtonText: "Cancel",
+        closeOnConfirm: false,
+        closeOnCancel: true
+    }, function(isConfirm){
+        if (isConfirm) {
+            $.ajax({
+                url: "delete_department.php",
+                type: "GET",
+                data: { departmentID: departmentID },
+                success: function(response) {
+                    swal({
+                        title: "Deleted!",
+                        text: "Department deleted.",
+                        type: "success",
+                        confirmButtonText: 'Okay',
+                    }, 
+                    function (isConfirm) {
+                        // if (isConfirm) {
+                        //     const listItem = document.getElementById(`li_${studID}`)
+                        //     const searchResult = document.getElementById('search-result');
+                        //     if (listItem){
+                        //         listItem.remove();
+                        //     }
+                        //     if (!searchResult.querySelector('.project-list')) {
+                        //         searchResult.innerHTML = "<p style='text-align: center'>No uploaded research found.</p>";
+                        //     }
+                        // }
+                        location.reload();
+                    });
+                }
+            });
+        }
+    });
+}
 $('#datatablesss_filter label input').removeClass('form-control form-control-sm');
 $('#datatablesss_wrapper').children('.row').eq(1).find('.col-sm-12').css({
     'padding-left': 0,
@@ -348,7 +387,6 @@ $('.toggle-status').change(function() {
                 status: status
             },
             success: function(response) {
-                location.reload();
             },
             error: function() {
                 alert('Error updating document status.');

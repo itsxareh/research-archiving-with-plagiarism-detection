@@ -8,7 +8,7 @@ class Database {
   private $servername = "localhost";
   private $username = "root";
   private $password = "";
-  private $database = "online_thesis";
+  private $database = "research_repository";
   private $conn;
 
   public function __construct() {
@@ -29,11 +29,11 @@ class Database {
 
 
    //--------------------------------------------------------------------------------ADMIN REGISTER
-  public function admin_register_select_email($email) {
+  public function admin_register_select_email($email, $admin_id) {
     $connection = $this->getConnection();
 
-    $stmt = $connection->prepare("SELECT * FROM admin_account WHERE admin_email = ?");
-    $stmt->execute([$email]);
+    $stmt = $connection->prepare("SELECT * FROM admin_account WHERE admin_email = ? AND id != ?");
+    $stmt->execute([$email, $admin_id]);
     $result = $stmt->fetch(); # get user data
 
     return $result;
@@ -80,6 +80,7 @@ public function admin_update_verify_status($verified, $adminID) {
         $pword = $data['admin_password'];
         $verifystatus = $data['verify_status'];
         $admin_status = $data['admin_status'];
+        $admin_type = $data['admin_type'];
     }
 
     if ($pword == $password && $admin_status == 'Active') {
@@ -94,7 +95,7 @@ public function admin_update_verify_status($verified, $adminID) {
             date_default_timezone_set('Asia/Manila');
             $date = date('F / d l / Y');
             $time = date('g:i A');
-            $logs = 'You successfully logged in to your account.';
+            $logs = 'You logged in.';
             $online_offline_status = 'Online';
 
             $sql = $connection->prepare("INSERT INTO admin_systemnotification(admin_id, logs, logs_date, logs_time) VALUES (?, ?, ?, ?)");
@@ -108,6 +109,7 @@ public function admin_update_verify_status($verified, $adminID) {
                 'admin_id' => $admin_id,
                 'admin_uniqueID' => $admin_UNIQUEid,
                 'admin_email' => $admin_email,
+                'admin_type' => $admin_type
             ];
 
             $_SESSION['alert'] = "Success";
@@ -262,7 +264,7 @@ public function UPDATE_admin_password($npword, $adminID) {
 
 public function showAdmins($admin_id){
   $connection = $this->getConnection();
-  $stmt = $connection->prepare("SELECT * FROM admin_account WHERE id != ?");
+  $stmt = $connection->prepare("SELECT * FROM admin_account WHERE id != ? AND delete_flag = 0");
   $stmt->execute([$admin_id]);
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -321,7 +323,7 @@ public function showCourse_WHERE_ACTIVE($department){
 public function SELECT_ALL_AdminsData(){
   $connection = $this->getConnection();
   $stmt = $connection->prepare(
-    "SELECT * FROM admin_account");
+    "SELECT * FROM admin_account WHERE delete_flag = 0 ORDER BY admin_type ASC");
   $stmt->execute();
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -462,6 +464,23 @@ public function INSERT_DOWNLOAD_LOGS($user_id, $archive_id, $date) {
   $stmt->execute([$user_id, $archive_id, $date]);
 
 }
+public function INSERT_STUDENT_DOWNLOAD_LOGS($user_id, $archive_id, $date) {
+  $connection = $this->getConnection();
+  
+  $stmt = $connection->prepare("INSERT INTO student_download_logs (student_id, archive_id, download_date) VALUES (?, ?, ?)");
+  $stmt->execute([$user_id, $archive_id, $date]);
+
+  if ($stmt){
+    date_default_timezone_set('Asia/Manila');
+    $date = date('F / d l / Y');
+    $time = date('g:i A');
+    $logs = 'You downloaded a PDF file.';
+    
+    $sql = $connection->prepare("INSERT INTO system_notification(student_id, logs, logs_date, logs_time) VALUES (?, ?, ?, ?)");
+    $sql->execute([$user_id, $logs, $date, $time]);
+  }
+
+}
 public function SELECT_ALL_ARCHIVE_RESEARCH_WHERE_PUBLISH_FILTER_DEPARTMENT_FROM_DATE_PUBLISH_TO_DATE_PUBLISH($department, $from_date, $to_date){
   $connection = $this->getConnection();
   $status = 'Accepted';
@@ -537,7 +556,15 @@ public function SELECT_TOP_RESEARCH_CONTRIBUTOR(){
 
   return $result;
 }
+public function SELECT_ALL_PLAGIARIZED_RESEARCH_CONTENT(){
+  $connection = $this->getConnection();
 
+  $stmt = $connection->prepare("SELECT *, SUM(plagiarism_percentage) as total_percentage, plagiarism_summary.archive_id as plagiarism_id, archive_research.archive_id as aid FROM plagiarism_summary LEFT JOIN archive_research ON archive_research.id = plagiarism_summary.archive_id GROUP BY plagiarism_summary.archive_id ORDER BY plagiarism_summary.id DESC;");
+  $stmt->execute();
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $result;
+}
 public function SELECT_PLAGIARIZED_RESEARCH_CONTENT(){
   $connection = $this->getConnection();
 
@@ -808,20 +835,20 @@ public function SELECT_ALL_DEPARTMENTS_WHERE_ACTIVE(){
   return $result;
 }
 
-public function insert_Admin($uniqueId, $first_name, $last_name, $complete_address, $phone_number, $email, $password){
+public function insert_Admin($uniqueId, $first_name, $last_name, $complete_address, $phone_number, $email, $password, $admin_type){
   $connection = $this->getConnection();
 
-  $sql = $connection->prepare("INSERT INTO admin_account(uniqueID, first_name, last_name, complete_address, phone_number, admin_email, admin_password) VALUES (?, ?, ?, ?, ?, ?, ?)");
+  $sql = $connection->prepare("INSERT INTO admin_account(uniqueID, first_name, last_name, complete_address, phone_number, admin_email, admin_password, admin_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
   
-  return $sql->execute([$uniqueId, $first_name, $last_name, $complete_address, $phone_number, $email, md5($password)]);
+  return $sql->execute([$uniqueId, $first_name, $last_name, $complete_address, $phone_number, $email, md5($password), $admin_type]);
   
 }
-public function update_Admin($first_name, $last_name, $complete_address, $phone_number, $email, $password, $id){
+public function update_Admin($first_name, $last_name, $complete_address, $phone_number, $email, $password, $admin_type, $id){
   $connection = $this->getConnection();
 
-  $sql = $connection->prepare("UPDATE admin_account SET first_name = ?, last_name = ?, complete_address = ?, phone_number = ?, admin_email = ?, admin_password = ? WHERE id = ?");
+  $sql = $connection->prepare("UPDATE admin_account SET first_name = ?, last_name = ?, complete_address = ?, phone_number = ?, admin_email = ?, admin_password = ?, admin_type = ? WHERE id = ?");
   
-  return $sql->execute([$first_name, $last_name, $complete_address, $phone_number, $email, md5($password), $id]);
+  return $sql->execute([$first_name, $last_name, $complete_address, $phone_number, $email, md5($password), $admin_type, $id]);
   
 }
 public function insert_Department($department_code, $department_name, $description){
@@ -933,31 +960,46 @@ public function update_document_status($archiveID, $status) {
 }
 
 public function update_department_status($departmentID, $status) {
+  $connection = $this->getConnection();
   $query = "UPDATE departments SET department_status = :status WHERE id = :departmentID";
   $stmt = $this->conn->prepare($query);
   
   $stmt->bindParam(':status', $status, PDO::PARAM_STR);
   $stmt->bindParam(':departmentID', $departmentID, PDO::PARAM_INT);
+  $stmt->execute();
 
-  return $stmt->execute();
+  $stmt1 = $connection->prepare("SELECT * FROM departments WHERE id = ?");
+  $stmt1->execute([$departmentID]);
+  $fetch = $stmt1->fetch(PDO::FETCH_ASSOC);
+  return $fetch;
 }
 public function update_admin_status($adminID, $status) {
+  $connection = $this->getConnection();
   $query = "UPDATE admin_account SET admin_status = :status WHERE id = :adminID";
   $stmt = $this->conn->prepare($query);
   
   $stmt->bindParam(':status', $status, PDO::PARAM_STR);
   $stmt->bindParam(':adminID', $adminID, PDO::PARAM_INT);
+  $stmt->execute();
 
-  return $stmt->execute();
+  $stmt1 = $connection->prepare("SELECT * FROM admin_account WHERE id = ?");
+  $stmt1->execute([$adminID]);
+  $fetch = $stmt1->fetch(PDO::FETCH_ASSOC);
+  return $fetch;
 }
 public function update_course_status($courseID, $status) {
+  $connection = $this->getConnection();
   $query = "UPDATE course SET course_status = :status WHERE id = :courseID";
   $stmt = $this->conn->prepare($query);
   
   $stmt->bindParam(':status', $status, PDO::PARAM_STR);
   $stmt->bindParam(':courseID', $courseID, PDO::PARAM_INT);
+  $stmt->execute();
 
-  return $stmt->execute();
+  $stmt1 = $connection->prepare("SELECT * FROM course WHERE id = ?");
+  $stmt1->execute([$courseID]);
+  $fetch = $stmt1->fetch(PDO::FETCH_ASSOC);
+  return $fetch;
 }
 
 public function SELECT_ALL_COURSES(){
@@ -968,7 +1010,36 @@ public function SELECT_ALL_COURSES(){
 
   return $result;
 }
+public function research_profile($archive_id) {
+  $connection = $this->getConnection();
 
+  $stmt = $connection->prepare("SELECT * FROM archive_research WHERE id = ? ");
+	$stmt->execute([$archive_id]);
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+
+}
+public function course_profile($course_id) {
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT * FROM course WHERE id = ? ");
+	$stmt->execute([$course_id]);
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+
+}
+public function department_profile($department_id) {
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT * FROM departments WHERE id = ? ");
+	$stmt->execute([$department_id]);
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+
+}
 public function insert_Course($department, $course_name){
   $connection = $this->getConnection();
 
@@ -977,11 +1048,11 @@ public function insert_Course($department, $course_name){
   
 }
 
-public function update_Course($course_name, $course_id){
+public function update_Course($course_name, $department_id, $course_id){
   $connection = $this->getConnection();
 
-  $sql = $connection->prepare("UPDATE course SET course_name = ? WHERE id = ?");
-  $sql->execute([$course_name, $course_id]);
+  $sql = $connection->prepare("UPDATE course SET course_name = ?, department_id = ? WHERE id = ?");
+  $sql->execute([$course_name, $department_id, $course_id]);
   
 }
 
@@ -1083,7 +1154,7 @@ public function Archive_Research_Views_BasedOn_Departments(){
   FROM archive_research_views 
   LEFT JOIN archive_research ON archive_research.archive_id = archive_research_views.archive_research_id 
   LEFT JOIN departments ON departments.id = archive_research.department_id WHERE departments.name IS NOT NULL
-  GROUP BY archive_research_views.date_of_views, departments.name;");
+  GROUP BY departments.name;");
   $stmt->execute();
   
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -1204,6 +1275,16 @@ public function view_owner_profile($student_email) {
   }
 
 }
+
+public function view_plagiarism_history($student_id){
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT *, archive_research.archive_id AS aid FROM plagiarism_summary LEFT JOIN archive_research ON archive_research.id = plagiarism_summary.archive_id LEFT JOIN students_data ON archive_research.student_id = students_data.id WHERE students_data.student_id = ?");
+  $stmt->execute([$student_id]);
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $result;
+}
 public function student_update_verify_status($verified, $student_id) {
   $connection = $this->getConnection();
   $status = 'Approved';
@@ -1241,6 +1322,35 @@ public function student_login_log($student_id, $logs, $date, $time) {
   $stmt->execute([$student_id, $logs, $date, $time]);
 
 }
+public function get_admin_name_by_id($admin_id) {
+  $stmt = $this->conn->prepare("SELECT * FROM admin_account WHERE id = ?");
+  $stmt->execute([$admin_id]);
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+  
+  if ($result) {
+    return $result['first_name'] . ' ' . $result['last_name'];
+  } else {
+    return 'User not found';
+  }
+}
+public function admin_activity_log($admin_id) {
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT * FROM admin_systemnotification WHERE admin_id = ? ORDER BY id DESC");
+  $stmt->execute([$admin_id]);
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+public function admin_all_activity_log() {
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT * FROM admin_systemnotification LEFT JOIN admin_account ON admin_systemnotification.admin_id = admin_account.id WHERE admin_type = 1 ORDER BY admin_systemnotification.id DESC");
+  $stmt->execute();
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $result;
+}
 public function student_activity_log($student_id) {
   $connection = $this->getConnection();
 
@@ -1259,7 +1369,15 @@ public function student_register_select_StudentNumber($studentNumber) {
 
   return $result;
 }
+public function check_student_email($email, $studID) {
+  $connection = $this->getConnection();
 
+  $stmt = $connection->prepare("SELECT * FROM students_data WHERE student_email = ? AND id != ?");
+  $stmt->execute([$email, $studID]);
+  $result = $stmt->fetch();
+
+  return $result;
+}
 public function student_register_select_email($email) {
   $connection = $this->getConnection();
 
@@ -1269,7 +1387,18 @@ public function student_register_select_email($email) {
 
   return $result;
 }
+public function student_forgot_select_email($email) {
+  $connection = $this->getConnection();
 
+  $stmt = $connection->prepare("SELECT * FROM students_data WHERE student_email = ?");
+  $stmt->execute([$email]);
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+  if ($result) {
+    $_SESSION['email'] = $email;
+  }
+
+  return $result;
+}
 public function student_register_INSERT_Info($department, $department_course, $student_number, $first_name, $last_name, $PhoneNumber, $email, $pword, $imagePath, $verification_code) {
   $connection = $this->getConnection();
 	
@@ -1288,6 +1417,20 @@ public function SELECT_ACCOUNT_INBOX($student_id) {
 
   return $result;
 }    
+public function SELECT_ADMIN_INBOX() {
+  $connection = $this->getConnection();
+
+    $stmt = $connection->prepare("SELECT *, admin_systemnotification.id as asnid, admin_systemnotification.status as inbox_status, archive_research.id as arid, admin_account.id as aaid 
+                                FROM admin_systemnotification
+                                LEFT JOIN admin_account
+                                ON admin_systemnotification.admin_id = admin_account.id
+                                LEFT JOIN archive_research ON admin_systemnotification.admin_id = archive_research.archive_id
+                                WHERE admin_account.id IS NULL AND archive_research.project_title != NULL;");
+  $stmt->execute();
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $result;
+}  
 public function SELECT_ACCOUNT_INBOX_WHERE($searchInbox) {
   $connection = $this->getConnection();
 
@@ -1302,14 +1445,14 @@ public function SELECT_ACCOUNT_INBOX_WHERE($searchInbox) {
 }    
 
 public function studentLogin($email, $password, $redirect_to) {
-  session_start();
   $connection = $this->getConnection();
 
-  $stmt = $connection->prepare("SELECT * FROM students_data WHERE student_email=? AND student_password= ? ");
-  $stmt->execute([$email, md5($password)]);
+  $stmt = $connection->prepare("SELECT * FROM students_data WHERE student_email=?");
+  $stmt->execute([$email]);
 
   while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
       $student_id = $data['id'];
+      $student_name = $data['first_name'].' '.$data['last_name'];
       $student_email = $data['student_email'];
       $student_no = $data['student_id'];
       $department_id = $data['department_id'];
@@ -1324,26 +1467,22 @@ public function studentLogin($email, $password, $redirect_to) {
           // Handle account verification if needed
           $_SESSION['alert'] = "Account Verification";
           $_SESSION['status'] = "Verify your Account";
-          $_SESSION['status-code'] = "info";
-          header("location: ../student/student_verify_account.php?student_no=$student_no");
+          echo json_encode(array('status_code' => 'info', 'status' => 'Verify your account', 'alert' => 'Oppss...'));
+          exit();
       } else if ($school_verify == 'For Approval') {
         // Handle account verification if needed
-        $_SESSION['alert'] = "Account Confirmation";
-        $_SESSION['status'] = "Wait for admin approve your account";
-        $_SESSION['status-code'] = "info";
-        header("location: ../student/login.php");
+          echo json_encode(array('status_code' => 'info', 'status' => 'Wait for admin approve your account', 'alert' => 'Oppss...'));
+          exit();
       } else if ($school_verify == 'Blocked') {
         // Handle account verification if needed
-        $_SESSION['alert'] = "Account Blocked";
-        $_SESSION['status'] = "Sorry, but your account has been blocked";
-        $_SESSION['status-code'] = "info";
-        header("location: ../student/login.php");
+          echo json_encode(array('status_code' => 'info', 'status' => 'Sorry, but your account has been blocked', 'alert' => 'Oppss...'));
+          exit();
       } else {
           // Handle successful login
           date_default_timezone_set('Asia/Manila');
           $date = date('F / d l / Y');
           $time = date('g:i A');
-          $logs = 'You successfully logged in to your account.';
+          $logs = 'You logged in.';
 
           $sql = $connection->prepare("INSERT INTO system_notification(student_id, logs, logs_date, logs_time) VALUES (?, ?, ?, ?)");
           $sql->execute([$student_id, $logs, $date, $time]);
@@ -1351,30 +1490,24 @@ public function studentLogin($email, $password, $redirect_to) {
           $_SESSION['auth'] = true;
           $_SESSION['auth_user'] = [
               'student_id' => $student_id,
+              'student_name' => $student_name,
+              'student_no' => $student_no,
               'student_email' => $student_email,
               'department_id' => $department_id,
               'course_id' => $course_id,
           ];
 
-          // $_SESSION['alert'] = "Success";
-          // $_SESSION['status'] = "Log In Success";
-          // $_SESSION['status-code'] = "success";
           
           if (isset($redirect_to) || !empty($redirect_to) || $redirect_to !== '') {
-            $redirect_url = urldecode($redirect_to);
-            header("location: $redirect_url");
+            return true;
           } 
           if (!isset($redirect_to) || empty($redirect_to)) {
-            header("location: ../student/all_project_list.php");
+            return true;
           }
       }
   } else {
-      // Handle incorrect login details
-      
-      $_SESSION['alert'] = "Oppss...";
-      $_SESSION['status'] = "Incorrect Log In Details";
-      $_SESSION['status-code'] = "info";
-      header("location: ../student/login.php");
+      echo json_encode(array('status_code' => 'info', 'status' => 'Incorrect log in details', 'alert' => 'Oppss...'));
+      exit();
   }
 }
 
@@ -1405,7 +1538,27 @@ public function UPDATE_student_password($npword, $student_id) {
   return $result;
 
 }
+public function delete_department($department_id){
+  $connection = $this->getConnection();
 
+  $sql = $connection->prepare("DELETE FROM departments WHERE id = ?");
+  $sql->execute([$department_id]);
+  
+}
+public function delete_course($course_id){
+  $connection = $this->getConnection();
+
+  $sql = $connection->prepare("DELETE FROM course WHERE id = ?");
+  $sql->execute([$course_id]);
+  
+}
+public function delete_admin($admin_id){
+  $connection = $this->getConnection();
+
+  $sql = $connection->prepare("UPDATE admin_account SET delete_flag = 1 WHERE id = ?");
+  $sql->execute([$admin_id]);
+  
+}
 
 public function delete_student($student_id){
   $connection = $this->getConnection();
@@ -1414,12 +1567,17 @@ public function delete_student($student_id){
   $sql->execute([$student_id]);
   
 }
+
 public function block_student_school_verification($student_id, $set_blocked){
   $connection = $this->getConnection();
 
   $sql = $connection->prepare("UPDATE students_data SET school_verify = ? WHERE id = ?");
   $sql->execute([$set_blocked, $student_id]);
-  
+
+  $stmt1 = $connection->prepare("SELECT * FROM students_data WHERE id = ?");
+  $stmt1->execute([$student_id]);
+  $fetch = $stmt1->fetch(PDO::FETCH_ASSOC);
+  return $fetch;
 }
 public function update_student_school_verification($student_id){
   $connection = $this->getConnection();
@@ -1428,6 +1586,11 @@ public function update_student_school_verification($student_id){
 
   $sql = $connection->prepare("UPDATE students_data SET school_verify = ? WHERE id = ?");
   $sql->execute([$school_verify, $student_id]);
+
+  $stmt1 = $connection->prepare("SELECT * FROM students_data WHERE id = ?");
+  $stmt1->execute([$student_id]);
+  $fetch = $stmt1->fetch(PDO::FETCH_ASSOC);
+  return $fetch;
   
 }
 
@@ -1491,7 +1654,13 @@ public function studentINBOX_MarkASRead($read, $archive_id) {
   return $stmt->execute([$read, $archive_id]);
 
 }
+public function adminINBOX_MarkASRead($read, $archive_id) {
+  $connection = $this->getConnection();
 
+  $stmt = $connection->prepare("UPDATE admin_systemnotification SET status = ? WHERE admin_id = ?");
+  return $stmt->execute([$read, $archive_id]);
+
+}
 public function SELECT_student_profile($student_id) {
   $connection = $this->getConnection();
 

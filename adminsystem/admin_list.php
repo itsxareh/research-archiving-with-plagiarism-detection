@@ -11,7 +11,11 @@ ini_set('display_errors', 1);
 session_start();
 if($_SESSION['auth_user']['admin_id']==0){
     echo"<script>window.location.href='index.php'</script>";
+    exit(); 
     
+} elseif(!$_SESSION['auth_user']['admin_type']==0) {
+    header('Location:../../bad-request.php');
+    exit(); 
 } else {
     $admin_id = $_SESSION['auth_user']['admin_id'];
 }
@@ -26,9 +30,9 @@ if(ISSET($_POST['add_admin'])){
     $phone_number = $_POST['phone_number'];
     $email = $_POST['email_address'];
     $password = trim($_POST['password']);
+    $admin_type = $_POST['admin_type'];
 
-
-    $user = $db->admin_register_select_email($email);
+    $user = $db->admin_register_select_email($email, $admin_id);
 
     if ($user) {
         // Email already exists
@@ -39,7 +43,7 @@ if(ISSET($_POST['add_admin'])){
         exit();
     }
 
-    $sql = $db->insert_Admin($uniqueID, $first_name, $last_name, $complete_address, $phone_number, $email, $password);
+    $sql = $db->insert_Admin($uniqueID, $first_name, $last_name, $complete_address, $phone_number, $email, $password, $admin_type);
 
     if ($sql){
         date_default_timezone_set('Asia/Manila');
@@ -69,16 +73,16 @@ if(ISSET($_POST['edit'])){
     $phone_number = $_POST['phone_number'];
     $email = $_POST['email_address'];
     $password = trim($_POST['password']);
-
+    $admin_type = $_POST['admin_type'];
     
 
-    $sql = $db->update_Admin($first_name, $last_name, $complete_address, $phone_number, $email, $password, $id);
+    $sql = $db->update_Admin($first_name, $last_name, $complete_address, $phone_number, $email, $password, $admin_type, $id);
 
     if ($sql){
         date_default_timezone_set('Asia/Manila');
         $date = date('F / d l / Y');
         $time = date('g:i A');
-        $logs = 'You updated an admin info.';
+        $logs = 'You updated '.$first_name.' '.$last_name.' info.';
 
         $sql1 = $db->adminsystem_INSERT_NOTIFICATION_2($admin_id, $logs, $date, $time);
 
@@ -104,7 +108,7 @@ if(ISSET($_POST['edit'])){
     <title>Admin List: EARIST Research Archiving System</title>
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo2.png">
+    <link rel="shortcut icon" href="images/logo2.webp">
     <!-- Retina iPad Touch Icon-->
     <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
     <!-- Retina iPhone Touch Icon-->
@@ -163,7 +167,7 @@ require_once 'templates/admin_navbar.php';
                     <div class="modal-dialog modal-md" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title">Add New Admin</h5>
+                                <h5 class="modal-title">Add an admin</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
@@ -172,42 +176,44 @@ require_once 'templates/admin_navbar.php';
                             <form action="" method="POST" enctype="multipart/form-data">
                                 <div class="modal-body">
                                     <div class="form-group">
-                                        <div class="form-group row">
-                                            <div class="col-sm-6 first:mb-sm-0">
-                                                <label for="">First name</label>
-                                                <input type="name" class="form-control" name="first_name">
+                                        <div class="row m-0" style="justify-content: space-between; row-gap: 6px">
+                                            <div class="col-sm-6 item-detail p-0">
+                                                <label for="" class="info-label m-l-4">First name</label>
+                                                <input type="text" class="info-input" name="first_name" required>
                                             </div>
-                                            <div class="col-sm-6">
-                                                <label for="">Last name</label>
-                                                <input type="name" class="form-control" name="last_name">
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
-                                            <div class="col-sm-6 ">
-                                                <label for="">Phone number</label>
-                                                <input type="number" class="form-control" name="phone_number">
-                                            </div>
-
-                                            <div class="col-sm-6">
-                                                <label for="">Password</label>
-                                                <input type="password" class="form-control" name="password">
+                                            <div class="col-sm-5 item-detail p-0">
+                                                <label for="" class="info-label m-l-4">Last name</label>
+                                                <input type="text" class="info-input" name="last_name" required>
                                             </div>
                                         </div>
-                                        <div class="form-group row">
-                                            <div class="col-sm-12">
-                                            <label for="">Email address</label>
-                                            <input type="email" class="form-control" id="email" name="email_address">
-                                            <span id="email-error" class="error-message" style="color: #a33333; font-size: 10px"></span>
+                                        <div class="row m-0" style="justify-content: space-between;">
+                                            <div class="col-sm-6 item-detail p-0">
+                                                <label for="" class="info-label m-l-4">Email address</label>
+                                                <input type="email" class="info-input" name="email_address" id="add_email" required>
+                                                <span id="add-email-error" class="error-message" style="color: #a33333; font-size: 10px"></span>
+                                            </div>
+                                            <div class="col-sm-5 item-detail p-0">
+                                                <label for="" class="info-label m-l-4">Phone number</label>
+                                                <input class="info-input" name="phone_number" oninput="this.value = this.value.replace(/[^0-9]/g, '')" pattern="[0-9]*" maxlength="11" required>
                                             </div>
                                         </div>
-
-                                        <div class="form-group row">
-                                            <div class="col-sm-12">
-                                                <label for="">Complete address</label>
-                                                <input class="form-control" name="complete_address">
+                                        <div class="row m-0" style="justify-content: space-between;">
+                                            <div class="col-sm-6 item-detail p-0">
+                                                <label for="" class="info-label m-l-4">Password</label>
+                                                <input type="password" class="info-input" name="password" required>
+                                            </div>
+                                            <div class="col-sm-5 item-detail p-0">
+                                                <label for="" class="info-label m-l-4">Type</label>
+                                                <select class="info-input" name="admin_type" required>
+                                                    <option value="1">Admin</option>
+                                                    <option value="0">Super Admin</option>
+                                                </select>
                                             </div>
                                         </div>
-                                        
+                                        <div class="item-detail">
+                                            <label for="" class="info-label m-l-4">Complete Address</label>
+                                            <textarea class="info-input" name="complete_address" required></textarea>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -222,7 +228,7 @@ require_once 'templates/admin_navbar.php';
                     <!-- Button trigger modal -->
                     <div class="add-department">
                         <button type="button" class="add-research-button item-meta" data-toggle="modal" data-target="#modelId">
-                        <i class="ti-plus m-r-4"></i> Add New Admin
+                        <i class="ti-plus m-r-4"></i> Add an admin
                         </button>
                     </div>
 
@@ -234,6 +240,7 @@ require_once 'templates/admin_navbar.php';
                                 <!-- <th>Description</th> -->
                                 <th class="list-th">Email Address</th>
                                 <th class="list-th">Phone number</th>
+                                <th class="list-th">Type</th>
                                 <th class="list-th">Status</th>
                                 <th class="list-th"></th>
                             </tr>
@@ -249,6 +256,7 @@ require_once 'templates/admin_navbar.php';
                                 <td class="list-td"><?= $result['first_name']. ' ' .$result['middle_name'].' ' .$result['last_name'] ?></td>
                                 <td class="list-td"><?= $result['admin_email'] ?></td>
                                 <td class="list-td"><?= $result['phone_number'] ?></td>
+                                <td class="list-td"><?= ($result['admin_type'] === 0) ? 'Super Admin' : 'Admin' ?></td>
                                 <td class="list-td" style="text-align: center;">
                                     <!-- <?php 
                                         $status = $result['admin_status'];
@@ -286,7 +294,7 @@ require_once 'templates/admin_navbar.php';
                                         <div class="dropdown-action" id="dropdown_<?= $result['id'] ?>" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
                                             <div role="none">
                                                 <a href="#" data-toggle="modal" data-target="#modelId_<?= $result['id'] ?>" class="dropdown-action-item">Edit info</a>
-                                                <a href="#" data-toggle="delete-modal" data-target="#delete_modelId_<?= $result['id'] ?>" class="dropdown-action-item">Delete admin</a>
+                                                <a onclick="confirmDelete(<?= $result['id'] ?>)" href="#" data-toggle="delete-modal" data-target="#delete_modelId_<?= $result['id'] ?>" class="dropdown-action-item">Delete admin</a>
                                             </div>
                                         </div>
                                     </div>
@@ -304,41 +312,46 @@ require_once 'templates/admin_navbar.php';
                                                 <div class="modal-body">
                                                     <input type="text" style="display: none;" class="form-control" name="id" value="<?= $result['id'] ?>">
                                                     <div class="form-group">
-                                                        <div class="form-group row">
-                                                            <div class="col-sm-6 first:mb-sm-0">
-                                                                <label for="">First name</label>
-                                                                <input type="name" class="form-control" name="first_name" value="<?= $result['first_name'] ?>">
+                                                        <div class="row m-0" style="justify-content: space-between; row-gap: 6px">
+                                                            <div class="col-sm-6 item-detail p-0">
+                                                                <label for="" class="info-label m-l-4">First name</label>
+                                                                <input type="text" class="info-input" name="first_name" value="<?= $result['first_name'] ?>" required>
                                                             </div>
-                                                            <div class="col-sm-6">
-                                                                <label for="">Last name</label>
-                                                                <input type="name" class="form-control" name="last_name" value="<?= $result['last_name'] ?>">
-                                                            </div>
-                                                        </div>
-                                                        <div class="form-group row">
-                                                            <div class="col-sm-6 ">
-                                                                <label for="">Phone number</label>
-                                                                <input type="number" class="form-control" name="phone_number" value="<?= $result['phone_number'] ?>">
-                                                            </div>
-
-                                                            <div class="col-sm-6">
-                                                                <label for="">Password</label>
-                                                                <input type="password" class="form-control" name="password" value="<?= $result['admin_password'] ?>">
+                                                            <div class="col-sm-5 item-detail p-0">
+                                                                <label for="" class="info-label m-l-4">Last name</label>
+                                                                <input type="text" class="info-input" name="last_name" value="<?= $result['last_name'] ?>" required>
                                                             </div>
                                                         </div>
-                                                        <div class="form-group row">
-                                                            <div class="col-sm-12">
-                                                            <label for="">Email address</label>
-                                                            <input type="email" id="edit-email" class="form-control" name="email_address" value="<?= $result['admin_email'] ?>">
+                                                        <div class="row m-0" style="justify-content: space-between;">
+                                                            <div class="col-sm-6 item-detail p-0">
+                                                                <label for="" class="info-label m-l-4">Email address</label>
+                                                                <input type="email" class="info-input" name="email_address" id="edit_email<?= $result['id'] ?>" value="<?= $result['admin_email'] ?>" required>
+                                                                <span id="edit-email-error<?= $result['id'] ?>" class="error-message" style="color: #a33333; font-size: 10px"></span>
+                                                            </div>
+                                                            <div class="col-sm-5 item-detail p-0">
+                                                                <label for="" class="info-label m-l-4">Phone number</label>
+                                                                <input class="info-input" name="phone_number" oninput="this.value = this.value.replace(/[^0-9]/g, '')" pattern="[0-9]*" maxlength="11" value="<?= $result['phone_number'] ?>" required>
                                                             </div>
                                                         </div>
-
-                                                        <div class="form-group row">
-                                                            <div class="col-sm-12">
-                                                                <label for="">Complete address</label>
-                                                                <input class="form-control" name="complete_address" value="<?= $result['complete_address'] ?>">
+                                                        <div class="row m-0" style="justify-content: space-between;">
+                                                            <div class="col-sm-6 item-detail p-0">
+                                                                <label for="" class="info-label m-l-4">Password</label>
+                                                                <input type="password" class="info-input" name="password" value="<?= $result['admin_password'] ?>" required>
+                                                            </div>
+                                                            <div class="col-sm-5 item-detail p-0">
+                                                                <label for="" class="info-label m-l-4">Type</label>
+                                                                <select class="info-input" name="admin_type" required>
+                                                                    <option value="1" <?= ($result['admin_type'] === 1) ? 'selected' : '' ?>>Admin</option>   
+                                                                    <option value="0" <?= ($result['admin_type'] === 0) ? 'selected' : '' ?>>Super Admin</option>
+                                                                </select>
                                                             </div>
                                                         </div>
-                                                        
+                                                        <div class="item-detail">
+                                                        </div>
+                                                        <div class="item-detail">
+                                                            <label for="" class="info-label m-l-4">Complete Address</label>
+                                                            <textarea class="info-input" name="complete_address" required><?= $result['complete_address'] ?></textarea>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
@@ -360,7 +373,8 @@ require_once 'templates/admin_navbar.php';
             </div>
         </div>
     </div>
-
+    <?php include 'templates/footer.php'; ?>
+</div>
 
 <script>
 new DataTable('#datatablesss');
@@ -370,6 +384,48 @@ $('#datatablesss_wrapper').children('.row').eq(1).find('.col-sm-12').css({
     'padding-left': 0,
     'padding-right': 0
 });
+function confirmDelete(adminID){
+    swal({
+        title: "Are you sure you want to delete?",
+        text: "You will not be able to recover this data!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#a33333",
+        confirmButtonText: "Delete",
+        cancelButtonText: "Cancel",
+        closeOnConfirm: false,
+        closeOnCancel: true
+    }, function(isConfirm){
+        if (isConfirm) {
+            $.ajax({
+                url: "delete_admin.php",
+                type: "GET",
+                data: { adminID: adminID },
+                success: function(response) {
+                    swal({
+                        title: "Deleted!",
+                        text: "Admin deleted.",
+                        type: "success",
+                        confirmButtonText: 'Okay',
+                    }, 
+                    function (isConfirm) {
+                        // if (isConfirm) {
+                        //     const listItem = document.getElementById(`li_${studID}`)
+                        //     const searchResult = document.getElementById('search-result');
+                        //     if (listItem){
+                        //         listItem.remove();
+                        //     }
+                        //     if (!searchResult.querySelector('.project-list')) {
+                        //         searchResult.innerHTML = "<p style='text-align: center'>No uploaded research found.</p>";
+                        //     }
+                        // }
+                        location.reload();
+                    });
+                }
+            });
+        }
+    });
+}
 
 $(document).ready(function(){
   $("#inputDepartment").change(function(){
@@ -396,34 +452,45 @@ if(department != " "){
         }
 
 });
-document.getElementById("email").addEventListener("input", validateEmailAddress);
 
-function validateEmailAddress() {
-  const emailNo = document.getElementById("email").value;
-  const errorMessage = document.getElementById("email-error");
+$("#add_email").on("input", function() {
+        validateEmailAddress('add_email', 'add-email-error');
+    });
 
-  errorMessage.textContent = "";
+$('[id^="edit_email"]').each(function() {
+    const id = $(this).attr('id');
+    const errorId = id.replace('edit_email', 'edit-email-error');
+    $(this).on("input", function() {
+        validateEmailAddress(id, errorId);
+    });
+});
 
-  fetch("../php/checkAdminEmailAddress.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `email=${encodeURIComponent(emailNo)}`
-  })
-  .then(response => response.json())
-  .then(data => {
-    console.log(data);
-    if (data.exists === true) {
-      $('#email').css('background-image', 'url("../images/close.png")');
-      if (data.message !== null) {
-        errorMessage.textContent = "Email address already in use.";
-      }
-    } else {
-      $('#email').css('background-image', 'url("../images/checked.png")');
-      errorMessage.textContent = "";
+    function validateEmailAddress(inputId, errorId) {
+        const emailInput = document.getElementById(inputId);
+        const errorElement = document.getElementById(errorId);
+        const emailValue = emailInput.value;
+
+        errorElement.textContent = "";
+
+        fetch("../php/checkAdminEmailAddress.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `email=${encodeURIComponent(emailValue)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.exists === true) {
+                $(`#${inputId}`).css('background-image', 'url("../images/close.png")');
+                if (data.message !== null) {
+                    errorElement.textContent = "Email address already in use.";
+                }
+            } else {
+                $(`#${inputId}`).css('background-image', 'url("../images/checked.png")');
+                errorElement.textContent = "";
+            }
+        })
+        .catch(error => console.error("Error:", error));
     }
-  })
-  .catch(error => console.error("Error:", error));
-}
 
 
 $('.toggle-status').change(function() {

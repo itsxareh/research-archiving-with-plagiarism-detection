@@ -23,7 +23,7 @@ ob_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EARIST Research Archive - Student's List</title>
     <link rel="stylesheet" href="../../css/styles.css"/>
-    <link rel="shortcut icon" href="../images/logo2.png">
+    <link rel="shortcut icon" href="../images/logo2.webp">
     <style>
         body {
             font-family: 'Poppins', Arial, sans-serif;

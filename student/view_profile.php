@@ -29,7 +29,7 @@ session_start();
 
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo1.png">
+    <link rel="shortcut icon" href="images/logo2.webp">
     <!-- Retina iPad Touch Icon-->
     <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
     <!-- Retina iPhone Touch Icon-->
@@ -135,7 +135,8 @@ if(isset($_GET['contact_email'])){
   </div>
   <?php
     } else {
-        echo '<p>No profile data found.</p>';
+        // echo '<p>No profile data found.</p>';
+        echo '<script>location.href = "../bad-request.php"</script>';
     }
   ?>
   <div class="col-md-4 p-0">

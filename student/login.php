@@ -16,7 +16,7 @@ header("location:all_project_list.php");
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EARIST Research Archiving System</title>
-  <link rel="shortcut icon" href="images/logo1.png">
+  <link rel="shortcut icon" href="images/logo2.webp">
   <link rel="stylesheet" href="../css/login-sign-up.css">
   <link rel="stylesheet" href="../css/bootstrap.min.css">
   <link href="css/lib/themify-icons.css" rel="stylesheet">
@@ -27,13 +27,14 @@ header("location:all_project_list.php");
   <script src="js/lib/sweetalert/sweetalert.init.js"></script>
 </head>
 <body>  
+  <div class="loading-overlay">
+    <div class="loading-spinner"></div>
+  </div>
   <!-- Header-->
   <div class="header">
     <div class="nav-header">
       <div class="logo">
-        <a href="../index.php">
-          <img src="images/logo2.png">
-        </a>
+        <a href="../index.php"><img src="../images/logo2.webp"></a>
       </div>
       <div class="nav-side">
         <div class="search-bar m-r-16">
@@ -61,7 +62,7 @@ header("location:all_project_list.php");
           </div>
           <div class="col-sm-12 col-md-6 col-xl-6">
             <div class="log-in-container">
-              <form class="form-container" action="../php/student_loginCode.php" method="POST">
+              <form class="form-container" id="loginForm" method="POST">
                 <input type="hidden" name="redirect_to" value="<?= isset($_GET['redirect_to']) ? $_GET['redirect_to'] : '' ?>">
                 <h4>Login</h4>
                 <div class="row">
@@ -85,7 +86,7 @@ header("location:all_project_list.php");
                   <div class="col-xl-12 col-md-12 col-sm-12">
                     <div class="form-input">
                       <div class="flex align-items-center">
-                        <button name="submit" type="submit" class="login-btn" style="text-wrap: nowrap;">Log in</button>
+                        <button name="submit" type="submit" class="login-btn" style="text-wrap: nowrap;" id="loginBtn">Log in</button>
                         <p style="font-size: 12px; margin-left: 1.5rem" class="mb-0 no-account">Don't have an account? <a class="signup-link" href="sign_up.php">Sign up</a></p>
                       </div>
                     </div>
@@ -98,7 +99,38 @@ header("location:all_project_list.php");
       </div>
     </div>
   </main>
+  <?php require_once 'templates/footer.php'; ?>
 <script>
+$('#loginForm').on('submit', function(e) {
+    e.preventDefault();
+
+    const loginBtn = $('#loginBtn');
+    loginBtn.prop('disabled', true);  
+    
+    $.ajax({
+        url: '../php/student_loginCode.php',
+        type: 'POST',
+        data: $(this).serialize(),
+        success: function(response) {
+            const data = JSON.parse(response);
+            console.log(data);
+            if (data.status_code === 'success') {
+              window.location.href = data.redirect;
+            } else {
+              loginBtn.prop('disabled', false);
+              sweetAlert(data.alert, data.status, data.status_code);
+            }
+        },
+        error: function() {
+            sweetAlert('Error', 'Something went wrong. Please try again.', 'error');
+            loginBtn.prop('disabled', false);
+        }
+    });
+});
+
+document.querySelector('form').addEventListener('submit', function() {
+    document.querySelector('button[type="submit"]').disabled = true;
+});
 const searchInput = document.getElementById("searchInput");
 const searchButton = document.getElementById("search-btn");
 

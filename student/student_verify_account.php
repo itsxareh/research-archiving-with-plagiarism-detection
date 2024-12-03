@@ -16,7 +16,7 @@ header("location:all_project_list.php");
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EARIST Research Archiving System</title>
-  <link rel="shortcut icon" href="images/logo1.png">
+  <link rel="shortcut icon" href="images/logo2.webp">
   <link rel="stylesheet" href="../css/login-sign-up.css">
   <link rel="stylesheet" href="../css/bootstrap.min.css">
   <link href="css/lib/themify-icons.css" rel="stylesheet">
@@ -32,7 +32,7 @@ header("location:all_project_list.php");
     <div class="nav-header">
       <div class="logo">
         <a href="../index.php">
-          <img src="images/logo2.png">
+          <img src="images/logo2.webp">
         </a>
       </div>
       <div class="nav-side">

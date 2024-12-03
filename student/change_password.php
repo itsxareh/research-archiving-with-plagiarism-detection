@@ -23,7 +23,7 @@ if (!isset($_SESSION['email'])){
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EARIST Research Archiving System</title>
-  <link rel="shortcut icon" href="images/logo1.png">
+  <link rel="shortcut icon" href="images/logo2.webp">
   <link rel="stylesheet" href="../css/login-sign-up.css">
   <link rel="stylesheet" href="../css/bootstrap.min.css">
   <link href="css/lib/themify-icons.css" rel="stylesheet">
@@ -36,11 +36,9 @@ if (!isset($_SESSION['email'])){
 <body>  
   <!-- Header-->
   <div class="header">
-    <div class="nav-header">
+    <div class="nav-header h-100">
       <div class="logo">
-        <a href="../index.php">
-          <img src="images/logo2.png">
-        </a>
+        <a href="../index.php"><img src="../images/logo2.webp"></a>
       </div>
       <!-- <div class="nav-side">
         <div class="search-bar m-r-16">
@@ -57,7 +55,7 @@ if (!isset($_SESSION['email'])){
   <main>
     <div class="content-wrapper h-100">
       <div class="col-xl-12 col-md-12-col sm-12">
-        <div class="row p-4">
+        <div class="row">
           <div class="col-sm-12 col-md-4 col-xl-6">
               <div class="intro">
                 <h2>Archive with Ease</h2>
@@ -90,8 +88,10 @@ if (!isset($_SESSION['email'])){
                 </div>
                 <div class="row mt-4">
                   <div class="col-xl-12 col-md-12 col-sm-12">
-                    <div class="flex align-items-center">
-                      <button name="changePassword" type="submit" class="login-btn">Change password</button>
+                    <div class="form-input">
+                      <div class="flex align-items-center">
+                        <button name="changePassword" type="submit" class="login-btn">Change password</button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -103,10 +103,32 @@ if (!isset($_SESSION['email'])){
     </div>
   </main>
 <script>
+document.getElementById("npassword").addEventListener("input", validateForm);
+document.getElementById("cnpassword").addEventListener("input", validateForm);
 
-document.getElementById("npassword").addEventListener("input", () => validatePassword("npassword"));
-document.getElementById("cnpassword").addEventListener("input", validateConfirmPassword);
+const form = document.querySelector('.form-container');
+const submitButton = document.querySelector('.login-btn');
 
+function validateForm() {
+  const newPassword = document.getElementById("npassword").value;
+  const confirmPassword = document.getElementById("cnpassword").value;
+  const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+  // Check all conditions
+  const isPasswordValid = passwordPattern.test(newPassword);
+  const doPasswordsMatch = newPassword === confirmPassword;
+  const isFormValid = isPasswordValid && doPasswordsMatch;
+
+  // Enable/disable submit button
+  submitButton.disabled = !isFormValid;
+  submitButton.style.opacity = isFormValid ? '1' : '0.5';
+
+  // Validate individual fields
+  validatePassword("npassword");
+  validateConfirmPassword();
+}
+
+// Update existing validatePassword and validateConfirmPassword functions to call validateForm
 function validatePassword(field) {
   const password = document.getElementById(field).value;
   const errorMessage = document.getElementById(`${field}-error`);
@@ -125,6 +147,8 @@ function validatePassword(field) {
   if (field === "npassword") {
     validateConfirmPassword();
   }
+
+  validateForm();
 }
 
 function validateConfirmPassword() {
@@ -139,18 +163,67 @@ function validateConfirmPassword() {
     errorMessage.textContent = "";
     $('#cnpassword').css('background-image', 'url("../images/checked.png")');
   }
+  validateForm();
 }
 
-    const searchInput = document.getElementById("searchInput");
-    const searchButton = document.getElementById("search-btn");
-
-    searchButton.addEventListener("click", () => {
-        if(searchInput.value) {
-            window.location.href = `all_project_list.php?searchInput=${encodeURIComponent(searchInput.value)}`;
-        } else {
-            alert("Please enter a research title");
+// Add form submission handler
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  
+  if (!submitButton.disabled) {
+    // Show loading state
+    submitButton.disabled = true;
+    submitButton.innerHTML = 'Processing...';
+    
+    const formData = new FormData(form);
+    
+    $.ajax({
+      url: '../php/student_changePassword.php',
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function(response) {
+        try {
+          const result = JSON.parse(response);
+          console.log(result);
+          if (result.status_code === 'success') {
+            sweetAlert(result.alert, result.status, result.status_code);
+            setTimeout(() => {
+              window.location.href = result.redirect;
+            }, 1500);
+          } else {
+            sweetAlert(result.alert, result.status, result.status_code);
+            submitButton.disabled = false;
+            submitButton.innerHTML = 'Change password';
+          }
+        } catch (e) {
+          console.error('Error parsing response:', e);
+          sweetAlert("Error!", "Something went wrong. Please try again.", "error");
+          submitButton.disabled = false;
+          submitButton.innerHTML = 'Change password';
         }
+      },
+      error: function(xhr, status, error) {
+        console.error('AJAX Error:', error);
+        sweetAlert("Error!", "Something went wrong. Please try again.", "error");
+        submitButton.disabled = false;
+        submitButton.innerHTML = 'Change password';
+      }
     });
+  }
+});
+
+const searchInput = document.getElementById("searchInput");
+const searchButton = document.getElementById("search-btn");
+
+searchButton.addEventListener("click", () => {
+    if(searchInput.value) {
+        window.location.href = `all_project_list.php?searchInput=${encodeURIComponent(searchInput.value)}`;
+    } else {
+        alert("Please enter a research title");
+    }
+});
 </script>
 
 <?php 

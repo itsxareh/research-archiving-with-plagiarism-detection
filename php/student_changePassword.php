@@ -14,7 +14,7 @@ session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 		
-if(isset($_POST['changePassword']) && isset($_SESSION['email'])){
+if(isset($_POST['npassword']) && isset($_POST['cnpassword']) && isset($_SESSION['email'])){
 	$email = isset($_POST['email']) ? $_POST['email'] : $_SESSION['email'] ;
 	$npassword = trim($_POST['npassword']);
 	$cnpassword = trim($_POST['cnpassword']);
@@ -61,34 +61,20 @@ if(isset($_POST['changePassword']) && isset($_SESSION['email'])){
 			$mail->isHTML(true);
 			$mail->Subject = 'EARIST Research Archiver Account';
 			$mail->Body = 'Recently your EARIST Research Archiver password has changed.';
-			$mail->send();
 
-			$_SESSION['alert'] = "Success";
-			$_SESSION['status'] = "Log In Success";
-			$_SESSION['status-code'] = "success";
-			header("location: ../student/all_project_list.php");
-			exit();
-
+			if($mail->send()){
+				echo json_encode(array("status_code" => "success", "status" => "Account Recovery Success", "alert" => "Success", "redirect" => "../student/all_project_list.php"));
+			} else {
+				echo json_encode(array("status_code" => "error", "status" => "Failed to send email", "alert" => "Oppss..."));
+			}
 		} else {
-			$_SESSION['alert'] = "Error!";
-			$_SESSION['status'] = "New password and current password doesn't match";
-			$_SESSION['status-code'] = "error";
-			header("location: ../student/change_password.php");
-			exit();
+			echo json_encode(array("status_code" => "error", "status" => "New password and current password doesn't match", "alert" => "Oppss..."));
 		}
 	} else {
-		$_SESSION['alert'] = "Error!";
-		$_SESSION['status'] = "Previous password cannot be used as new password.";
-		$_SESSION['status-code'] = "error";
-		header("location: ../student/change_password.php");
-		exit();
+		echo json_encode(array("status_code" => "error", "status" => "Previous password cannot be used as new password.", "alert" => "Oppss..."));
 	}
 } else {
-	$_SESSION['alert'] = "Error!";
-	$_SESSION['status'] = "Invalid request";
-	$_SESSION['status-code'] = "error";
-	header("location:../student/login.php");
-	exit();
+	echo json_encode(array("status_code" => "error", "status" => "Invalid request", "alert" => "Oppss..."));
 }
 
 ?>

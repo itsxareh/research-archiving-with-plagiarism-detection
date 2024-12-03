@@ -58,7 +58,7 @@ function highlightPlagiarizedWords($submitted_sentence, $existing_sentence) {
 
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo1.png">
+    <link rel="shortcut icon" href="images/logo2.webp">
     <!-- Retina iPad Touch Icon-->
     <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
     <!-- Retina iPhone Touch Icon-->
@@ -90,8 +90,6 @@ require_once 'templates/student_navbar.php';
 <div class="content-wrap">
   <div class="container">
       <div class=" col-md-12">
-
-<!-- Page Heading -->
         <div class="row">
           <div class="col-md-12 p-r-0 title-margin-right">
             <div class="page-header">
@@ -102,21 +100,20 @@ require_once 'templates/student_navbar.php';
             </div>
           </div>
         </div>
-<div class="panel-body inf-content">
-  <div class="row">
-    <?php
-  if(isset($_GET['archiveID'])){
+        <div class="row">
+        <?php
+      if(isset($_GET['archiveID'])){
 
-    $archiveID = $_GET['archiveID'];
+        $archiveID = $_GET['archiveID'];
 
-    $data = $db->SELECT_ARCHIVE_RESEARCH($archiveID);
-      
-  } else {
-    echo "<div class='col-md-12'>
-            <p style='text-align: center'>No research found.</p>
-          </div>";
-  }
-  ?>
+        $data = $db->SELECT_ARCHIVE_RESEARCH($archiveID);
+          
+      } else {
+        echo "<div class='col-md-12'>
+                <p style='text-align: center'>No research found.</p>
+              </div>";
+      }
+      ?>
     <div class="col-md-8">
         <div class="short-info">
             <p><strong style="font-size: 20px; color:#313131"><?php echo ucwords($data['project_title']); ?> </strong><br></p>
@@ -131,89 +128,81 @@ require_once 'templates/student_navbar.php';
         </div>
       <div class="form-group" style="padding-top: 1rem;">
         <iframe src="<?php echo $data['documents']; ?>" style="width: 100%; height: 100svh;" allowfullscreen></iframe>
+        <div class="text-center">
+          <a href="download_file.php?archiveID=<?= $archiveID ?>" class="download-pdf-button" download>Download PDF</a>
+        </div>
       </div>
     </div>
-    <div class="col-md-4">
-    <div class="page-header">
-      <div class="page-title information-meta">
-      <span class="info-font text-white"></i>RESULTS</span>
-      </div>
-    </div>
-    <?php
-    if ($data['aid'] !== ''){
-      $archive_id = $data['aid'];
-      $data = $db->SELECT_PLAGIARISM_SUMMARY_RESEARCH($archive_id);
-      if (!empty($data)) {
-        $percentage = $data['total_percentage'];
-        if ($percentage >= 100){
-          $percentage = 100;
-        }
-        echo '<div class="info-container" style="display: flex; justify-content:space-between; align-items: center">
-                <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Plagiarized Content</p>
-                <div class="d-flex align-items-center">
-                  <div class="progress w-100" style="height: 10px">
-                    <div class="progress-bar-danger progress-bar" role="progressbar" style="width: '.round($percentage, 1).'%" aria-valuenow="'.round($percentage, 1).'" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                  <span style="color: #a33333; font-size: 16px; margin-left: .75rem !important;">'.round($percentage, 1).'%</span>
-                </div>
-              </div>';
-      }
-    } ?> 
-    
-    <ul class="plagiarized-container">
-    <?php
-    $result = $db-> SELECT_SUMMARY_PLAGIARISM_RESULTS_RESEARCH($archive_id);
-    if (!empty($result)) {
-        foreach ($result as $results) {
-          $plagiarism_percentage = $results['plagiarism_percentage'];
-          if ($plagiarism_percentage >= 100){
-            $plagiarism_percentage = 100;
+        <div class="col-md-4">
+        <div class="page-header">
+          <div class="page-title information-meta">
+          <span class="info-font text-white"></i>RESULTS</span>
+          </div>
+        </div>
+        <?php
+        if ($data['aid'] !== ''){
+          $archive_id = $data['aid'];
+          $data = $db->SELECT_PLAGIARISM_SUMMARY_RESEARCH($archive_id);
+          if (!empty($data)) {
+            $percentage = $data['total_percentage'];
+            if ($percentage >= 100){
+              $percentage = 100;
+            }
+            echo '<div class="info-container" style="display: flex; justify-content:space-between; align-items: center">
+                    <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Plagiarized Content</p>
+                    <div class="d-flex align-items-center">
+                      <div class="progress w-100" style="height: 10px">
+                        <div class="progress-bar-danger progress-bar" role="progressbar" style="width: '.round($percentage, 1).'%" aria-valuenow="'.round($percentage, 1).'" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                      <span style="color: #a33333; font-size: 16px; margin-left: .75rem !important;">'.round($percentage, 1).'%</span>
+                    </div>
+                  </div>';
           }
-            echo '
-            <li class="plagiarized-card">
-              <div class="plagiarized-card-content">
-                <p class="info-meta" style="color: #000; padding-bottom: 0; font-size: 14px; margin-bottom: 0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">'.ucwords($results['project_title']).'</p>
-                <a class="info-meta" style="font-size: 10px; padding-top: 0;" href="read_full.php?archiveID='.$results['archive_id'].'"><i class="pread">Read full here</i></a>
-                <div class="plagiarized-card-meta">
-                  <a class="info-meta p-0 result-title" href="#">
-                    <p class="info-meta p-r-4" style="font-size: 12px; margin-bottom: 0; padding-top: 6px; font-weight: 500; color: #a33333">'.round($plagiarism_percentage, 1).'%</p>
-                    <img class="plagiarized-button" src="../images/arrow-down.svg" style="width: 8px; height: 8px">
-                  </a>
-                  <div class="plagiarized-result" id="plagiarized-result" style="display:none; cursor: pointer;">';
-                  
-            $plagiarism_result = $db->SELECT_PLAGIARISM_RESULTS_RESEARCH($results['plaid'], $results['sai']);
-            if (!empty($plagiarism_result)) {
-              foreach ($plagiarism_result as $plagiarism) {
-                $highlighted_result = highlightPlagiarizedWords($plagiarism['submitted_sentence'], $plagiarism['existing_sentence']);
-                echo '<p class="info-meta p-r-4" style="font-size: 12px; margin-bottom: 0; padding-top: 6px; font-weight: 400; color: #a33333">'.$highlighted_result['existing'].'</p>';
-                }
+        } ?> 
+        
+        <ul class="plagiarized-container">
+        <?php
+        $result = $db-> SELECT_SUMMARY_PLAGIARISM_RESULTS_RESEARCH($archive_id);
+        if (!empty($result)) {
+            foreach ($result as $results) {
+              $plagiarism_percentage = $results['plagiarism_percentage'];
+              if ($plagiarism_percentage >= 100){
+                $plagiarism_percentage = 100;
               }
-            echo '</div>
-                </div>
-              </div>
-            </li>';
+                echo '
+                <li class="plagiarized-card">
+                  <div class="plagiarized-card-content">
+                    <p class="info-meta" style="color: #000; padding-bottom: 0; font-size: 14px; margin-bottom: 0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">'.ucwords($results['project_title']).'</p>
+                    <a class="info-meta" style="font-size: 10px; padding-top: 0;" href="read_full.php?archiveID='.$results['archive_id'].'"><i class="pread">Read full here</i></a>
+                    <div class="plagiarized-card-meta">
+                      <a class="info-meta p-0 result-title" href="#">
+                        <p class="info-meta p-r-4" style="font-size: 12px; margin-bottom: 0; padding-top: 6px; font-weight: 500; color: #a33333">'.round($plagiarism_percentage, 1).'%</p>
+                        <img class="plagiarized-button" src="../images/arrow-down.svg" style="width: 8px; height: 8px">
+                      </a>
+                      <div class="plagiarized-result" id="plagiarized-result" style="display:none; cursor: pointer; overflow-x: hidden">';
+                      
+                $plagiarism_result = $db->SELECT_PLAGIARISM_RESULTS_RESEARCH($results['plaid'], $results['sai']);
+                if (!empty($plagiarism_result)) {
+                  foreach ($plagiarism_result as $plagiarism) {
+                    $highlighted_result = highlightPlagiarizedWords($plagiarism['submitted_sentence'], $plagiarism['existing_sentence']);
+                    echo '<p class="info-meta p-r-4" style="font-size: 12px; margin-bottom: 0; padding-top: 6px; font-weight: 400; color: #a33333">'.$highlighted_result['existing'].'</p>';
+                    }
+                  }
+                echo '</div>
+                    </div>
+                  </div>
+                </li>';
+            }
         }
-    }
-    ?>
-    </ul>
+        ?>
+        </ul>
+        </div>
       </div>
     </div>
   </div>
+  <?php require_once 'templates/footer.php'?>
 </div>
 
-
-
-</div>
-
-
-
-</div>                                        
-
-</div>
-        </section>
-      </div>
-    </div>
-  </div>
 <script src="js/lib/jquery.min.js"></script>
 <script src="js/lib/jquery.nanoscroller.min.js"></script>
 <script src="js/lib/menubar/sidebar.js"></script>

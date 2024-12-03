@@ -18,19 +18,18 @@ session_start();
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EARIST Research Archiving System</title>
-  <link rel="shortcut icon" href="student/images/logo1.png">
+  <link rel="shortcut icon" href="student/images/logo2.webp">
   <link rel="stylesheet" href="../css/index.css">
-  <link href="css/lib/themify-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="../css/bootstrap.min.css">
   <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
   <style type="text/css">
-    .menu-container {
-        position: relative;
-        display: inline-block;
-        text-align: left;
-    }
+.menu-container {
+    position: relative;
+    display: inline-block;
+    text-align: left;
+}
 
-  .menu-button {
+.menu-button {
     display: inline-flex;
     width: 100%;
     justify-content: center;
@@ -89,16 +88,17 @@ session_start();
     background-color: #f3f4f6; /* bg-gray-100 */
     color: #1f2937; /* text-gray-900 */
 }
+
 </style>
 </head>
 <body>  
   <!-- Header-->
-  <div class="header">
+<div class="header">
     <div class="nav-header">
       <div class="logo">
-        <a href="index.php"><img src="images/logo2.png"></a>
+        <a href="index.php"><img src="images/logo2.webp"></a>
       </div>
-      <div class="nav-side">
+        <div class="nav-side">
         <?php
           if(isset($_SESSION['auth_user']['student_id'])) {
               $student_id = $_SESSION['auth_user']['student_id'];
@@ -141,16 +141,20 @@ session_start();
             <div class="row p-4 justify-content-center">
                 <div class="col-sm-12 col-md-8 col-xl-8 text-center intro">
                     <h2>Explore a world of knowledge and uncover the insights that drive discovery</h2>
-                    <p>Discover a world of research and ideas. Access countless academic papers, archive your findings, and stay organized. Start building your knowledge repository today.</p>
+                    <p>Discover a world of research and ideas. Access academic papers, archive your findings, and stay organized.</p>
                 </div>
                 <div class="col-sm-12 col-md-8 col-xl-8 research-search text-center">
                     <p class="search-description">Enter research title so we could help you in your research.</p>
                     <div class="row form-input align-items-start">
-                        <div class="col-sm-8 col-md-10 col-xl-10 m-t-2 p-0">
-                            <input id="searchInput" type="text">
-                        </div>
-                        <div class="col-sm-4 col-md-2 col-xl-2 m-t-2 p-0">
-                            <button id="searchButton" class="search-btn">Search</button>
+                        <div class="col-sm-12 col-md-12 col-xl-12 m-t-2 p-0">
+                            <div class="" style="position: relative;">
+                                <input id="searchInput" type="text">
+                                <div class="searching" style="position: absolute; top:0; right: 0; bottom: 0">
+                                    <button id="searchButton" class="search-btn">
+                                        <img style="width: 20px; height: 20px" src="images/search.svg" alt="">
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -158,6 +162,7 @@ session_start();
         </div>
     </div>
   </main>
+  <?php include 'student/templates/footer.php'; ?>
 <script>
 document.getElementById("menu-button").addEventListener("click", function () {
     const dropdown = document.querySelector(".dropdown-profile");

@@ -30,7 +30,7 @@ $admin_id = $_SESSION['auth_user']['admin_id'];
     <title>Student List: EARIST Research Archiving System</title>
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo2.png">
+    <link rel="shortcut icon" href="images/logo2.webp">
     <!-- Retina iPad Touch Icon-->
     <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
     <!-- Retina iPhone Touch Icon-->
@@ -148,7 +148,7 @@ require_once 'templates/admin_navbar.php';
                                         }
                                     ?>
                                     <a href="#" data-toggle="modal"  data-target="#<?= $uniquePrefix ?>edit_modal" class="dropdown-action-item">Edit information</a>
-                                    <a href="delete_student.php?studID=<?= $result['studID'] ?>" class="dropdown-action-item">Delete Student</a>
+                                    <a onclick="confirmDelete(<?= $result['studID'] ?>)" href="#" class="dropdown-action-item">Delete Student</a>
                                 </div>
                             </div>
                         </div>
@@ -161,18 +161,61 @@ require_once 'templates/admin_navbar.php';
             </tbody>
         </table>
             </div>
-            </div>
         </div>
     </div>
-
+    <?php include 'templates/footer.php'; ?>
+</div>
 
 <script>
     new DataTable('#datatablesss');
+    
+$('#datatablesss_filter label input').removeClass('form-control form-control-sm');
 </script>
 
 <script>
-
-$('#datatablesss_filter label input').removeClass('form-control form-control-sm');
+    
+function confirmDelete(studID){
+    swal({
+        title: "Are you sure you want to delete?",
+        text: "You will not be able to recover this data!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#a33333",
+        confirmButtonText: "Delete",
+        cancelButtonText: "Cancel",
+        closeOnConfirm: false,
+        closeOnCancel: true
+    }, function(isConfirm){
+        if (isConfirm) {
+            $.ajax({
+                url: "delete_student.php",
+                type: "GET",
+                data: { studID: studID },
+                success: function(response) {
+                    swal({
+                        title: "Deleted!",
+                        text: "Student deleted.",
+                        type: "success",
+                        confirmButtonText: 'Okay',
+                    }, 
+                    function (isConfirm) {
+                        // if (isConfirm) {
+                        //     const listItem = document.getElementById(`li_${studID}`)
+                        //     const searchResult = document.getElementById('search-result');
+                        //     if (listItem){
+                        //         listItem.remove();
+                        //     }
+                        //     if (!searchResult.querySelector('.project-list')) {
+                        //         searchResult.innerHTML = "<p style='text-align: center'>No uploaded research found.</p>";
+                        //     }
+                        // }
+                        location.reload();
+                    });
+                }
+            });
+        }
+    });
+}
 
 <?php 
 if (isset($_SESSION['status']) && $_SESSION['status'] != '') {

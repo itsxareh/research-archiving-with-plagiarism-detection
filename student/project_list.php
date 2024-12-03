@@ -3,10 +3,6 @@ include '../connection/config.php';
 
 $db = new Database();
 
-//display all errors
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 session_start();
 if($_SESSION['auth_user']['student_id']==0){
     echo"<script>window.location.href='login.php'</script>";
@@ -55,7 +51,7 @@ if ($searchInput || $keywords || $fromYear || $toYear || $research_date) {
     <title>Project List: EARIST Research Archiving System</title>
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo2.png">
+    <link rel="shortcut icon" href="images/logo2.webp">
     <!-- Retina iPad Touch Icon-->
     <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
     <!-- Retina iPhone Touch Icon-->
@@ -94,8 +90,6 @@ require_once 'templates/student_navbar.php';
 ?>
 <!---------NAVIGATION BAR ENDS-------->
 
-
-
 <div class="content-wrap">
         <div class="container">
             <div class="col-md-12">
@@ -112,7 +106,7 @@ require_once 'templates/student_navbar.php';
                     <div class="modal-dialog modal-lg" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title info-detail">Add New Research</h5>
+                                <h5 class="modal-title info-detail" style="font-size: 12px">Add research</h5>
                                     <button type="button" class="close p-0" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
@@ -127,7 +121,7 @@ require_once 'templates/student_navbar.php';
                                         </div>
                                         <div class="col-sm-2 item-detail p-0">
                                             <label for="" class="info-label m-l-4">Project year</label>
-                                            <select class="info-input" style="" name="year" id="year">
+                                            <select class="info-input" style="" name="year" id="year" required>
                                                 <?php 
                                                     $defaultYear = date('Y');
                                                     for ($year = date('Y'); $year >= 1999; $year--) {
@@ -160,8 +154,16 @@ require_once 'templates/student_navbar.php';
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                 <button name="add_research" class="btn btn-danger">Upload</button>
                             </div>
+                            <div class="loading-overlay" style="display:none">
+                                <div class="loading-content">
+                                    <div class="loading-spinner"></div>
+                                    <p class="progress-text">Uploading research paper...</p>
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
                             </form>
-
                         </div>
                     </div>
                 </div>
@@ -198,13 +200,12 @@ require_once 'templates/student_navbar.php';
                             </select>
                         </div>
                         <fieldset class="mb-3">
-                            <div class="input-filter-group">
-                                <label class="item-meta" for="info-label">Document Status:</label>
-                                <select class="item-meta" style="width: auto;" name="documentStatus" id="documentStatus">
-                                    <option value="">All</option>
-                                    <option value="Accepted">Published</option>
-                                    <option value="Not Accepted">Not yet published</option>
-                                </select>
+                            <label class="item-meta" for="info-label">Document Status:</label>
+                            <select class="form-control item-meta" name="documentStatus" id="documentStatus">
+                                <option value="">All</option>
+                                <option value="Accepted">Published</option>
+                                <option value="Not Accepted">Not yet published</option>
+                            </select>
                         </fieldset>
                         <fieldset class="mb-3">
                             <div class="input-filter-group">
@@ -373,59 +374,57 @@ require_once 'templates/student_navbar.php';
             </section>
         </div>
     </div>
+    <?php include 'templates/footer.php'; ?>
 </div>
+
 <script>
-    function confirmDelete(archiveID){
-        swal({
-            title: "Are you sure you want to delete?",
-            text: "You will not be able to recover this file!",
-            type: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#a33333",
-            confirmButtonText: "Delete",
-            cancelButtonText: "Cancel",
-            closeOnConfirm: false,
-            closeOnCancel: true
-        }, function(isConfirm){
-            if (isConfirm) {
-                $.ajax({
-                    url: "delete_research.php",
-                    type: "GET",
-                    data: { archiveID: archiveID },
-                    success: function(response) {
-                        swal({
-                            title: "Deleted!",
-                            text: "The research has been deleted.",
-                            type: "success",
-                            confirmButtonText: 'Okay',
-                        }, 
-                        function (isConfirm) {
-                            if (isConfirm) {
-                                const listItem = document.getElementById(`li_${archiveID}`)
-                                const searchResult = document.getElementById('search-result');
-                                if (listItem){
-                                    listItem.remove();
-                                }
-                                if (!searchResult.querySelector('.project-list')) {
-                                    searchResult.innerHTML = "<p style='text-align: center'>No uploaded research found.</p>";
-                                }
+function confirmDelete(archiveID){
+    swal({
+        title: "Are you sure you want to delete?",
+        text: "You will not be able to recover this file!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#a33333",
+        confirmButtonText: "Delete",
+        cancelButtonText: "Cancel",
+        closeOnConfirm: false,
+        closeOnCancel: true
+    }, function(isConfirm){
+        if (isConfirm) {
+            $.ajax({
+                url: "delete_research.php",
+                type: "GET",
+                data: { archiveID: archiveID },
+                success: function(response) {
+                    swal({
+                        title: "Deleted!",
+                        text: "The research has been deleted.",
+                        type: "success",
+                        confirmButtonText: 'Okay',
+                    }, 
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            const listItem = document.getElementById(`li_${archiveID}`)
+                            const searchResult = document.getElementById('search-result');
+                            if (listItem){
+                                listItem.remove();
                             }
-                        });
-                    }
-                });
-            }
-        });
-    }
-    
-    function disableSubmitButton() {
-        const saveButton = document.querySelector('button[name="add_research"]');
-        saveButton.disabled = true;
-        saveButton.textContent = 'Saving...';
-    }
-    window.onpopstate = function(event) {
-        filteredData();
-    }; 
-    $('#search-result').on('click', '.item-abstract', function(event) {
+                            if (!searchResult.querySelector('.project-list')) {
+                                searchResult.innerHTML = "<p style='text-align: center'>No uploaded research found.</p>";
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    });
+}
+
+window.onpopstate = function(event) {
+    filteredData();
+}; 
+
+$('#search-result').on('click', '.item-abstract', function(event) {
     const $target = $(event.target);
 
     if ($target.closest('h3.abstract-title').length) {
@@ -446,144 +445,214 @@ require_once 'templates/student_navbar.php';
         img.attr('src', isArrowDown ? '../images/arrow-down.svg' : '../images/arrow-up.svg');
     }
 });
-    const keywordsInput = document.getElementById('keywords');
-    const tagify = new Tagify(keywordsInput, {
-        delimiters: ",",
-        maxTags: 7,   
-        dropdown: {
-            enabled: 0 
-        }
-    });
-    function prepareKeywords() {
-        document.getElementById('keywords').value = tagify.value.map(tag => tag.value).join(',');
-    }
-    const filterKeywordsInput = document.getElementById('filter-keywords');
-    const keywordTagify = new Tagify(filterKeywordsInput, {
-        delimiters: ",",
-        maxTags: 7,   
-        dropdown: {
-            enabled: 0 
-        }
-    });
-    function getKeywords() {
-        return keywordTagify.value.map(tag => tag.value).join(',');
-    }
-    function getURLParameter(name) {
-        return new URLSearchParams(window.location.search).get(name);
-    }
-    const addModal = $('#modelId')
-    const form = document.querySelector('form');
-    const submitButton = document.querySelector('button[name="add_research"]');
-    const ulResult = document.getElementById('search-result');
-    const modalBackdrop = document.getElementsByClassName('modal-backdrop');
-    const inputFile = document.getElementById('pdfFile');
 
-    form.addEventListener('submit', async function(e) {
+const keywordsInput = document.getElementById('keywords');
+const tagify = new Tagify(keywordsInput, {
+    delimiters: ",",
+    maxTags: 7,   
+    dropdown: {
+        enabled: 0 
+    }
+});
+
+function prepareKeywords() {
+    document.getElementById('keywords').value = tagify.value.map(tag => tag.value).join(',');
+}
+
+const filterKeywordsInput = document.getElementById('filter-keywords');
+const keywordTagify = new Tagify(filterKeywordsInput, {
+    delimiters: ",",
+    maxTags: 7,   
+    dropdown: {
+        enabled: 0 
+    }
+});
+
+function getKeywords() {
+    return keywordTagify.value.map(tag => tag.value).join(',');
+}
+
+function getURLParameter(name) {
+    return new URLSearchParams(window.location.search).get(name);
+}
+
+const addModal = $('#modelId')
+const form = document.querySelector('form');
+const submitButton = document.querySelector('button[name="add_research"]');
+const ulResult = document.getElementById('search-result');
+const modalBackdrop = document.getElementsByClassName('modal-backdrop');
+const loadingOverlay = document.querySelector('.loading-overlay');
+const progressBar = document.querySelector('.progress-bar');
+const progressText = document.querySelector('.progress-text');
+const inputFile = document.getElementById('pdfFile');
+
+form.addEventListener('submit', async function(e) {
     e.preventDefault();
     
     if (form.submitted) return;
-    
     if (!validateForm()) return;
 
     const inputFile = document.getElementById('pdfFile');
     const file = inputFile.files[0];
     
     if (file && !validateFileSize(file, 20)) {
-        return; // Stop submission if file is too large
+        return;
     }
+
+    // Show loading overlay
+    loadingOverlay.style.display = 'flex';
     submitButton.disabled = true;
-    submitButton.textContent = 'Submitting...';
+    submitButton.textContent = 'Uploading...';
     
     const formData = new FormData(form);
     
     try {
-        const response = await fetch('add_research.php', {
-            method: 'POST',
-            body: formData
-        });
-        
-        inputFile.disabled = true;
-        const result = await response.json();
-        console.log(result)
-        
-        if (result.status === 'success') {
-            $(".sa-confirm-button-container button").attr("data-dismiss", "modal");
-            swal({
-                title: result.stats,
-                text: result.message,
-                type: result.status,
-                confirmButtonText: 'Okay',
-            }, 
-            function (isConfirm) {
-                if(isConfirm) {
-                    $('#modelId').modal('hide');
-                    $('.modal-backdrop').remove();
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'add_research.php', true);
 
-                    form.reset();
-                    submitButton.disabled = false;
-                    submitButton.textContent = 'Save';
-                    // progressBar.style.width = '0%';
+        // Track upload progress
+        xhr.upload.onprogress = function(e) {
+            if (e.lengthComputable) {
+                // Upload progress from 0-50%
+                const percentComplete = (e.loaded / e.total) * 50;
+                progressBar.style.width = percentComplete + '%';
+                progressBar.setAttribute('aria-valuenow', percentComplete);
+                progressText.textContent = `Uploading file... ${Math.round(percentComplete)}%`;
+            }
+        };
 
-                    const newLi = document.createElement('li');
-                    newLi.className = 'project-list-item';
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                // Show file content checking progress 50-90%
+                progressBar.style.width = '75%';
+                progressBar.setAttribute('aria-valuenow', 75);
+                progressText.textContent = 'Checking file content...';
 
-                    newLi.innerHTML = `<div class="item-body">
-                        <div class="project-tag">
-                            <span class="badge badge-${result.document_status === 'Accepted' ? 'success' : 'danger'} tag" style="font-size: 12px;">
-                                ${result.document_status === 'Accepted' ? 'Published' : result.document_status }
-                            </span>
-                        </div>
-                        <div class="item-title">
-                            <h4><a href="view_project_research.php?archiveID=${result.archive_id}">${result.project_title}</a></h4>
-                        </div>
-                        <div class="item-content">
-                            <p>${result.project_members}</p>
-                        </div>
-                        <div class="item-meta">
-                            <p>${result.department}</p>
-                            <p>Archive ID: ${result.archive_id}</p>
-                            <p>${result.date_published ? `Published: ${result.date_published}` : 'Not yet published'}</p>
-                        </div>
-                        <div class="item-abstract">
-                            <h3 class="abstract-title"><a href="#"><span>Abstract</span><img src="../images/arrow-down.svg" style="width: .675rem; height: .675rem" alt=""></a></h3>
-                            <div class="abstract-group" style="display:none">
-                                <section class="item-meta">
-                                    <div class="abstract-article">
-                                        <p>${result.project_abstract}</p>
-                                    </div>
-                                </section>
-                            </div>
-                        </div>
-                    </div>`;
+                setTimeout(() => {
+                    // Complete the progress bar
+                    progressBar.style.width = '100%';
+                    progressBar.setAttribute('aria-valuenow', 100);
+                    progressText.textContent = 'Processing complete!';
 
-                    ulResult.prepend(newLi);
-                }
-            });
-        } else {
-            const errorMessage = result.message || 'Submission failed: Unknown error';
+                    // Short delay before showing result
+                    setTimeout(() => {
+                        const result = JSON.parse(xhr.responseText);
+                        loadingOverlay.style.display = 'none';
+                        
+                        if (result.status === 'success') {
+                            swal({
+                                title: result.stats,
+                                text: result.message,
+                                type: result.status,
+                                confirmButtonText: 'Okay',
+                            }, function(isConfirm) {
+                                if(isConfirm) {
+                                    $('#modelId').modal('hide');
+                                    $('.modal-backdrop').remove();
+                                    form.reset();
+                                    submitButton.disabled = false;
+                                    submitButton.textContent = 'Upload';
+                                    progressBar.style.width = '0%';
+                                    
+                                    // Update UI with new research entry
+                                    updateResearchList(result);
+                                }
+                            });
+                        } else {
+                            swal({
+                                title: 'Error',
+                                text: result.message || 'Upload failed',
+                                type: 'error',
+                                confirmButtonText: 'Okay'
+                            });
+                            submitButton.disabled = false;
+                            submitButton.textContent = 'Upload';
+                            progressBar.style.width = '0%';
+                        }
+                    }, 500); // Delay before showing swal
+                }, 1000); // Delay for final progress
+            }
+        };
+        xhr.onerror = function() {
+            loadingOverlay.style.display = 'none';
             swal({
                 title: 'Error',
-                text: errorMessage,
+                text: 'An error occurred during upload',
                 type: 'error',
                 confirmButtonText: 'Okay'
             });
             submitButton.disabled = false;
-            submitButton.textContent = 'Save';
-            // progressBar.style.width = '0%';
-        }
+            submitButton.textContent = 'Upload';
+            progressBar.style.width = '0%';
+        };
+
+        xhr.send(formData);
+        
     } catch (error) {
-        const errorMessage = error || 'An error occurred during submission';
+        loadingOverlay.style.display = 'none';
         swal({
             title: 'Error',
-            text: errorMessage,
+            text: error.message || 'An error occurred during upload',
             type: 'error',
             confirmButtonText: 'Okay'
         });
         submitButton.disabled = false;
-        submitButton.textContent = 'Save';
-        // progressBar.style.width = '0%';
+        submitButton.textContent = 'Upload';
+        progressBar.style.width = '0%';
     }
 });
+
+// Function to update the research list
+function updateResearchList(result) {
+    const noResearchMessage = document.querySelector("#search-result p");
+    if (noResearchMessage) {
+        noResearchMessage.remove();
+    }
+    
+    const newLi = document.createElement('li');
+    newLi.className = 'project-list item';
+    newLi.id = `li_${result.archiveID}`;
+    
+    newLi.innerHTML = `
+        <div class="item-body">
+            <div class="project-tag">
+                <span class="badge badge-${result.document_status === 'Accepted' ? 'success' : 'danger'} tag" style="font-size: 12px;">
+                    ${result.document_status === 'Accepted' ? 'Published' : result.document_status}
+                </span>
+            </div>
+            <div class="item-title">
+                <h4><a href="view_project_research.php?archiveID=${result.archive_id}">${result.project_title}</a></h4>
+            </div>
+            <div class="item-content">
+                <p>${result.project_members}</p>
+            </div>
+            <div class="item-meta">
+                <p>${result.department}</p>
+                <p>Archive ID: ${result.archive_id}</p>
+                <p>${result.date_published ? `Published: ${result.date_published}` : 'Not yet published'}</p>
+            </div>
+            <div class="item-abstract">
+                <h3 class="abstract-title">
+                    <a href="#"><span>Abstract</span>
+                    <img src="../images/arrow-down.svg" style="width: .675rem; height: .675rem" alt=""></a>
+                </h3>
+                <div class="abstract-group" style="display:none">
+                    <section class="item-meta">
+                        <div class="abstract-article">
+                            <p>${result.project_abstract}</p>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+        <div class="project-action">
+            <button  onclick="confirmDelete(${result.archiveID})" class="btn"><img style="width: 20px; height: 20px" src="images/svg/delete.svg" title="Delete Research"></img></a>            
+        </div>
+    `;
+    
+    const searchResult = document.getElementById('search-result');
+    searchResult.insertBefore(newLi, searchResult.firstChild);
+}
     function validateForm() {
         const projectTitle = document.querySelector('input[name="project_title"]');
         const abstract = document.querySelector('textarea[name="abstract"]');

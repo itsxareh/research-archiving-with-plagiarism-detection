@@ -16,7 +16,7 @@ header("location:all_project_list.php");
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EARIST Research Archiving System</title>
-  <link rel="shortcut icon" href="images/logo2.png">
+  <link rel="shortcut icon" href="images/logo2.webp">
   <link rel="stylesheet" href="../css/login-sign-up.css">
   <link rel="stylesheet" href="../css/bootstrap.min.css">
   <link href="css/lib/themify-icons.css" rel="stylesheet">
@@ -31,9 +31,7 @@ header("location:all_project_list.php");
   <div class="header">
     <div class="nav-header">
       <div class="logo">
-        <a href="../index.php">
-          <img src="images/logo2.png">
-        </a>
+        <a href="../index.php"><img src="../images/logo2.webp"></a>
       </div>
       <div class="nav-side">
         <div class="search-bar m-r-16">
@@ -50,7 +48,7 @@ header("location:all_project_list.php");
   <main>
     <div class="content-wrapper h-100">
       <div class="col-xl-12 col-md-12-col sm-12">
-        <div class="row p-4">
+        <div class="row">
           <div class="col-sm-12 col-md-6 col-xl-6">
               <div class="intro">
                 <h2>Archive with Ease</h2>
@@ -59,7 +57,7 @@ header("location:all_project_list.php");
           </div>
           <div class="col-sm-12 col-md-6 col-xl-6">
             <div class="log-in-container">
-              <form class="form-container" action="../php/student_forgotPassword.php" method="POST">
+              <form class="form-container" id="forgotPasswordForm" action="../php/student_forgotPassword.php" method="POST">
                 <h4>Forgot password</h4>
                 <p>Please enter your registered email address. We’ll send you a code to reset your password..</p>
                 <div class="row">
@@ -67,15 +65,18 @@ header("location:all_project_list.php");
                     <div class="form-input">
                       <label for="email">Email address</label>
                       <input type="email" name="email" id="email" required>
+                      <span id="email-error" class="error-message" style="color: #a33333;"></span>
                     </div>
                   </div>
-                  <p class="m-0 ml-4">Remember now? <a class="signup-link" href="login.php">Log in</a></p>
+                  <div class="col-xl-12 col-md-12 col-sm-12">
+                    <p class="m-0">Remember now? <a class="signup-link" href="login.php">Log in</a></p>
+                  </div>
                 </div>
                 
                 <div class="row mt-4">
                   <div class="col-xl-12 col-md-12 col-sm-12">
                     <div class="flex align-items-center">
-                      <button name="recover-now" type="submit" class="login-btn" style="text-wrap:nowrap">Recover now</button>
+                      <button name="recover-now" type="submit" class="forgot-password-btn login-btn" style="text-wrap:nowrap" id="recoverBtn">Recover now</button>
 
                     </div>
                   </div>
@@ -88,6 +89,37 @@ header("location:all_project_list.php");
     </div>
   </main>
 <script>
+  $('#forgotPasswordForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        const recoverBtn = $('#recoverBtn');
+        const emailError = $('#email-error');
+        recoverBtn.prop('disabled', true);  
+        
+        $.ajax({
+            url: '../php/student_forgotPassword.php',
+            type: 'POST',
+            data: $(this).serialize(),
+            success: function(response) {
+                const data = JSON.parse(response);
+                console.log(data);
+                emailError.text('');
+                if (data.status_code === 'success') {
+                  console.log(data.redirect);
+                  setTimeout(() => {
+                      window.location.href = data.redirect;
+                  }, 1500);
+                } else {
+                  recoverBtn.prop('disabled', false);
+                  emailError.text(data.status);
+                }
+            },
+            error: function() {
+                sweetAlert('Error', 'Something went wrong. Please try again.', 'error');
+                recoverBtn.prop('disabled', false);
+            }
+        });
+    });
     const searchInput = document.getElementById("searchInput");
     const searchButton = document.getElementById("search-btn");
 

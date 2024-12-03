@@ -11,7 +11,7 @@ if(isset($_SESSION['auth_user']['student_id'])){
 date_default_timezone_set('Asia/Manila');
 $date = date('F / d l / Y');
 $time = date('g:i A');
-$logs = 'You successfully logged out to your account.';
+$logs = 'You logged out.';
 
 $sql = $db->student_Insert_NOTIFICATION($student_id, $logs, $date, $time);
 

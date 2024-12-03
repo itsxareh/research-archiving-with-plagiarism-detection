@@ -72,10 +72,10 @@ if(ISSET($_POST['add_research'])){
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- theme meta -->
     <meta name="theme-name" content="focus" />
-    <title>Archived List: EARIST Research Archiving System</title>
+    <title>Research Paper List: EARIST Research Archiving System</title>
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo2.png">
+    <link rel="shortcut icon" href="images/logo2.webp">
     <!-- Retina iPad Touch Icon-->
     <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
     <!-- Retina iPhone Touch Icon-->
@@ -133,97 +133,93 @@ require_once 'templates/admin_navbar.php';
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h6 class="modal-title">Add New Research</h6>
+                        <h6 class="modal-title">Add research</h6>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                     </div>
 
                     <form action="" method="POST" enctype="multipart/form-data" onsubmit="prepareKeywords()">
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <div class="form-group row">
-                                <div class="col-sm-6 first:mb-sm-0">
-                                    <label for="">Research Title</label>
-                                    <input type="text" class="form-control" name="project_title">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <div class="row m-0" style="justify-content:space-between">
+                                    <div class="col-sm-9 item-detail p-0">
+                                        <label for="" class="info-label m-l-4">Research Title</label>
+                                        <input type="text" class="info-input" name="project_title" minlength="8" required>
+                                    </div>
+                                    <div class="col-sm-2 item-detail p-0">
+                                        <label for="" class="info-label m-l-4">Project year</label>
+                                        <select class="info-input" style="" name="year" id="year" required>
+                                            <?php 
+                                                $defaultYear = date('Y');
+                                                for ($year = date('Y'); $year >= 1999; $year--) {
+                                                    $selected = ($year == $defaultYear) ? 'selected' : ''; 
+                                                    echo "<option value =\"$year\">$year</option>";
+                                                }
+                                            ?>
+                                        </select>
+                                    </div>
                                 </div>
-
-                                <div class="col-sm-6">
-                                    <label for="" class="info-label m-l-4">Project year</label>
-                                    <select class="form-control" style="height: auto !important;" name="year" id="year">
+                                <div class="row m-0" style="justify-content:space-between">
+                                    <div class="col-sm-6 item-detail p-0">
+                                        <label for="" class="info-label m-l-4">Department</label>
+                                        <select class="info-input" name="department" id="department" required>
+                                            <option value=""></option>
                                         <?php 
-                                            $defaultYear = date('Y');
-                                            for ($year = date('Y'); $year >= 1999; $year--) {
-                                                $selected = ($year == $defaultYear) ? 'selected' : ''; 
-                                                echo "<option value =\"$year\">$year</option>";
+                                            $res = $db->showDepartments_WHERE_ACTIVE();
+
+                                            foreach ($res as $item) {
+                                            echo '<option value="'.$item['id'].'">'.$item['name'].'</option>';
                                             }
                                         ?>
-                                    </select>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-5 item-detail p-0">
+                                        <label for="" class="info-label m-l-4">Course</label>
+                                        <div class="course_dropdown">
+                                            <select class="info-input" name="course" id="course" required>
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="item-detail">
+                                    <label for="" class="info-label m-l-4">Researchers</label>
+                                    <input type="text" class="info-input" name="project_members" required>
+                                </div>
+                                <div class="item-detail">
+                                    <label for="" class="info-label m-l-4">Abstract</label>
+                                    <textarea class="info-input" name="abstract" minlength="50" required></textarea>
+                                </div>
+                                <div class="item-detail">
+                                    <label for="" class="info-label m-l-4">Keywords</label>
+                                    <input type="text" class="info-input" id="keywords" name="keywords" required>
+                                </div>
+                                <div class="row m-0" style="justify-content:space-between">
+                                    <div class="col-sm-6 item-detail p-0">
+                                    <label for="" class="info-label m-l-4">Email address</label>
+                                    <input type="email" class="info-input" id="owner_email" name="owner_email" required>
+                                    </div>
+                                    <div class="col-sm-5 item-detail p-0">
+                                        <label for="" class="info-label m-l-4">Research Paper Softcopy (PDF)</label>
+                                        <input type="file" id="pdfFile" accept=".pdf" class="info-input-file" style="border:none" name="project_file" required>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <div class="form-group row">
-                            <div class="col-sm-6  mb-sm-0">
-                                <label for="">Select Department</label>
-                                <select id="department" name="department" class="selectpicker form-control" required title="Select Department">
-                                    <option value=""></option>
-                                <?php 
-                                    $res = $db->showDepartments_WHERE_ACTIVE();
-
-                                    foreach ($res as $item) {
-                                    echo '<option value="'.$item['id'].'">'.$item['name'].'</option>';
-                                    }
-                                ?>
-                                
-                                </select>
-                            </div>
-
-                            <div class="col-sm-6">
-                                <label for="">Select Course</label>
-                                <div class="course_dropdown">
-                                    <select class="form-control" name="course" id="course" required>
-                                        <option value=""></option>
-                                    </select>
-                                </div>
-                            </div>
-                            </div>
-                            
-                            <div class="form-group row">
-                                <div class="col-sm-12">
-                                    <label for="">Abstract</label>
-                                    <textarea class="form-control" name="abstract" required></textarea>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <div class="col-sm-12">
-                                <label for="">Project Members</label>
-                                <input type="text" class="form-control" name="project_members" required>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <div class="col-sm-12">
-                                <label for="">Keywords</label>
-                                <input type="text" class="info-input" id="keywords" name="keywords" required>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <div class="col-sm-6 mb-sm-0">
-                                    <label for="">Project Owner Email</label>
-                                    <input type="email" class="form-control" name="owner_email" required>
-                                </div>
-
-                                <div class="col-sm-6">
-                                    <label for="">Project File (PDF)</label>
-                                    <input type="file" accept=".pdf" class="info-input-file" style="border:none" name="project_file" required>
-                                </div>
-                            </div>
-                            
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button name="add_research" class="btn btn-danger">Save</button>
-                    </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button name="add_research" class="btn btn-danger">Upload</button>
+                        </div>
+                        <div class="loading-overlay" style="display:none">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <p class="progress-text">Uploading research paper...</p>
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
                     </form>
 
                 </div>
@@ -233,7 +229,7 @@ require_once 'templates/admin_navbar.php';
             <div class="col-sm-12 col-md-12 col-xl-12">
                 <div class="add-research">
                     <button type="button" class="add-research-button item-meta" data-toggle="modal" data-target="#modelId">
-                        <i class="ti-plus m-r-4"></i> Add New Research
+                        <i class="ti-plus m-r-4"></i> Add research
                     </button>
                 </div>
                 <div class="list-container">
@@ -292,7 +288,7 @@ require_once 'templates/admin_navbar.php';
                                             $badgeColor = ($status === 'Accepted') ? 'badge-success' : 'badge-danger';
                                         ?>
                                         <span class="badge <?= $badgeColor ?>" style="border-radius: 15px; font-size: 0.875rem">
-                                            <?= $status == 'Accepted' ? 'Published' : 'Not Published'?>
+                                            <?= $status == 'Accepted' ? 'Published' : $status?>
                                         </span>
                                     </td>
                                     
@@ -334,6 +330,7 @@ require_once 'templates/admin_navbar.php';
             </div>
         </section>
     </div>
+    <?php include 'templates/footer.php'; ?>
 </div>
 
 
@@ -354,62 +351,109 @@ const form = document.querySelector('form');
 const submitButton = document.querySelector('button[name="add_research"]');
 const ulResult = document.getElementById('search-result');
 const modalBackdrop = document.getElementsByClassName('modal-backdrop');
+const loadingOverlay = document.querySelector('.loading-overlay');
+const progressBar = document.querySelector('.progress-bar');
+const progressText = document.querySelector('.progress-text');
+const inputFile = document.getElementById('pdfFile');
 form.addEventListener('submit', async function(e) {
     e.preventDefault();
     
     if (form.submitted) return;
-    
     if (!validateForm()) return;
+
+    const inputFile = document.getElementById('pdfFile');
+    const file = inputFile.files[0];
     
+    if (file && !validateFileSize(file, 20)) {
+        return;
+    }
+
+    // Show loading overlay
+    loadingOverlay.style.display = 'flex';
     submitButton.disabled = true;
-    submitButton.textContent = 'Submitting...';
-    
+    submitButton.textContent = 'Uploading...';
+
     const formData = new FormData(form);
     
     try {
-        const response = await fetch('add_research.php', {
-            method: 'POST',
-            body: formData
-        });
-        
-        const result = await response.json();
-        console.log(result)
-        if (result.status === 'success') {
-            $(".sa-confirm-button-container button").attr("data-dismiss", "modal");
-            swal({
-                title: result.stats,
-                text: result.message,
-                type    : result.status,
-                confirmButtonText: 'Okay',
-            }, 
-            function (isConfirm) {
-                if(isConfirm) {
-                    location.reload();
-                }
-            });
-        } else {
-            const errorMessage = result.message || 'Submission failed: Unknown error';
-            swal({
-                title: 'Error',
-                text: errorMessage,
-                type    : 'error',
-                confirmButtonText: 'Okay'
-            });
-            submitButton.disabled = false;
-            submitButton.textContent = 'Save';
-        }
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'add_research.php', true);
+
+        // Track upload progress
+        xhr.upload.onprogress = function(e) {
+            if (e.lengthComputable) {
+                const percentComplete = (e.loaded / e.total) * 50;
+                progressBar.style.width = percentComplete + '%';
+                progressBar.setAttribute('aria-valuenow', percentComplete);
+                progressText.textContent = `Uploading file... ${Math.round(percentComplete)}%`;
+            }
+        };
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                progressBar.style.width = '75%';
+                progressBar.setAttribute('aria-valuenow', 75);
+                progressText.textContent = 'Checking file content...';
+
+                setTimeout(() => {
+                    progressBar.style.width = '100%';
+                    progressBar.setAttribute('aria-valuenow', 100);
+                    progressText.textContent = 'Processing complete!';
+
+                    setTimeout(() => {
+                        const result = JSON.parse(xhr.responseText);
+                        loadingOverlay.style.display = 'none';
+                        
+                        if (result.status === 'success') {
+                            $(".sa-confirm-button-container button").attr("data-dismiss", "modal");
+                            swal({
+                                title: result.stats,
+                                text: result.message,
+                                type: result.status,
+                                confirmButtonText: 'Okay',
+                            }, function(isConfirm) {
+                                if(isConfirm) {
+                                    location.reload();
+                                }
+                            });
+                        } else {
+                            showError(result.message || 'Submission failed: Unknown error');
+                        }
+                        
+                        // Reset progress bar
+                        progressBar.style.width = '0%';
+                        progressBar.setAttribute('aria-valuenow', 0);
+                        progressText.textContent = 'Uploading research paper...';
+                        
+                    }, 500); // Delay before showing swal
+                }, 1000); // Delay for final progress
+            } else {
+                showError('Server error occurred');
+            }
+        };
+
+        xhr.onerror = function() {
+            showError('Network error occurred');
+        };
+
+        xhr.send(formData);
+
     } catch (error) {
-        const errorMessage = error || 'An error occurred during submission';
-            swal({
-                title: 'Error',
-                text: errorMessage,
-                type    : 'error',
-                confirmButtonText: 'Okay'
-            });
-        submitButton.disabled = false;
-        submitButton.textContent = 'Save';
+        showError(error || 'An error occurred during submission');
     }
 });
+
+function showError(message) {
+    loadingOverlay.style.display = 'none';
+    submitButton.disabled = false;
+    submitButton.textContent = 'Save';
+    swal({
+        title: 'Error',
+        text: message,
+        type: 'error',
+        confirmButtonText: 'Okay'
+    });
+}
 function validateForm() {
     const projectTitle = document.querySelector('input[name="project_title"]');
     const abstract = document.querySelector('textarea[name="abstract"]');
@@ -425,6 +469,21 @@ function validateForm() {
         return false;
     }
     
+    return true;
+}
+function validateFileSize(file, maxSizeInMB) {
+    const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+    
+    if (file.size > maxSizeInBytes) {
+        swal({
+            title: 'File Too Large',
+            text: `Please upload a file smaller than ${maxSizeInMB} MB. 
+                Current file size: ${(file.size / (1024 * 1024)).toFixed(2)} MB`,
+            type: 'error',
+            confirmButtonText: 'Okay'
+        });
+        return false;
+    }
     return true;
 }
 

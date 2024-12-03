@@ -21,7 +21,7 @@ header("location:all_project_list.php");
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EARIST Research Archiving System</title>
-  <link rel="shortcut icon" href="images/logo2.png">
+  <link rel="shortcut icon" href="images/logo2.webp">
   <link rel="stylesheet" href="../css/login-sign-up.css">
   <link rel="stylesheet" href="../css/bootstrap.min.css">
   <link href="css/lib/themify-icons.css" rel="stylesheet">
@@ -30,15 +30,53 @@ header("location:all_project_list.php");
   <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
   <script src="js/lib/sweetalert/sweetalert.min.js"></script>
   <script src="js/lib/sweetalert/sweetalert.init.js"></script>
+
+  <style>
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 800px;
+      max-height: 70vh;
+      overflow-y: auto;
+      border-radius: 5px;
+    }
+
+    .close {
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    @media screen and (max-width: 768px) {
+      .modal-content {
+        margin: 50% auto;
+      }
+      .terms-content {
+        padding-inline: .5rem !important;
+      }
+    }
+  </style>
 </head>
 <body>  
   <!-- Header-->
   <div class="header">
     <div class="nav-header">
       <div class="logo">
-        <a href="../index.php">
-          <img src="images/logo2.png">
-        </a>
+        <a href="../index.php"><img src="../images/logo2.webp"></a>
       </div>
       <div class="nav-side">
         <div class="search-bar m-r-16">
@@ -66,7 +104,7 @@ header("location:all_project_list.php");
           </div>
           <div class="col-sm-12 col-md-6 col-xl-6">
             <div class="sign-up-container">
-              <form class="form-container" action="../php/student_registerCode.php" method="POST">
+              <form class="form-container" id="signUpForm" action="../php/student_registerCode.php" method="POST">
                 <h4>Sign up now</h4>
                 <div class="row">
                   <div class="col-sm-12 col-md-4 col-xl-4">
@@ -104,7 +142,7 @@ header("location:all_project_list.php");
                   <div class="col-sm-12 col-md-6 col-xl-6">
                     <div class="form-input">
                       <label for="pnumber">Phone Number</label>
-                      <input type="number" name="pnumber" id="pnumber" required>
+                      <input type="text" name="pnumber" id="pnumber" oninput="this.value = this.value.replace(/[^0-9]/g, '')" pattern="[0-9]*" maxlength="11"required>
                       <span id="pnumber-error" class="error-message" style="color: #a33333;"></span>
                     </div>
                   </div>
@@ -145,9 +183,20 @@ header("location:all_project_list.php");
                 </div>
                 <div class="row mt-4">
                   <div class="col-xl-12 col-md-12 col-sm-12">
-                    <div class="form-input">
+                    <div class="form-input"><div id="termsModal" class="modal">
+                      <div class="modal-content">
+                        <div id="termsContent">
+                          <!-- Terms content will be loaded here -->
+                        </div>
+                        <span class="close"><img src="../images/checked.png" alt=""></span>
+                      </div>
+                    </div>
+
+                    <!-- Modify the terms link in the form -->
+                    <p>By signing up, you agree to our <a href="#" id="termsLink">Terms and Conditions.</a></p>
+
                       <div class="flex align-items-center">
-                        <button type="submit" name="sign-up" class="sign-up-btn" style="text-wrap: nowrap ;">Sign up</button>
+                        <button type="submit" name="sign-up" class="sign-up-btn" id="signUpBtn" style="text-wrap: nowrap ;">Sign up</button>
                         <p style="font-size: 12px; margin-left: 1.5rem" class="mb-0 no-account">Already have an account? <a class="login-link" href="login.php">Log in</a></p>
                       </div>
                     </div>
@@ -159,9 +208,67 @@ header("location:all_project_list.php");
         </div>
       </div>
     </div>
+    <?php include 'templates/footer.php'; ?>
   </main>
 
 <script>
+const modal = document.getElementById("termsModal");
+const termsLink = document.getElementById("termsLink");
+const span = document.getElementsByClassName("close")[0];
+const termsContent = document.getElementById("termsContent");
+
+termsLink.onclick = function(e) {
+  e.preventDefault();
+  // Load terms content via AJAX
+  fetch('../terms_and_conditions.php')
+    .then(response => response.text())
+    .then(data => {
+      termsContent.innerHTML = data;
+      modal.style.display = "block";
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+
+$('#signUpForm').on('submit', function(e) {
+      e.preventDefault();
+
+      const signUpBtn = $('#signUpBtn');
+      signUpBtn.prop('disabled', true);  
+      
+      $.ajax({
+          url: '../php/student_registerCode.php',
+          type: 'POST',
+          data: $(this).serialize(),
+          success: function(response) {
+              const data = JSON.parse(response);
+              console.log(data);
+              if (data.status_code === 'success') {
+                console.log(data.redirect);
+                setTimeout(() => {
+                    window.location.href = data.redirect;
+                }, 1500);
+              } else {
+                signUpBtn.prop('disabled', false);
+                sweetAlert(data.alert, data.status, data.status_code);
+              }
+          },
+          error: function() {
+              sweetAlert('Error', 'Something went wrong. Please try again.', 'error');
+              signUpBtn.prop('disabled', false);
+          }
+      });
+  });
+
 document.getElementById("snumber").addEventListener("input", validateStudentNo);
 
 function validateStudentNo() {
@@ -177,7 +284,6 @@ function validateStudentNo() {
   })
   .then(response => response.json())
   .then(data => {
-    console.log(data);
     if (data.exists === true) {
       $('#snumber').css('background-image', 'url("../images/close.png")');
       if (data.message !== null) {
@@ -205,7 +311,6 @@ function validateEmailAddress() {
   })
   .then(response => response.json())
   .then(data => {
-    console.log(data);
     if (data.exists === true) {
       $('#email').css('background-image', 'url("../images/close.png")');
       if (data.message !== null) {

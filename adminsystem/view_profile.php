@@ -29,7 +29,7 @@ if($_SESSION['auth_user']['admin_id']==0){
 
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo1.png">
+    <link rel="shortcut icon" href="images/logo2.webp">
     <!-- Retina iPad Touch Icon-->
     <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
     <!-- Retina iPhone Touch Icon-->
@@ -134,7 +134,7 @@ if(isset($_GET['studID'])){
   </div>
   <?php
     } else {
-        echo '<p>No profile data found.</p>';
+        echo '<script>location.href = "../bad-request.php"</script>';
     }
   }
   ?>
@@ -163,7 +163,44 @@ if(isset($_GET['studID'])){
           echo 'No works available';
       }
       ?>
+    </div>
   </div>
+  <div class="">
+    <p class="profile-title">Plagiarism History</p>
+    <hr>
+    <ul>
+    <?php
+      $plagiarism_history = $db->view_plagiarism_history($studID);
+      if(!empty($plagiarism_history)){
+        foreach($plagiarism_history as $history){
+          $percentage = $history['plagiarism_percentage'];
+          if ($percentage > 100){
+              $percentage = 100;
+          }
+          echo '
+          <li class="flex justify-content-between">
+            <div class="" style="display: flex; justify-content: space-between; width: 100%;">
+              <div class="" style="width: 59%;">
+                    <p class="mb-0"><a href="plagiarism_result.php?archiveID='.$history['aid'].'" style="color: #333; font-size: 12px; font-weight:500">'.$history['project_title'].'</a></p>
+                    <p class="" style=" font-size: 12px;">'.(new DateTime($history['dateOFSubmit']))->format("d F Y h:i:s A").'</p>
+                </div>
+                <div class="d-flex align-items-center" style="width: 39%;">
+                    <div class="progress w-100 m-0" style="height: 10px">
+                        <div class="progress-bar-danger progress-bar " role="progressbar" style="width: '.round($percentage, 1).'%" aria-valuenow="'.round($percentage, 1).'" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <span style="color: #a33333; font-size: 16px; margin-left: .75rem !important;">'.round($percentage, 1).'%</span>
+                </div>
+            </div>
+          </li>
+
+          
+          ';
+        }
+      } else {
+        echo '<p class="text-center">No plagiarism history available.</p>';
+      }
+      ?>
+    </ul>
   </div>
   </div>
 </div>

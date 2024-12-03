@@ -79,7 +79,7 @@ if (isset($_POST['upload'])) {
 
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo1.png">
+    <link rel="shortcut icon" href="images/logo2.webp">
     <!-- Retina iPad Touch Icon-->
     <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
     <!-- Retina iPhone Touch Icon-->
@@ -136,6 +136,13 @@ require_once 'templates/admin_navbar.php';
                   <ul>
                     <li><a class="menu-accountInfo" href="admin_profile.php?menuTab=accountInfo"><span>Personal Information</span></a></li>
                     <li><a class="menu-accountSecurity" href="admin_profile.php?menuTab=accountSecurity"><span>Security</span></a></li>
+                    <li><a class="menu-accountActivityLogs" href="admin_profile.php?menuTab=accountActivityLogs"><span>Activity Log</span></a></li>
+                    <?php 
+                     if ($_SESSION['auth_user']['admin_type'] == 0){
+                      echo '<li><a class="menu-AdminActivityLogs" href="admin_profile.php?menuTab=AdminActivityLogs"><span>Admin Logs</span></a></li>';
+                     }
+                     echo '<li><a class="menu-accountInbox" href="admin_profile.php?menuTab=accountInbox"><span>Inbox</span></a></li>';
+                    ?>
                   </ul>
                 </div>
               </div>

@@ -1,6 +1,5 @@
 <?php
 $db = new Database();
-
 ?>
 <style type="text/css">
 .menu-container {
@@ -92,13 +91,19 @@ $db = new Database();
 <div class="sidebar sidebar-hide-to-small sidebar-shrink sidebar-gestures">
     <div class="nano">
         <div class="nano-content">
-            <ul class="navbar">
+            <ul class="navbar" style="height: <?= $_SESSION['auth_user']['admin_type'] == 0 ? '100%' : 'auto' ?>">
                 <li><a href="dashboard.php"><img src="../../images/home.svg" style="width: 2.225rem; height: 2.225rem;">Home</a></li>
                 <li><a href="archive_list.php"><img src="../../images/documents.svg" style="width: 2.225rem; height: 2.225rem;">Research </a></li>
                 <li><a href="student_list.php"><img src="../../images/students.svg" style="width: 2.225rem; height: 2.225rem;"><span>Student</span></a></li>
                 <li><a href="department_list.php"><img src="../../images/department.svg" style="width: 2.225rem; height: 2.225rem;"><span>Department</span></a></li>
-                <li><a href="course_list.php"><img src="../../images/course.svg" style="width: 2.225rem; height: 2.225rem;"><span>Course</span></a></li>
-                <li><a href="admin_list.php"><img src="../../images/admin.svg" style="width: 2.225rem; height: 2.225rem;"><span>Admin</span></a></li>
+                <li ><a href="course_list.php"><img src="../../images/course.svg" style="width: 2.225rem; height: 2.225rem;"><span>Course</span></a></li>
+                <?php 
+                if ($_SESSION['auth_user']['admin_type'] == 0){
+                    echo '<li><a href="add_role.php"><img src="../../images/role.svg" style="width: 2.225rem; height: 2.225rem;"><span>Role</span></a></li>';
+                    echo '<li><a href="admin_list.php"><img src="../../images/admin.svg" style="width: 2.225rem; height: 2.225rem;"><span>Admin</span></a></li>';
+                }
+                
+                ?>
             </ul>
         </div>
     </div>
@@ -117,10 +122,10 @@ $db = new Database();
                 <a href="dashboard.php">
                     <div class="logo-w-name">
                         <div class="logo-img">
-                            <img class="logo-header" src="../images/logo2.png" alt="">
+                            <img class="logo-header" src="../images/logo2.webp" alt="">
                         </div>
                         <div class="logo-name">
-                            <p class="title-system">Archiver</p>
+                            <p class="title-system">Repository</p>
                         </div>
                     </div>
                 </a>
@@ -159,7 +164,7 @@ $db = new Database();
                                 ?>
                                         <li>
                                             <a href="#">
-                                                <img class="pull-left m-r-10 avatar-img" src="<?php echo $notification['admin_profile_picture']; ?>" alt="" />
+                                                <img class="pull-left m-r-10 avatar-img" src="<?= isset($notification['admin_profile_picture']) ? $notification['admin_profile_picture'] : '../../images/default-profile.png' ?>" alt="" />
                                                 <div class="notification-content">
                                                     <small class="notification-timestamp pull-right"><?php echo $notification['logs_time']; ?></small>
                                                     <div class="notification-heading"><?php echo $notification['logs']; ?></div>

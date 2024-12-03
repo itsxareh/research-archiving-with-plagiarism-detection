@@ -14,7 +14,7 @@ if (isset($_POST['update'])) {
     // Fetch the current data from the database
     $currentData = $db->admin_profile($admin_id);
 
-    $password = $currentData['student_password'];
+    $password = $currentData['admin_password'];
 
     if ($pword == $password) {
         if ($npword == $rnpword) {

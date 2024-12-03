@@ -31,7 +31,7 @@ def get_db():
             host='localhost',
             user='root', 
             password='', 
-            database='online_thesis' 
+            database='research_repository' 
         )
         if conn.is_connected():
             print ("Connected to MySQL")
@@ -157,13 +157,34 @@ def split_into_sentences(text):
     except LookupError:
         nltk.download('punkt')
     
-    sentences =  sent_tokenize(text)
-
-    filtered_sentences = [
-        sentence for sentence in sentences
-        if 8 <= len(sentence.split()) <= 50
-    ]
-    return filtered_sentences
+    # First, preserve certain abbreviations and numbers
+    preserved_text = text
+    preserved_text = re.sub(r'(?<=\d)\.(?=\d)', '@DOT@', preserved_text)  # Preserve decimal points
+    preserved_text = re.sub(r'(?<=\w)\.(?=\w)', '@DOT@', preserved_text)  # Preserve abbreviations
+    
+    # Split into sentences
+    sentences = sent_tokenize(preserved_text)
+    
+    # Restore preserved characters
+    sentences = [s.replace('@DOT@', '.') for s in sentences]
+    
+    # Additional cleaning and filtering
+    cleaned_sentences = []
+    for sentence in sentences:
+        # Normalize the sentence
+        sentence = normalize_text(sentence)
+        
+        # Count actual words (excluding numbers and single characters)
+        word_count = len([w for w in sentence.split() if re.match(r'[a-zA-Z]{2,}', w)])
+        
+        # Filter sentences based on word count and other criteria
+        if (7 <= word_count <= 50 and  # Word count between 7 and 50
+            len(sentence) >= 40 and     # Minimum character length
+            not re.match(r'^[^a-zA-Z]*$', sentence) and  # Contains letters
+            not re.match(r'^(table|figure|fig)', sentence.lower())):  # Not a table/figure reference
+            cleaned_sentences.append(sentence)
+    
+    return cleaned_sentences
 
 def calculate_similarity(submitted_content, submissions, similarity_threshold=0.7):
     submitted_sentences = [normalize_text(sentence) for sentence in split_into_sentences(submitted_content)]

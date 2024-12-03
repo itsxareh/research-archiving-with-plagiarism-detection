@@ -34,7 +34,7 @@ session_start();
 
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo1.png">
+    <link rel="shortcut icon" href="images/logo2.webp">
     <!-- Retina iPad Touch Icon-->
     <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
     <!-- Retina iPhone Touch Icon-->
@@ -205,7 +205,8 @@ require_once 'templates/student_navbar.php';
                     $archive_id = $data['aid'];
                     $smtm = $db->SELECT_PLAGIARISM_SUMMARY_RESEARCH($archive_id);
                     if (!empty($smtm)) {
-                      if ($smtm['student_id'] == $_SESSION['auth_user']['student_id']){
+                      $student_user = isset($_SESSION['auth_user']['student_id']) ? $_SESSION['auth_user']['student_id'] : '';
+                      if ($smtm['student_id'] == $student_user){
                         $percentage = $smtm['total_percentage'];
                         if ($percentage >= 100){
                           $percentage = 100;
@@ -226,20 +227,7 @@ require_once 'templates/student_navbar.php';
                                 </ul>
                               </div>';
                       } else { 
-                          echo '<div class="info-container">
-                                  <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Results</p>
-                                  <ul>
-                                    <li class="info-meta">
-                                      <label>Plagiarism Match:</label>
-                                      <div class="d-flex align-items-center">
-                                        <div class="progress w-100" style="height: 10px">
-                                          <div class="progress-bar-danger progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                        <span style="color: #a33333; font-size: 20px; margin-left: .75rem !important;">0%</span>
-                                      </div>
-                                    </li>
-                                  </ul>
-                                </div>';
+                          echo '';
                       }
                     } 
                   }
@@ -250,6 +238,7 @@ require_once 'templates/student_navbar.php';
     </div>
   </div>                                        
 </div>
+<?php include 'templates/footer.php'; ?>
 
 
 

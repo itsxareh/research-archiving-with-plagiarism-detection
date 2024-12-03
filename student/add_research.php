@@ -108,7 +108,7 @@ class FileUploadHandler {
             $flaskResponse = $this->sendToFlaskServer($pdfPath);
             
             if ($flaskResponse['status'] === 'success') {
-                $this->insertNotification();
+                $this->insertNotification($flaskResponse['archive_id']);
                 return $this->prepareSuccessResponse($flaskResponse);
             } else {
                 throw new Exception('Upload failed: ' . ($flaskResponse['message'] ?? 'Unknown error'));
@@ -121,13 +121,18 @@ class FileUploadHandler {
         }
     }
     
-    private function insertNotification() {
+    private function insertNotification($randomNumber) {
         $student_id = $_SESSION['auth_user']['student_id'];
+        $student_no = $_SESSION['auth_user']['student_no'].$student_id;
+        $student_name = $_SESSION['auth_user']['student_name'];
         $date = date('F / d l / Y');
         $time = date('g:i A');
         $logs = 'You successfully submitted your research paper.';
         
         $this->db->student_Insert_NOTIFICATION($student_id, $logs, $date, $time);
+        
+        $logs1 = $student_name.' submitted a new research paper.';
+        $this->db->admin_Insert_NOTIFICATION($randomNumber, $logs1, $date, $time);
     }
     
     private function prepareSuccessResponse($flaskResponse) {

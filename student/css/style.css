@@ -754,6 +754,7 @@ a.dt-button.active:not(.disabled) {
   padding: 0.675rem 0;
 }
 .profile-menu a{
+  font-size: 12px;
   padding: .375rem 1.25rem .375rem 1rem;
   display: block;
   margin-bottom: .3125rem;
@@ -1325,8 +1326,8 @@ option {
 }
 .project-action {
   position: absolute;
-  top: 0;
-  right: -40px;
+  top: 10px;
+  right: 10px;
   padding: 0;
   border-radius: 4px;
 }
@@ -1386,7 +1387,6 @@ option {
   text-decoration: none;
   border-radius: 5px;
 }
-
 .pagination a.active {
   background-color: #0056b3;
 }
@@ -1406,10 +1406,26 @@ option {
 .page-header {
 }
 .page-title:has(h1) {
-  padding: .675rem 0;
+  padding-top: .675rem;
+}
+.download-pdf-button {
+  display: none;
+  margin-top: 10px;
+  background-color: #a33333;
+  color: white;
+  padding: 10px 20px;
+  font-size: 12px;
+  border-radius: 5px;
+  border: none;
+  text-decoration: none;
+}
+@media (max-width: 767px) {
+  .download-pdf-button {
+    display: inline-block;
+  }
 }
 .col-md-12 .page-header .page-title h1 {
-  font-size: 18px;
+  font-size: 16px;
 }
 .switch {
   position: relative;
@@ -2034,7 +2050,7 @@ footer p {
   float: left;
   height: 60px;
   width: 60px;
-  background: url(http://michaeltruong.ca/images/logo2.png) no-repeat;
+  background: url(http://michaeltruong.ca/images/logo2.webp) no-repeat;
   background-size: 60px 60px;
 }
 .clientlogo {
@@ -2604,6 +2620,7 @@ footer p {
   height: 42px;
   border-radius: 0px;
   box-shadow: none;
+
   border-color: #e7e7e7;
   font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
 }
@@ -3179,13 +3196,13 @@ ul.inbox-pagination li {
 .fileupload-processing .fileupload-loading {
   display: block;
 }
-html {
-  width: 100svw;
-  height: 100svh;
+html, body {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
 }
-body {
-  width: 100%;
-  height: 100%;
+* {
+  box-sizing: border-box;
 }
 * html .fileinput-button {
   line-height: 24px;
@@ -4808,6 +4825,61 @@ h6.h1 {
   -o-animation: pace-spinner 400ms linear infinite;
   animation: pace-spinner 400ms linear infinite;
 }
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 90%;
+  width: 400px;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #a33333;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  animation: spin 1s linear infinite;
+}
+
+.loading-content p {
+  margin-bottom: 1rem;
+  color: #666;
+}
+
+.progress {
+  height: 10px;
+  background-color: #f3f3f3;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #a33333;
+  transition: width 0.3s ease;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 @-webkit-keyframes pace-spinner {
   0% {
     -webkit-transform: rotate(0deg);
@@ -5136,6 +5208,9 @@ h6.h1 {
   }
   .add-research {
     margin: 0;
+  }
+  .content-wrap {
+    height: auto;
   }
 }
 /*  7 - media screen and (max-width: 767px) End

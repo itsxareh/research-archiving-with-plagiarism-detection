@@ -5,21 +5,22 @@
     font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
 }
 
-body, html {
-    width: 100svw;
-    height: 100svh;
+html, body {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
 }
+
 main {
-    height: 100%;
+    height: 100svh;
     position: relative;
 }
 .content-wrapper {
+    height: 100svh !important;
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    overflow: hidden;
 }
 
 .content-wrapper::before,
@@ -87,6 +88,7 @@ main {
     z-index: 999;
 }
 .nav-header {
+    height: 100%;
     display: flex;
     align-items: center;
     padding: 0 1.875rem;
@@ -97,10 +99,23 @@ main {
     width: 45px;
     height: 45px;
 }
+.logo-home {
+    display: flex;
+    align-items: center;
+}
 .logo img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+.logo-home a p {
+    color: #f8f9ff;
+    font-size: 1.5rem;
+    margin: 0;
+    font-weight: 600;
+}
+.logo-home a:hover {
+    text-decoration: none !important;
 }
 .nav-side {
     display: flex;
@@ -195,7 +210,7 @@ main {
     padding: .945rem 2.265rem;
     border: #cccccc solid 1px;
 }
-.search-btn, .login-btn {
+.login-btn {
     padding: .945rem 2.265rem;
     color: #f8f9ff;
     background-color: #a33333;
@@ -205,7 +220,17 @@ main {
     font-family: 'Poppins';
     transition: background-color 0.2s ease-in-out;
 }
-.search-btn:hover, .login-btn:hover, .signup-btn:active, .login-btn:active {
+.search-btn {
+    padding: .900rem .765rem;
+    color: #f8f9ff;
+    background-color: transparent;
+    border-radius: .575rem;
+    border: none;
+    font-size: 14px;
+    font-family: 'Poppins';
+    transition: background-color 0.2s ease-in-out;
+}
+.login-btn:hover, .signup-btn:active, .login-btn:active {
     background-color: #ca4949;
 }
 .search-btn:focus, .login-btn:focus {
@@ -339,11 +364,27 @@ ul {
     }
     .search-btn {
         font-size: 12px;
-        margin-top: .775rem;
-        padding: .5rem 1.5rem;
+        padding: .650rem .650rem;
     }
     #searchInput {
         padding: .675rem 1rem;
         font-size: 12px;
+    }
+}
+@media (max-width: 768px) {
+    .content-wrapper::before,
+    .content-wrapper::after {
+        background-position: 75% center; /* Slightly adjusted for medium screens */
+    }
+    .content-wrapper {
+        padding-block: 7.5rem;
+        height: auto !important;
+    }
+}
+
+@media (max-width: 575px) {
+    .content-wrapper::before,
+    .content-wrapper::after {
+        background-position: 85% center; /* More adjusted for mobile screens */
     }
 }

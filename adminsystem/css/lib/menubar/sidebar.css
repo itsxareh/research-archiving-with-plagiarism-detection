@@ -326,7 +326,11 @@ body {
     transition: margin-left 300ms ease-in-out;
     height: 100svh;
 }
-
+@media (max-width: 767px) {
+    .sidebar.sidebar-shrink~.content-wrap {
+        height: 100%;
+    }
+}
 .sidebar-hide .sidebar.sidebar-shrink~.content-wrap {
     margin-left: 0;
 }

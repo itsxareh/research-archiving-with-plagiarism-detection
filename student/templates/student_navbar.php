@@ -100,7 +100,7 @@ $db = new Database();
     .left-side-nav {
         padding-inline: .875rem;
     }
-    .advance-filter-search p, .advance-filter-search > .mb-3 {
+    .advance-filter-search p {
         margin-bottom: 0 !important;
     }
     .advance-filter-search label {
@@ -109,6 +109,7 @@ $db = new Database();
     .login-btn {
         padding: .545rem 1.165rem;
     }
+    
 }
 </style>
 <?php 
@@ -125,10 +126,9 @@ if (isset($_SESSION['auth_user']['student_id'])){
         </div>
     </div>';
 }
-// print_r(isset($_SESSION['auth_user']['student_id']));
 ?>
-    <!-- /# sidebar -->
 
+    <!-- /# header -->
     <div class="header">
         <div class="meta-header">
             <div class="w-100 justify-content-between align-items-center" style="display: flex;">
@@ -146,7 +146,7 @@ if (isset($_SESSION['auth_user']['student_id'])){
                     <a href="all_project_list.php">
                         <div class="logo-w-name">
                             <div class="logo-img">
-                                <img class="logo-header" src="../images/logo2.png" alt="">
+                                <img class="logo-header" src="../images/logo2.webp" alt="">
                             </div>
                             <div class="logo-name">
                                 <p class="title-system">Archiver</p>

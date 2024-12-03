@@ -800,6 +800,21 @@ input:checked + .slider:before {
   margin: 1.275rem 0 2rem;
 } */
  
+.download-pdf-button {
+  margin-top: 10px;
+  background-color: #a33333;
+  color: white;
+  padding: 10px 20px;
+  font-size: 12px;
+  border-radius: 5px;
+  border: none;
+  text-decoration: none;
+}
+@media (max-width: 767px) {
+  .download-pdf-button {
+    display: inline-block;
+  }
+}
 .info-input-file {
   position: relative;
   font-size: 12px;
@@ -823,7 +838,7 @@ input:checked + .slider:before {
     height: 1.25rem;
     top: 50%;
     color: #fff;
-    left: .575rem; 
+    left: 1.175rem; 
     transform: translateY(-50%);
     pointer-events: none;
   }
@@ -1673,7 +1688,7 @@ footer p {
   float: left;
   height: 60px;
   width: 60px;
-  background: url(http://michaeltruong.ca/images/logo1.png) no-repeat;
+  background: url(http://michaeltruong.ca/images/logo2.webp) no-repeat;
   background-size: 60px 60px;
 }
 .clientlogo {
@@ -1715,6 +1730,68 @@ footer p {
 }
 #invoice-table h2 {
   font-size: 18px;
+}
+
+.item-detail {
+  display: flex;
+  flex-direction: column;
+  line-height: 22px;
+  color: rgb(53, 53, 53);
+}
+
+.item-detail span {
+  font-size: 11px;
+}
+.item-detail:focus-within input:invalid, .item-detail:focus-within select:invalid {
+  border-color: #a33333;
+  background-image: url('../../images/close.png');
+}
+.item-detail input:valid {
+  background-image: url('../../images/checked.png');
+}
+.item-detail input:valid, .item-detail input:invalid {
+  background-size: 12.5px;
+  background-repeat: no-repeat;
+  background-position: calc(100% - 10px);
+}
+.item-detail select:valid, .item-detail select:invalid {
+  background-size: 12.5px;
+  background-repeat: no-repeat;
+  background-position: calc(100% - 20px);
+}
+.item-detail input:invalid span {
+  color: #a20e0e;
+}
+.item-detail input, .form-input select {
+  width: 100%;
+  border-radius: .575rem;
+  padding: .625rem .625rem;
+  border: #cccccc solid 1px;
+}
+.item-detail select {
+  padding: .625rem .625rem;
+  margin: 0.675rem 0;
+  border-radius: 5px; 
+}
+.info-label { 
+  margin: 0px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  color: rgb(53, 53, 53);
+}
+.info-input {
+  width: 100%;
+  padding: 10px 15px;
+  margin: 0.675rem 0;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 12px;
+  line-height: 1.5;
+  transition: border-color 0.3s ease-in-out;
+}
+option {
+  font-size: .875rem;
 }
 .tabletitle {
   padding: 5px;
@@ -2180,13 +2257,11 @@ footer p {
 /*    Input Style
 ------------------------*/
 .form-group {
-  margin-bottom: 0px !important;
+  margin-bottom: 20px !important;
 }
 .form-control {
-  height: auto !important;
-  padding: .575rem;
-  border-radius: 5px;
-  font-size: 12px;
+  height: 42px;
+  border-radius: 0px;
   box-shadow: none;
   border-color: #e7e7e7;
   font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
@@ -2751,6 +2826,14 @@ ul.inbox-pagination li {
 .fileupload-processing .fileupload-loading {
   display: block;
 }
+html, body {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+* {
+  box-sizing: border-box;
+}
 * html .fileinput-button {
   line-height: 24px;
   margin: 1px -3px 0 0;
@@ -2882,6 +2965,49 @@ ul {
   0% {
     width: 0;
   }
+}
+.permissions-list {
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.permission-group {
+  margin-bottom: 20px;
+}
+
+.permission-group-header {
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #eee;
+}
+
+.permission-group-header h6 {
+  margin: 0;
+  color: #333;
+  font-weight: 600;
+}
+
+.permission-group-items {
+  padding-left: 15px;
+}
+
+.permission-item {
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.permission-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+.permission-item label {
+  margin: 0;
+  font-size: 14px;
+  color: #555;
 }
 /* TO DO LIST
 ================================================== */
@@ -4395,6 +4521,61 @@ h6.h1 {
   -ms-animation: pace-spinner 400ms linear infinite;
   -o-animation: pace-spinner 400ms linear infinite;
   animation: pace-spinner 400ms linear infinite;
+}
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 90%;
+  width: 400px;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #a33333;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  animation: spin 1s linear infinite;
+}
+
+.loading-content p {
+  margin-bottom: 1rem;
+  color: #666;
+}
+
+.progress {
+  height: 10px;
+  background-color: #f3f3f3;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #a33333;
+  transition: width 0.3s ease;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 @-webkit-keyframes pace-spinner {
   0% {

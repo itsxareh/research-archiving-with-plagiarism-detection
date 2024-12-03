@@ -32,7 +32,7 @@ if($_SESSION['auth_user']['admin_id']==0){
     <title>Admin Dashboard: Research Archiving System</title>
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo2.png">
+    <link rel="shortcut icon" href="images/logo2.webp">
     <!-- Retina iPad Touch Icon-->
     <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
     <!-- Retina iPhone Touch Icon-->
@@ -93,7 +93,7 @@ require_once 'templates/admin_navbar.php';
                                             </div>
                                             <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_published-research" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
                                                 <div role="none">
-                                                    <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=all_published-research"  class="dropdown-action-item">
+                                                    <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=all_published_research"  class="dropdown-action-item">
                                                         Generate PDF
                                                     </a>
                                                 </div>
@@ -164,7 +164,7 @@ require_once 'templates/admin_navbar.php';
                                                     </div>
                                                     <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_research-paper-per-dept" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
                                                         <div role="none">
-                                                            <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=all_research-paper-per-dept"  class="dropdown-action-item">
+                                                            <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=all_research_paper_per_dept"  class="dropdown-action-item">
                                                                 Generate PDF
                                                             </a>
                                                         </div>
@@ -214,7 +214,7 @@ require_once 'templates/admin_navbar.php';
                                             </div>
                                             <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_most-viewed-paper" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
                                                 <div role="none">
-                                                    <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=most-viewed-paper"  class="dropdown-action-item">
+                                                    <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=most_viewed_paper"  class="dropdown-action-item">
                                                         Generate PDF
                                                     </a>
                                                 </div>
@@ -232,7 +232,24 @@ require_once 'templates/admin_navbar.php';
                         <div class="col-md-12 col-xl-6">
                             <div class="card h-100">
                                 <div class="card-body">
-                                    <h4 class="card-title mb-3">Research Views/Department</h4>
+                                    <div class="flex justify-content-between">
+                                        <h4 class="card-title mb-3">Research Views/Department</h4>
+                                            <div class="action-container">
+                                                <div>
+                                                    <button type="button" class="action-button"  id="action-button_research-views-per-dept" aria-expanded="true" aria-haspopup="true">
+                                                        <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><line x1="5.99" y1="12" x2="6" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="11.99" y1="12" x2="12" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="17.99" y1="12" x2="18" y2="12" stroke-linecap="round" stroke-width="2"></line>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_research-views-per-dept" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                                                    <div role="none">
+                                                        <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=research_views_per_dept"  class="dropdown-action-item">
+                                                            Generate PDF
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     <div class="chart-container">
                                     <canvas id="viewsPerDepartmentChart" width="400" height="500"></canvas>
                                 </div>
@@ -297,7 +314,7 @@ require_once 'templates/admin_navbar.php';
                                                     </div>
                                                     <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_recent-published-paper" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
                                                         <div role="none">
-                                                            <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=recent-published-paper"  class="dropdown-action-item">
+                                                            <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=recent_published_paper"  class="dropdown-action-item">
                                                                 Generate PDF
                                                             </a>
                                                         </div>
@@ -359,7 +376,7 @@ require_once 'templates/admin_navbar.php';
                                             </div>
                                             <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_plagiarized-content" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
                                                 <div role="none">
-                                                    <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=plagiarized-content"  class="dropdown-action-item">
+                                                    <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=plagiarized_content"  class="dropdown-action-item">
                                                         Generate PDF
                                                     </a>
                                                 </div>
@@ -417,7 +434,7 @@ require_once 'templates/admin_navbar.php';
                                             </div>
                                             <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_top-contributor" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
                                                 <div role="none">
-                                                    <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=top-contributor"  class="dropdown-action-item">
+                                                    <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=top_contributor"  class="dropdown-action-item">
                                                         Generate PDF
                                                     </a>
                                                 </div>
@@ -440,6 +457,10 @@ require_once 'templates/admin_navbar.php';
                                             
                                             if (is_array($rows) || is_object($rows)) {
                                                 foreach ($rows as $row) {
+                                                    if ($row['first_name'] == '') {
+                                                         $row['first_name'] = '-';
+ 
+                                                    }
                                                     echo "<tr>
                                                             <td class='list-td'>{$row['first_name']} {$row['middle_name']} {$row['last_name']}</td>
                                                             <td class='list-td'><a href='view_profile.php?studID={$row['studID']}'> {$row['research_owner_email']}<i class='ti-arrow-top-right'></i></a></td>
@@ -460,6 +481,7 @@ require_once 'templates/admin_navbar.php';
                     </div>
                 </section>
             </div>
+            <?php include 'templates/footer.php'; ?>
         </div>
     </div>
 <!-- <script src="js/lib/calendar-2/moment.latest.min.js"></script>

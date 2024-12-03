@@ -42,7 +42,7 @@ if(isset($_GET['archiveID'])){
 
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo1.png">
+    <link rel="shortcut icon" href="images/logo2.webp">
     <!-- Retina iPad Touch Icon-->
     <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
     <!-- Retina iPhone Touch Icon-->
@@ -73,114 +73,106 @@ require_once 'templates/student_navbar.php';
 
 <div class="content-wrap">
   <div class="container">
-      <div class=" col-md-12">
-
-<!-- Page Heading -->
-        <div class="row">
-          <div class="col-md-12 p-r-0 title-margin-right">
-            <div class="page-header">
-              <div class="page-title">
-                <h1>Research Article
-                </h1>
-              </div>
+    <div class=" col-md-12">
+      <div class="row">
+        <div class="col-md-12 p-r-0 title-margin-right">
+          <div class="page-header">
+            <div class="page-title">
+              <h1>Research Article
+              </h1>
             </div>
           </div>
         </div>
-<div class="panel-body inf-content">
-  <div class="row">
-    <?php
-  if(isset($_GET['archiveID'])){
+      </div>
+      <div class="panel-body inf-content">
+        <div class="row">
+          <?php
+        if(isset($_GET['archiveID'])){
 
-    $archiveID = $_GET['archiveID'];
+          $archiveID = $_GET['archiveID'];
 
-    $data = $db->SELECT_ARCHIVE_RESEARCH($archiveID);
-  ?>
-    <div class="col-md-8">
-        <div class="short-info">
-            <p><strong style="font-size: 20px; color:#313131"><?php echo $data['project_title']; ?> </strong><br></p>
-            <p class="detail-font"><?php echo $data['project_members']; ?></p>
-            <?php if (!empty($data['date_published'])) {
-              $first_published = DateTime::createFromFormat("Y-m-d", $data['date_published'])->format("d F Y");
-              echo '<p class="detail-font">Published: '.$first_published.' | Archive ID: '. $data['archive_id'] .'</p>'; 
-              } else {
-                echo '<p class="detail-font">Not yet published | Archive ID: '. $data['archive_id'] .'</p>';
+          $data = $db->SELECT_ARCHIVE_RESEARCH($archiveID);
+        ?>
+          <div class="col-md-8">
+              <div class="short-info">
+                  <p><strong style="font-size: 20px; color:#313131"><?php echo $data['project_title']; ?> </strong><br></p>
+                  <p class="detail-font"><?php echo $data['project_members']; ?></p>
+                  <?php if (!empty($data['date_published'])) {
+                    $first_published = DateTime::createFromFormat("Y-m-d", $data['date_published'])->format("d F Y");
+                    echo '<p class="detail-font">Published: '.$first_published.' | Archive ID: '. $data['archive_id'] .'</p>'; 
+                    } else {
+                      echo '<p class="detail-font">Not yet published | Archive ID: '. $data['archive_id'] .'</p>';
+                    }
+                  ?>
+              </div>
+            <div class="form-group" style="padding-top: 1rem;">
+              <iframe src="<?php echo $data['documents']; ?>" width="100%" height="900px" allowfullscreen></iframe>
+              <div class="text-center">
+                <a href="download_file.php?archiveID=<?= $archiveID ?>" class="download-pdf-button" download>Download PDF</a>
+              </div>
+            </div>
+            
+          </div>
+          <div class="col-md-4">
+            <div class="">
+              <div class="page-header">
+                <div class="page-title information-meta">
+                  <span class="info-font text-white"><i class="ti-info text-black" style="background-color: white; border-radius: 50%; margin-right:6px"></i>Information</span>
+                </div>
+              </div>
+            </div>
+            <div class="info-container">
+              <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Details</p>
+              <ul>
+                <li class="info-meta"><label>Course:</label><?= $data['course_name'] ?></li>
+                <li class="info-meta"><label>Department:</label><?= $data['name'] ?></li>
+                <li class="info-meta"><label>Contact Email:</label><a href="view_profile.php?contact_email=<?= $data['research_owner_email'] ?>"><?= $data['research_owner_email'] ?><i class="ti-arrow-top-right"></i></a></li>
+              </ul>
+            </div>
+            <div class="info-container">
+              <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Publication History</p>
+              <ul>
+                <li class="info-meta"><label>Project Year:</label><?= $data['project_year'] ?></li>
+                <li class="info-meta"><label>Date Uploaded:</label><?= (new DateTime($data['dateOFSubmit']))->format("d F Y") ?></li>
+                <li class="info-meta"><label>Date Published:</label>
+                  <?php if (!empty($data['date_published'])) {
+                    $first_published = DateTime::createFromFormat("Y-m-d", $data['date_published'])->format("d F Y");
+                    echo $first_published; } 
+                    else {
+                      echo "Not yet";
+                    }
+                  ?>
+                </li>
+              </ul>
+            </div>
+            <?php
+              if ($data['keywords'] !== ''){
+                echo '<div class="info-container">
+                        <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Keywords</p>
+                        <ul class="ul-keywords">';
+                        $keywords = explode(',', $data['keywords']);
+                        foreach ($keywords as $keyword) {
+                          echo '<li class="info-meta"><a href="all_project_list.php?keywords='.$keyword.'"><span class="info-keywords">'.$keyword.'</span></a></li>';
+                        }
+                        echo '</ul>
+                      </div>';
               }
             ?>
-        </div>
-      <div class="form-group" style="padding-top: 1rem;">
-        <iframe src="<?php echo $data['documents']; ?>" width="100%" height="900px" allowfullscreen></iframe>
-    </div>
-    </div>
-    <div class="col-md-4">
-      <div class="">
-        <div class="page-header">
-          <div class="page-title information-meta">
-            <span class="info-font text-white"><i class="ti-info text-black" style="background-color: white; border-radius: 50%; margin-right:6px"></i>Information</span>
+          </div>
+          <?php 
+          } else {
+            echo "<div class='col-md-12'>
+                    <p style='text-align: center'>No research found.</p>
+                  </div>";
+          }
+          ?>
           </div>
         </div>
       </div>
-      <div class="info-container">
-        <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Details</p>
-        <ul>
-          <li class="info-meta"><label>Course:</label><?= $data['course_name'] ?></li>
-          <li class="info-meta"><label>Department:</label><?= $data['name'] ?></li>
-          <li class="info-meta"><label>Contact Email:</label><a href="view_profile.php?contact_email=<?= $data['research_owner_email'] ?>"><?= $data['research_owner_email'] ?><i class="ti-arrow-top-right"></i></a></li>
-        </ul>
-      </div>
-      <div class="info-container">
-        <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Publication History</p>
-        <ul>
-          <li class="info-meta"><label>Project Year:</label><?= $data['project_year'] ?></li>
-          <li class="info-meta"><label>Date Uploaded:</label><?= (new DateTime($data['dateOFSubmit']))->format("d F Y") ?></li>
-          <li class="info-meta"><label>Date Published:</label>
-            <?php if (!empty($data['date_published'])) {
-              $first_published = DateTime::createFromFormat("Y-m-d", $data['date_published'])->format("d F Y");
-              echo $first_published; } 
-              else {
-                echo "Not yet";
-              }
-            ?>
-          </li>
-        </ul>
-      </div>
-      <?php
-        if ($data['keywords'] !== ''){
-          echo '<div class="info-container">
-                  <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Keywords</p>
-                  <ul class="ul-keywords">';
-                  $keywords = explode(',', $data['keywords']);
-                  foreach ($keywords as $keyword) {
-                    echo '<li class="info-meta"><a href="all_project_list.php?keywords='.$keyword.'"><span class="info-keywords">'.$keyword.'</span></a></li>';
-                  }
-                  echo '</ul>
-                </div>';
-        }
-      ?>
     </div>
-    <?php 
-    } else {
-      echo "<div class='col-md-12'>
-              <p style='text-align: center'>No research found.</p>
-            </div>";
-    }
-    ?>
-    </div>
-  </div>
-</div>
-
-
-
-</div>
-
-
-
-</div>                                        
-
-</div>
-        </section>
-      </div>
-    </div>
-  </div>
+  <?php include 'templates/footer.php'; ?>
+</div>   
+  
 
 
 

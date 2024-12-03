@@ -83,7 +83,7 @@ if (isset($_FILES['img_student'])) {
             <span class="profile-info"><?php echo $data['name']; ?></span>
         </div>
     </div>
-    <div class="edit-info-details" style="display: none;">
+    <div class="edit-info-details" style="display: none; width: 100%">
         <form id="update-form" action="" method="POST">
             <div class="close-right">
                 <button class="close-button info-label">Close <span><i class="ti-close m-l-4"></i></span></button>
@@ -91,7 +91,7 @@ if (isset($_FILES['img_student'])) {
             <div class="edit-info-container">
                 <div class="item-detail">
                     <label class="info-label" for="first_name">First Name</label>
-                    <input class="info-input" type="text" id="first_name" name="first_name" value="<?php echo $data['first_name'];?>">
+                    <input class="info-input" type="text" id="first_name" name="first_name" value="<?php echo $data['first_name'];?>" required>
                 </div>
                 <div class="item-detail">
                     <label class="info-label" for="middle_name">Middle Name <span>(Optional)</span></label>
@@ -99,7 +99,7 @@ if (isset($_FILES['img_student'])) {
                 </div>
                 <div class="item-detail">
                     <label class="info-label" for="last_name">Last Name</label>
-                    <input class="info-input" type="text" id="last_name" name="last_name" value="<?php echo $data['last_name'];?>">
+                    <input class="info-input" type="text" id="last_name" name="last_name" value="<?php echo $data['last_name'];?>" required>
                 </div>
                 <div class="item-detail">
                     <label class="info-label" for="course">Course</label>
@@ -133,7 +133,7 @@ if (isset($_FILES['img_student'])) {
 
 
 <script>
-    const infoForm = document.getElementById('update-form');
+const infoForm = document.getElementById('update-form');
 const submitButton = document.getElementById('updateButton');
 const studentName = document.getElementById('studentName');
 

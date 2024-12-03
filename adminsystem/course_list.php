@@ -28,13 +28,14 @@ if(ISSET($_POST['add_course'])){
         date_default_timezone_set('Asia/Manila');
         $date = date('F / d l / Y');
         $time = date('g:i A');
-        $logs = 'You successfully inserted a Course.';
+        $logs = 'You added a new course.';
 
         $sql1 = $db->adminsystem_INSERT_NOTIFICATION_2($admin_id, $logs, $date, $time);
 
 
+
         $_SESSION['alert'] = "Success";
-        $_SESSION['status'] = "Course Added Successfully";
+        $_SESSION['status'] = "New course added";
         $_SESSION['status-code'] = "success";
     
 }
@@ -46,22 +47,23 @@ if(ISSET($_POST['edit'])){
 
     $admin_id = $_SESSION['auth_user']['admin_id'];
 
+    $department_id = $_POST['department'];
     $course_id = $_POST['course_id'];
     $course_name = $_POST['course_name'];
     
 
-        $sql = $db->update_Course($course_name, $course_id);
+        $sql = $db->update_Course($course_name, $department_id, $course_id);
 
         date_default_timezone_set('Asia/Manila');
         $date = date('F / d l / Y');
         $time = date('g:i A');
-        $logs = 'You successfully updated a Course Name.';
+        $logs = 'You updated the '.$course_name.' course.';
 
         $sql1 = $db->adminsystem_INSERT_NOTIFICATION_2($admin_id, $logs, $date, $time);
 
 
         $_SESSION['alert'] = "Success";
-        $_SESSION['status'] = "Course Name Updated Successfully";
+        $_SESSION['status'] = "Course updated";
         $_SESSION['status-code'] = "success";
     
 }
@@ -80,7 +82,7 @@ if(ISSET($_POST['edit'])){
     <title>Course List: EARIST Research Archiving System</title>
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
-    <link rel="shortcut icon" href="images/logo2.png">
+    <link rel="shortcut icon" href="images/logo2.webp">
     <!-- Retina iPad Touch Icon-->
     <link rel="apple-touch-icon" sizes="144x144" href="http://placehold.it/144.png/000/fff">
     <!-- Retina iPhone Touch Icon-->
@@ -141,43 +143,38 @@ require_once 'templates/admin_navbar.php';
                     <div class="modal-dialog modal-lg" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title">Add New Course</h5>
+                                <h5 class="modal-title">Add course</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                             </div>
 
                             <form action="" method="POST" enctype="multipart/form-data">
-                            <div class="modal-body">
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <div class="item-detail">
+                                            <label for="" class="info-label m-l-4">Department</label>
+                                            <select class="info-input" name="department" id="department" required>
+                                            <?php 
+                                                $res = $db->showDepartments_WHERE_ACTIVE();
 
-                                <div class="form-group">
-                                      <label for="">Select Department</label>
-                                      <select class="form-control" name="department">
-                                        <option></option>
-
-                                        <?php
-                                        $data = $db->SELECT_ALL_DEPARTMENTS_WHERE_ACTIVE();
-                                        
-                                        foreach ($data as $result) {
-                                        ?>
-                                        <option value="<?=$result['id']?>"><?=$result['name']?></option>
-                                        <?php
-                                        }
-                                        ?>
-
-                                      </select>
-                                  <br>
-                                    <label for="">Course Name</label>
-                                    <input type="text" class="form-control" name="course_name" >
-
+                                                foreach ($res as $item) {
+                                                echo '<option value="'.$item['id'].'">'.$item['name'].'</option>';
+                                                }
+                                            ?>
+                                            </select>
+                                        </div>
+                                        <div class="item-detail">
+                                            <label for="" class="info-label m-l-4">Course</label>
+                                            <input type="text" class="info-input" id="course_name" name="course_name" required>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button name="add_course" class="btn btn-primary">Save</button>
-                            </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button name="add_course" class="btn btn-danger">Save</button>
+                                </div>
                             </form>
-
                         </div>
                     </div>
                 </div>
@@ -185,7 +182,7 @@ require_once 'templates/admin_navbar.php';
                     <!-- Button trigger modal -->
                     <div class="add-course">
                         <button type="button" class="add-course-button item-meta" data-toggle="modal" data-target="#modelId">
-                        <i class="ti-plus m-r-4"></i> Add New Course
+                        <i class="ti-plus m-r-4"></i> Add course
                         </button>
                     </div>
 
@@ -232,7 +229,7 @@ require_once 'templates/admin_navbar.php';
                                     </label>
                                 </td>
 
-                                <td class="list-td" style="text-align: center;">
+                                <td class="list-td" style="text-align: start;">
                                     <div class="action-container">
                                         <div>
                                             <button type="button" class="action-button"  id="action-button_<?= $result['course_ID'] ?>" aria-expanded="true" aria-haspopup="true">
@@ -245,7 +242,7 @@ require_once 'templates/admin_navbar.php';
                                         <div class="dropdown-action" id="dropdown_<?= $result['course_ID'] ?>" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
                                             <div role="none">
                                                 <a href="#" data-toggle="modal" data-target="#modelId_<?= $result['course_ID'] ?>" class="dropdown-action-item">Edit course</a>
-                                                <a href="#" data-toggle="delete-modal" data-target="#delete_modelId_<?= $result['course_ID'] ?>" class="dropdown-action-item">Delete course</a>
+                                                <a onclick="confirmDelete(<?= $result['course_ID'] ?>)" href="#" data-toggle="delete-modal" data-target="#delete_modelId_<?= $result['course_ID'] ?>" class="dropdown-action-item">Delete course</a>
                                             </div>
                                         </div>
                                     </div>
@@ -263,14 +260,32 @@ require_once 'templates/admin_navbar.php';
                                             <form action="" method="post">
                                                 <div class="modal-body">
                                                     <div class="form-group">
-                                                        <label for="">Course Name</label>
-                                                        <input type="hidden" class="form-control" name="course_id" value="<?= $result['course_ID'] ?>" readonly>
-                                                        <input type="text" class="form-control" name="course_name" value="<?= $result['course_name'] ?>">
+                                                        <div class="item-detail">
+                                                            <label for="" class="info-label m-l-4">Department</label>
+                                                            <select class="info-input" name="department" id="department" required>
+                                                            <?php 
+                                                                $res = $db->showDepartments_WHERE_ACTIVE();
+
+                                                                foreach ($res as $item) {
+                                                                    if ($item['id'] == $result['department_id']) {
+                                                                        echo "<option value='".$item['id']."' selected>".$item['name']."</option>";
+                                                                    } else {
+                                                                        echo "<option value='".$item['id']."'>".$item['name']."</option>";
+                                                                    }
+                                                                }
+                                                            ?>
+                                                            </select>
+                                                        </div>
+                                                        <div class="item-detail">
+                                                            <label for="" class="info-label m-l-4">Course</label>
+                                                            <input type="hidden" class="info-input" name="course_id" value="<?= $result['course_ID'] ?>" readonly>
+                                                            <input type="text" class="info-input" id="course_name" name="course_name" value="<?= $result['course_name'] ?>" required>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                    <button name="edit" class="btn btn-success">Update</button>
+                                                    <button name="edit" class="btn btn-danger">Update</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -290,12 +305,57 @@ require_once 'templates/admin_navbar.php';
             </div>
         </div>
     </div>
+    <?php include 'templates/footer.php'; ?>
 </div>
 
 <script>
 new DataTable('#datatablesss');
 
 $('#datatablesss_filter label input').removeClass('form-control form-control-sm');
+
+function confirmDelete(courseID){
+    swal({
+        title: "Are you sure you want to delete?",
+        text: "You will not be able to recover this data!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#a33333",
+        confirmButtonText: "Delete",
+        cancelButtonText: "Cancel",
+        closeOnConfirm: false,
+        closeOnCancel: true
+    }, function(isConfirm){
+        if (isConfirm) {
+            $.ajax({
+                url: "delete_course.php",
+                type: "GET",
+                data: { courseID: courseID },
+                success: function(response) {
+                    swal({
+                        title: "Deleted!",
+                        text: "Course deleted.",
+                        type: "success",
+                        confirmButtonText: 'Okay',
+                    }, 
+                    function (isConfirm) {
+                        // if (isConfirm) {
+                        //     const listItem = document.getElementById(`li_${studID}`)
+                        //     const searchResult = document.getElementById('search-result');
+                        //     if (listItem){
+                        //         listItem.remove();
+                        //     }
+                        //     if (!searchResult.querySelector('.project-list')) {
+                        //         searchResult.innerHTML = "<p style='text-align: center'>No uploaded research found.</p>";
+                        //     }
+                        // }
+                        location.reload();
+                    });
+                }
+            });
+        }
+    });
+}
+
 
 $(document).ready(function(){
   $("#inputDepartment").change(function(){
@@ -335,7 +395,6 @@ if(department != " "){
                 status: status
             },
             success: function(response) {
-                location.reload();
             },
             error: function() {
                 alert('Error updating document status.');

@@ -72,7 +72,7 @@ if(isset($_SESSION['auth_user']['student_id'])){
               <div class="row">
                 <div class="item-detail col-sm-12 col-md-6 col-xl-6 md:p-0">
                     <label class="info-label" for="cpassword">Current Password:</label>
-                    <input class="info-input" type="password" id="cpassword" name="cpassword" minlength = 8 maxlength = 16 required>
+                    <input class="info-input" type="password" id="cpassword" name="cpassword" minlength = 5 maxlength = 16 required>
                     <!-- <span  id="cpassword-error" class="error-message m-t-2"></span> -->
                   </div>
                 <div class="item-detail col-sm-12 col-md-6 col-xl-6 md:p-0">

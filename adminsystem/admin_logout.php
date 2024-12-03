@@ -11,7 +11,7 @@ if(isset($_SESSION['auth_user']['admin_id'])){
 date_default_timezone_set('Asia/Manila');
 $date = date('F / d l / Y');
 $time = date('g:i A');
-$logs = 'You successfully logged out to your account.';
+$logs = 'You logged out.';
 $online_offline_status = 'Offline';
 
 $sql = $db->adminsystem_INSERT_NOTIFICATION_2($admin_id, $logs, $date, $time);

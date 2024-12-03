@@ -16,12 +16,12 @@ ini_set('display_errors', 1);
 session_start();
 
 
-if (isset($_POST['recover-now'])) {
+if (isset($_POST['email'])) {
 
     $email = trim($_POST['email']);
     $verification_code = rand(100000, 999999);
 
-    $user = $db->student_register_select_email($email);
+    $user = $db->student_forgot_select_email($email);
 
     if ($user) {
 
@@ -44,24 +44,11 @@ if (isset($_POST['recover-now'])) {
         $mail->Body = 'Your account OTP code is <strong> ' . $verification_code . '.</strong> Please use this code to recover your account.';
         $mail->send();
 
-        $_SESSION['alert'] = "Success";
-        $_SESSION['status'] = "Please check your registered email for OTP code to recover your account.";
-        $_SESSION['status-code'] = "success";
-        $_SESSION['email'] = $email;
-        header("location: ../student/recover_account.php");
-        exit();
+        echo json_encode(array("status_code" => "success", "status" => "Please check your registered email for OTP code to recover your account.", "alert" => "Success", "redirect" => "../student/recover_account.php"));
     } else {
-        $_SESSION['alert'] = "Oppss...";
-        $_SESSION['status'] = "No such user.";
-        $_SESSION['status-code'] = "error";
-        header("location: ../student/forgot_password.php");
-        exit();
+        echo json_encode(array("status_code" => "error", "status" => "Please enter a valid email.", "alert" => "Oppss..."));
     }
 } else {
-    $_SESSION['alert'] = "Oppss...";
-    $_SESSION['status'] = "Invalid";
-    $_SESSION['status-code'] = "error";
-    header("location: ../student/forgot_password.php");
-    exit();
+    echo json_encode(array("status_code" => "error", "status" => "Invalid", "alert" => "Oppss..."));
 }
 ?>

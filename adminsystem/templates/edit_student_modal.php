@@ -9,8 +9,17 @@ if (isset($_POST[$uniquePrefix.'update'])){
     $department = $_POST['department'];
     $course = $_POST['course'];
 
-    $stmt = $db->UPDATE_STUDENT_INFO($student_id, $first_name, $last_name, $phonenumber, $email, $password, $department, $course);
-    if ($stmt) {    
+    
+    //check student email if exists
+    $check_email = $db->check_student_email($email, $student_id);
+    if ($check_email) {
+        $_SESSION['alert'] = "Error";
+        $_SESSION['status'] = "Email already exists. Please choose a different one.";
+        $_SESSION['status-code'] = "error";
+        echo "<script>window.location.href = 'student_list.php'</script>";
+    } else {
+        $stmt = $db->UPDATE_STUDENT_INFO($student_id, $first_name, $last_name, $phonenumber, $email, $password, $department, $course);
+        if ($stmt) {    
         date_default_timezone_set('Asia/Manila');
         $date = date('F / d l / Y');
         $time = date('g:i A');
@@ -20,9 +29,10 @@ if (isset($_POST[$uniquePrefix.'update'])){
         $_SESSION['alert'] = "Success";
         $_SESSION['status'] = "Student information updated.";
         $_SESSION['status-code'] = "success";
-        echo "<script>window.location.href = 'student_list.php'</script>";
-    } else {
-        echo "<script>alert('Failed to update student information.');</script>";
+            echo "<script>window.location.href = 'student_list.php'</script>";
+        } else {
+            echo "<script>alert('Failed to update student information.');</script>";
+        }
     }
 }
 
@@ -108,7 +118,7 @@ if (isset($_POST[$uniquePrefix.'update'])){
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button name="<?= $uniquePrefix ?>update" class="btn btn-success">Update</button>
+                    <button name="<?= $uniquePrefix ?>update" class="btn btn-danger">Update</button>
                 </div>
             </form>
         </div>
@@ -117,6 +127,54 @@ if (isset($_POST[$uniquePrefix.'update'])){
 
 <link href="css/lib/sweetalert/sweetalert.css" rel="stylesheet">
 <script>
+$("#<?= $uniquePrefix ?>email").on("input", function() {
+    validateEmailAddress('<?= $uniquePrefix ?>email', '<?= $uniquePrefix ?>email-error', '<?= $result['studID'] ?>');
+});
+
+function validateEmailAddress(inputId, errorId, studID) {
+    const emailInput = document.getElementById(inputId);
+    const errorElement = document.getElementById(errorId);
+    const emailValue = emailInput.value;
+    const currentEmail = emailInput.defaultValue;
+
+    errorElement.textContent = "";
+    
+    // Basic email format validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(emailValue)) {
+        errorElement.textContent = "Please enter a valid email address";
+        $(`#${inputId}`).css('background-image', 'url("../images/close.png")');
+        return;
+    }
+
+    // Skip server check if email hasn't changed
+    if (emailValue === currentEmail) {
+        $(`#${inputId}`).css('background-image', 'url("../images/checked.png")');
+        return;
+    }
+    fetch("../../php/checkStudentEmailAddress.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `email=${encodeURIComponent(emailValue)}&current_email=${encodeURIComponent(currentEmail)}&studID=${encodeURIComponent(studID)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.exists === true) {
+            $(`#${inputId}`).css('background-image', 'url("../images/close.png")');
+            errorElement.textContent = "Email address already in use.";
+        } else {
+            $(`#${inputId}`).css('background-image', 'url("../images/checked.png")');
+            errorElement.textContent = "";
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        errorElement.textContent = "Error checking email availability";
+    });
+}
+    $("#<?= $uniquePrefix ?>password").on("focus", function() {
+        $(this).val("");
+    });
     $("#<?= $uniquePrefix ?>department").change(function() {
         var departmentId = $(this).val();
         if(departmentId != " ") {
@@ -125,9 +183,11 @@ if (isset($_POST[$uniquePrefix.'update'])){
                 method: "POST",
                 data: {"send_department_set": 1, "send_department": departmentId},
                 success: function(data) {
+                    console.log(data);
                     $("#<?= $uniquePrefix ?>course").html(data).css("display", "block");
                 },
                 error: function(xhr, status, error) {
+                    console.log(departmentId);
                     console.log("AJAX error:", error);
                 }
             });
