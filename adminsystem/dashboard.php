@@ -9,7 +9,9 @@ ini_set('display_errors', 1);
 
 
 session_start();
+
 $userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
+$departmentId = $userRole['department_id'];
 $permissions = explode(',', $userRole['permissions']);
 
 // Helper function to check permissions
@@ -30,6 +32,8 @@ if($_SESSION['auth_user']['admin_id']==0){
     exit(); 
 } else {
     $admin_id = $_SESSION['auth_user']['admin_id'];
+
+    $filterByDepartment = ($departmentId != 0);
 }
 ?>
 
@@ -80,181 +84,205 @@ require_once 'templates/admin_navbar.php';
 ?>
 <!---------NAVIGATION BAR ENDS-------->
 
-
+<?php if(hasPermit($permissions, 'dashboard_view')): ?>
     <div class="content-wrap">
-            <div class="main container-fluid">
-                <div class="col-md-12 title-page">
-                    <div class="page-header">
-                        <div class="page-title">
-                            <h1>Hello, Admin</h1>
+        <div class="main container-fluid">
+            <div class="col-md-12 title-page">
+                <div class="page-header">
+                    <div class="page-title">
+                        <h1>Hello, Admin</h1>
+                    </div>
+                </div>
+            </div>
+            <!-- /# row -->
+            <section class="col-md-12 col-xl-12">
+                <div class="b-row">
+                    <div class="col-md-12 col-xl-8">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="flex justify-content-between">
+                                    <h4 class="card-title mb-3">Published Research/Month</h4>
+                                    <?php if (hasPermission($permissions, 'dashboard_download')): ?>
+                                    <div class="action-container">
+                                        <div>
+                                            <button type="button" class="action-button"  id="action-button_published-research" aria-expanded="true" aria-haspopup="true">
+                                                <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><line x1="5.99" y1="12" x2="6" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="11.99" y1="12" x2="12" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="17.99" y1="12" x2="18" y2="12" stroke-linecap="round" stroke-width="2"></line>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_published-research" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                                            <div role="none">
+                                                <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=all_published_research"  class="dropdown-action-item">
+                                                    Generate PDF
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="publishedResearchPerMonthChart" width="400" height="400"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-xl-4">
+                        <div class="b-row nested-row h-100">
+                            <div class="col-md-6 col-xl-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <div class="avatar flex-shrink-0 mb-4" style="width:50px; height:50px">
+                                            <img src="../adminsystem/images/paper.png" alt="paper">
+                                        </div>
+                                        <p class="card-title mb-3">Research Papers</p>
+                                        <div class="card-text">
+                                        <?php
+                                        if($filterByDepartment){
+                                            $rows = $db->SELECT_COUNT_ALL_ARCHIVE_RESEARCH_BY_DEPARTMENT($departmentId);
+                                        }else{
+                                            $rows = $db->SELECT_COUNT_ALL_ARCHIVE_RESEARCH();
+                                        }
+                                            
+                                        if ($rows['count'] > 0){
+                                            echo "<h3>{$rows['count']}</h3>";
+                                        }else{
+                                            echo "<h3>0</h3>";
+                                        }
+                                        ?>
+                                        </div>
+                                        <p class="mb-0" style="font-size: 14px">Total</p>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <p class="card-title mb-3">Published Research</p>
+                                        <div class="card-text">
+                                        <?php
+                                        if($filterByDepartment){
+                                            $row = $db->SELECT_COUNT_ALL_ARCHIVE_RESEARCH_WHERE_PUBLISH_BY_DEPARTMENT($departmentId);
+                                            $rows = $db->SELECT_COUNT_ALL_ARCHIVE_RESEARCH_BY_DEPARTMENT($departmentId);
+                                        }else{
+                                            $row = $db->SELECT_COUNT_ALL_PUBLISHED_RESEARCH();
+                                            $rows = $db->SELECT_COUNT_ALL_ARCHIVE_RESEARCH();
+                                        }
+                                        
+                                            echo "<h3 class='mb-4'>{$row['count']}</h3>";
+                                        ?>
+                                        </div>
+                                        <div class="avatar flex-shrink-0 mb-2" style="width:50px; height:50px">
+                                            <img src="../adminsystem/images/publishing.png" alt="publish">
+                                        </div>
+                                        <?php 
+                                            
+                                            $published_percentage = ($row['count'] / $rows['count']) * 100;
+                                            echo '<p class="mb-0" style="font-size: 14px">'.round($published_percentage, 1).'%</p>';  
+                                        ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-xl-12" >
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <div class="flex justify-content-between">
+                                        <?php if($filterByDepartment): ?>
+                                            <h4 class="card-title mb-3">Research Papers/Course</h4>
+                                        <?php else: ?>
+                                            <h4 class="card-title mb-3">Research Papers/Department</h4>
+                                        <?php endif; ?>
+                                            <?php if (hasPermission($permissions, 'dashboard_download')): ?>
+                                            <div class="action-container">
+                                                <div>
+                                                    <button type="button" class="action-button"  id="action-button_research-paper-per-dept" aria-expanded="true" aria-haspopup="true">
+                                                        <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><line x1="5.99" y1="12" x2="6" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="11.99" y1="12" x2="12" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="17.99" y1="12" x2="18" y2="12" stroke-linecap="round" stroke-width="2"></line>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_research-paper-per-dept" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                                                    <div role="none">
+                                                        <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=all_research_paper_per_dept"  class="dropdown-action-item">
+                                                            Generate PDF
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="card-text" style="white-space: nowrap; overflow-x: auto;">
+                                        <?php
+                                        if($filterByDepartment){
+                                            $rows = $db->Archive_Research_BasedOn_Course_WHERE_DEPARTMENT($departmentId);
+                                        }else{
+                                            $rows = $db->Archive_Research_BasedOn_Department();
+                                        }
+                                            $data = json_encode($rows);
+                                            
+                                            if (is_array($rows) || is_object($rows)) {
+                                                foreach ($rows as $row) {
+                                                    echo "<div class='b-row justify-content-between '>
+                                                            <p class='no-wrap b-text-ellipsis p-0' style='font-size: 12px; color: #666'>{$row['name']} ({$row['dept_code']})</p>
+                                                            <strong>{$row['count']}</strong>
+                                                        </div>";
+                                                }
+                                            } else {
+                                                echo "<p>No data available.</p>";
+                                            }
+                                        ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <!-- /# row -->
-                <section class="col-md-12 col-xl-12">
-                    <div class="b-row">
-
-                        <div class="col-md-12 col-xl-8">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <div class="flex justify-content-between">
-                                        <h4 class="card-title mb-3">Published Research/Month</h4>
-                                        <?php if (hasPermission($permissions, 'dashboard_download')): ?>
-                                        <div class="action-container">
-                                            <div>
-                                                <button type="button" class="action-button"  id="action-button_published-research" aria-expanded="true" aria-haspopup="true">
-                                                    <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><line x1="5.99" y1="12" x2="6" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="11.99" y1="12" x2="12" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="17.99" y1="12" x2="18" y2="12" stroke-linecap="round" stroke-width="2"></line>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                            <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_published-research" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
-                                                <div role="none">
-                                                    <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=all_published_research"  class="dropdown-action-item">
-                                                        Generate PDF
-                                                    </a>
-                                                </div>
+                <div class="b-row">
+                    <div class="col-md-12 col-xl-6">
+                        <div class="card h-100">
+                            <div class="card-body" style="overflow-x: hidden;">
+                                <div class="flex justify-content-between">
+                                    <div class="flex align-items-center justify-content-between mb-3" style="gap: 15px">
+                                        <h4 class="card-title ">Most Viewed Research Paper</h4>
+                                        <div class="avatar flex-shrink-0" style="width:50px; height:50px">
+                                            <img src="../adminsystem/images/top.png" alt="publish">
+                                        </div>
+                                    </div>
+                                    <?php if (hasPermission($permissions, 'dashboard_download')): ?>
+                                    <div class="action-container">
+                                        <div>
+                                            <button type="button" class="action-button"  id="action-button_most-viewed-paper" aria-expanded="true" aria-haspopup="true">
+                                                <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><line x1="5.99" y1="12" x2="6" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="11.99" y1="12" x2="12" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="17.99" y1="12" x2="18" y2="12" stroke-linecap="round" stroke-width="2"></line>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_most-viewed-paper" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                                            <div role="none">
+                                                <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=most_viewed_paper"  class="dropdown-action-item">
+                                                    Generate PDF
+                                                </a>
                                             </div>
                                         </div>
-                                        <?php endif; ?>
                                     </div>
-                                    <div class="chart-container">
-                                        <canvas id="publishedResearchPerMonthChart" width="400" height="400"></canvas>
-                                    </div>
+                                    <?php endif; ?>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12 col-xl-4">
-                            <div class="b-row nested-row h-100">
-                            <div class="col-md-6 col-xl-6">
-                                    <div class="card h-100">
-                                        <div class="card-body">
-                                            <div class="avatar flex-shrink-0 mb-4" style="width:50px; height:50px">
-                                                <img src="../adminsystem/images/paper.png" alt="paper">
-                                            </div>
-                                            <p class="card-title mb-3">Research Papers</p>
-                                            <div class="card-text">
-                                            <?php
-                                                $rows = $db->SELECT_COUNT_ALL_ARCHIVE_RESEARCH();
-                                                
-                                                echo "<h3>{$rows}</h3>";
-                                            ?>
-                                            </div>
-                                            <p class="mb-0" style="font-size: 14px">Total</p>
-                                            
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 col-xl-6">
-                                    <div class="card h-100">
-                                        <div class="card-body">
-                                            <p class="card-title mb-3">Published Research</p>
-                                            <div class="card-text">
-                                            <?php
-                                                $row = $db->SELECT_COUNT_ALL_RESEARCH();
-                                                $rows = $db->SELECT_COUNT_ALL_PUBLISHED_RESEARCH();
-                                            
-                                                echo "<h3 class='mb-4'>{$rows['count']}</h3>";
-                                            ?>
-                                            </div>
-                                            <div class="avatar flex-shrink-0 mb-2" style="width:50px; height:50px">
-                                                <img src="../adminsystem/images/publishing.png" alt="publish">
-                                            </div>
-                                            <?php 
-                                                
-                                                $published_percentage = ($rows['count'] / $row['count']) * 100;
-                                                echo '<p class="mb-0" style="font-size: 14px">'.round($published_percentage, 1).'%</p>';  
-                                            ?>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-12 col-xl-12" >
-                                    <div class="card h-100">
-                                        <div class="card-body">
-                                            <div class="flex justify-content-between">
-                                                <h4 class="card-title mb-3">Research Papers/Department</h4>
-                                                <?php if (hasPermission($permissions, 'dashboard_download')): ?>
-                                                <div class="action-container">
-                                                    <div>
-                                                        <button type="button" class="action-button"  id="action-button_research-paper-per-dept" aria-expanded="true" aria-haspopup="true">
-                                                            <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><line x1="5.99" y1="12" x2="6" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="11.99" y1="12" x2="12" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="17.99" y1="12" x2="18" y2="12" stroke-linecap="round" stroke-width="2"></line>
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                    <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_research-paper-per-dept" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
-                                                        <div role="none">
-                                                            <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=all_research_paper_per_dept"  class="dropdown-action-item">
-                                                                Generate PDF
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <?php endif; ?>
-                                            </div>
-                                            <div class="card-text" style="white-space: nowrap; overflow-x: auto;">
-                                            <?php
-                                                $rows = $db->Archive_Research_BasedOn_Department();
-                                                $data = json_encode($rows);
-                                                
-                                                if (is_array($rows) || is_object($rows)) {
-                                                    foreach ($rows as $row) {
-                                                        echo "<div class='b-row justify-content-between '>
-                                                                <p class='no-wrap b-text-ellipsis p-0' style='font-size: 12px; color: #666'>{$row['name']} ({$row['dept_code']})</p>
-                                                                <strong>{$row['count']}</strong>
-                                                            </div>";
-                                                    }
-                                                } else {
-                                                    echo "<p>No data available.</p>";
-                                                }
-                                            ?>
-                                            </div>
-                                        </div>
+                                <div class="card-text">
+                                    <div class="chart-container" style="position: relative; height:400px; width:100%;">
+                                        <canvas id="topViewsChart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="b-row">
-                        <div class="col-md-12 col-xl-6">
-                            <div class="card h-100">
-                                <div class="card-body" style="overflow-x: hidden;">
-                                    <div class="flex justify-content-between">
-                                        <div class="flex align-items-center justify-content-between mb-3" style="gap: 15px">
-                                            <h4 class="card-title ">Most Viewed Research Paper</h4>
-                                            <div class="avatar flex-shrink-0" style="width:50px; height:50px">
-                                                <img src="../adminsystem/images/top.png" alt="publish">
-                                            </div>
-                                        </div>
-                                        <?php if (hasPermission($permissions, 'dashboard_download')): ?>
-                                        <div class="action-container">
-                                            <div>
-                                                <button type="button" class="action-button"  id="action-button_most-viewed-paper" aria-expanded="true" aria-haspopup="true">
-                                                    <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><line x1="5.99" y1="12" x2="6" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="11.99" y1="12" x2="12" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="17.99" y1="12" x2="18" y2="12" stroke-linecap="round" stroke-width="2"></line>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                            <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_most-viewed-paper" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
-                                                <div role="none">
-                                                    <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=most_viewed_paper"  class="dropdown-action-item">
-                                                        Generate PDF
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
+                    <div class="col-md-12 col-xl-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="flex justify-content-between">
+                                        <?php if($filterByDepartment): ?>
+                                            <h4 class="card-title mb-3">Research Views/Course</h4>
+                                        <?php else: ?>
+                                            <h4 class="card-title mb-3">Research Views/All</h4>
                                         <?php endif; ?>
-                                    </div>
-                                    <div class="card-text">
-                                        <div class="chart-container" style="position: relative; height:400px; width:100%;">
-                                            <canvas id="topViewsChart"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12 col-xl-6">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <div class="flex justify-content-between">
-                                        <h4 class="card-title mb-3">Research Views/Department</h4>
                                         <?php if (hasPermission($permissions, 'dashboard_download')): ?>
                                             <div class="action-container">
                                                 <div>
@@ -271,252 +299,237 @@ require_once 'templates/admin_navbar.php';
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
                                         <?php endif; ?>
                                     </div>
-                                    <div class="chart-container">
-                                    <canvas id="viewsPerDepartmentChart" width="400" height="500"></canvas>
                                 </div>
+                                <div class="chart-container">
+                                <canvas id="viewsPerDepartmentChart" width="400" height="500"></canvas>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="b-row">
-                        <div class="col-md-12 col-xl-4">
-                                <!-- <div class="col-md-6 col-xl-6">
-                                    <div class="card h-100">
-                                        <div class="card-body">
-                                            <i class="float-right ti-angle-double-right"></i>
-                                            <div class="avatar flex-shrink-0 mb-2" style="width:50px; height:50px">
-                                                <img src="../adminsystem/images/file.png" alt="unpublish">
-                                            </div>
-                                            <div class="card-text mb-4">
-                                            <?php 
-                                                $row = $db->SELECT_COUNT_ALL_UNPUBLISHED_RESEARCH();
-                                                echo '<h1>'.$row['count'].' paper/s</h1>';  
-                                                
-                                            ?>
-                                            </div>
-                                            <h4 class="card-title mb-3">Unpublished Research</h4>
-                                            <?php 
-                                                $rows = $db->SELECT_COUNT_ALL_PUBLISHED_RESEARCH();
-                                                $unpublished_percentage = ($row['count'] / $rows['count']) * 100;
-                                                echo '<p class="mb-0" style="font-size: 18px">'.round($unpublished_percentage, 1).'%</p>';  
-                                            ?>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 col-xl-6">
-                                    <div class="card h-100">
-                                        <div class="card-body">
-                                            <i class="float-right ti-angle-double-right"></i>
-                                            <h4 class="card-title mb-3">Plagiarized Research</h4>
-                                            <div class="card-text mb-4">
-                                            <?php 
-                                                $rows = $db->SELECT_COUNT_ALL_PLAGIARIZED_RESEARCH();
-                                                echo '<h1>'.$rows['count'].' paper/s</h1>';  
-                                            ?>
-                                            </div>
-                                            <div class="avatar flex-shrink-0" style="width:50px; height:50px">
-                                                    <img src="../adminsystem/images/plagiarism.png" alt="plagiarism">
+                </div>
+                <div class="b-row">
+                    <div class="col-md-12 col-xl-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="card-text">
+                                    <div class="card-list-container">
+                                        <div class="flex justify-content-between">
+                                            <h4 class="card-title mb-3">Recent Published Research</h4>
+                                            <?php if (hasPermission($permissions, 'dashboard_download')): ?>
+                                            <div class="action-container">
+                                                <div>
+                                                    <button type="button" class="action-button"  id="action-button_recent-published-paper" aria-expanded="true" aria-haspopup="true">
+                                                    <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><line x1="5.99" y1="12" x2="6" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="11.99" y1="12" x2="12" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="17.99" y1="12" x2="18" y2="12" stroke-linecap="round" stroke-width="2"></line>
+                                                    </svg>
+                                                    </button>
                                                 </div>
-                                        </div>
-                                    </div>
-                                </div> -->
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <div class="card-text">
-                                        <div class="card-list-container">
-                                            <div class="flex justify-content-between">
-                                                <h4 class="card-title mb-3">Recent Published Research</h4>
-                                                <?php if (hasPermission($permissions, 'dashboard_download')): ?>
-                                                <div class="action-container">
-                                                    <div>
-                                                        <button type="button" class="action-button"  id="action-button_recent-published-paper" aria-expanded="true" aria-haspopup="true">
-                                                        <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><line x1="5.99" y1="12" x2="6" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="11.99" y1="12" x2="12" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="17.99" y1="12" x2="18" y2="12" stroke-linecap="round" stroke-width="2"></line>
-                                                        </svg>
-                                                        </button>
-                                                    </div>
-                                                    <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_recent-published-paper" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
-                                                        <div role="none">
-                                                            <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=recent_published_paper"  class="dropdown-action-item">
-                                                                Generate PDF
-                                                            </a>
-                                                        </div>
+                                                <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_recent-published-paper" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                                                    <div role="none">
+                                                        <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=recent_published_paper"  class="dropdown-action-item">
+                                                            Generate PDF
+                                                        </a>
                                                     </div>
                                                 </div>
                                             </div>
                                             <?php endif; ?>
-                                            <div class="card-text mt-4">
-                                                <ul>
-                                                <?php 
+                                        </div>
+                                        <div class="card-text mt-4">
+                                            <ul>
+                                            <?php 
+                                                if($filterByDepartment){
+                                                    $rows = $db->SELECT_RECENT_RESEARCH_PAPER_WHERE_DEPARTMENT($departmentId);
+                                                }else{
                                                     $rows = $db->SELECT_RECENT_RESEARCH_PAPER();
+                                                }
+                                                if (!empty($rows)) {
                                                     foreach ($rows as $row) {
                                                         echo '
                                                         <li>
                                                             <p class="mb-0 badge badge-danger" style="font-size: 12px;">'.$row['aid'].'</p>
                                                             <p class="mb-0"><a href="view_archive_research.php?archiveID='.$row['aid'].'" style="color: #333; font-size: 14px; font-weight:700">'.$row['project_title'].'</a></p>
-                                                            <p class="" style=" font-size: 12px;">'.DateTime::createFromFormat("Y-m-d", $row['date_published'])->format("d F Y").'</p>
-                                                        </li>
-
-                                                        
-                                                        ';
+                                                            <p class="" style="font-size: 12px;">'.DateTime::createFromFormat("Y-m-d", $row['date_published'])->format("d F Y").'</p>
+                                                        </li>';
                                                     }
-                                                ?>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-xl-4 autoShow">
-                            <div class="card h-100">
-                                <h4 class="card-title mb-3">Departments</h4>
-                                <div class="chart-container">
-                                    <canvas id="departmentStatusChart" width="300" height="440"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-xl-4 autoShow">
-                            <div class="card h-100">
-                                <h4 class="card-title mb-3">Courses</h4>
-                                <div class="chart-container">
-                                    <canvas id="courseStatusChart" width="300" height="440"></canvas>
-                                </div>  
-                            </div>
-                        </div>
-                    </div>
-                    <div class="b-row">
-                        <div class="col-md-12 col-xl-8">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <div class="flex justify-content-between">
-                                    <h4 class="card-title mb-3">Plagiarized Research Content </h4>
-                                        <?php if (hasPermission($permissions, 'dashboard_download')): ?>
-                                        <div class="action-container">
-                                            <div>
-                                                <button type="button" class="action-button"  id="action-button_plagiarized-content" aria-expanded="true" aria-haspopup="true">
-                                                    <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><line x1="5.99" y1="12" x2="6" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="11.99" y1="12" x2="12" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="17.99" y1="12" x2="18" y2="12" stroke-linecap="round" stroke-width="2"></line>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                            <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_plagiarized-content" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
-                                                <div role="none">
-                                                    <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=plagiarized_content"  class="dropdown-action-item">
-                                                        Generate PDF
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="card-text">
-                                        <ul>
-                                        <?php 
-                                            $rows = $db->SELECT_PLAGIARIZED_RESEARCH_CONTENT();
-                                            if (!empty($rows)){
-                                                foreach ($rows as $row) {
-                                                    $percentage = $row['total_percentage'];
-                                                    if ($percentage > 100){
-                                                        $percentage = 100;
-                                                    }
-                                                    echo '
-                                                    <li class="flex justify-content-between">
-                                                        <div class="w-100">
-                                                            <p class="mb-0"><a href="plagiarism_result.php?archiveID='.$row['aid'].'" style="color: #333; font-size: 14px; font-weight:700">'.$row['project_title'].'</a></p>
-                                                            <p class="" style=" font-size: 12px;">'.(new DateTime($row['dateOFSubmit']))->format("d F Y h:i:s A").'</p>
-                                                        </div>
-                                                        <div class="d-flex align-items-center w-100">
-                                                            <div class="progress w-100" style="height: 10px">
-                                                                <div class="progress-bar-danger progress-bar" role="progressbar" style="width: '.round($percentage, 1).'%" aria-valuenow="'.round($percentage, 1).'" aria-valuemin="0" aria-valuemax="100"></div>
-                                                            </div>
-                                                            <span style="color: #a33333; font-size: 16px; margin-left: .75rem !important;">'.round($percentage, 1).'%</span>
-                                                        </div>
-                                                    </li>
-    
-                                                    
-                                                    ';
+                                                } else {
+                                                    echo '<p class="text-center" style="color: #666; font-size: 12px;">No recent published research found.</p>';
                                                 }
-                                            } else {
-                                                 echo '<p class="text-center" style="color: #666; font-size: 12px;" >No plagiarized research content found.</p>';
- 
-                                            }
-                                        ?>
-                                        </ul>                   
-                                    </div>
-                                </div>
-                            </div>                                    
-                        </div>
-                        <div class="col-md-12 col-xl-4">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <div class="flex justify-content-between">
-                                        <h4 class="card-title mb-3">Top Contributor</h4>
-                                        <?php if (hasPermission($permissions, 'dashboard_download')): ?>
-                                        <div class="action-container">
-                                            <div>
-                                                <button type="button" class="action-button"  id="action-button_top-contributor" aria-expanded="true" aria-haspopup="true">
-                                                    <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><line x1="5.99" y1="12" x2="6" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="11.99" y1="12" x2="12" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="17.99" y1="12" x2="18" y2="12" stroke-linecap="round" stroke-width="2"></line>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                            <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_top-contributor" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
-                                                <div role="none">
-                                                    <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=top_contributor"  class="dropdown-action-item">
-                                                        Generate PDF
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="card-text" style="overflow-x: auto;">
-                                    <table class="table list-table w-100">
-                                        <thead>
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>Email Address</th>
-                                                <th>Published Research</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
-                                            $rows = $db->SELECT_TOP_RESEARCH_CONTRIBUTOR();
-                                            $data = json_encode($rows);
-                                            
-                                            if (is_array($rows) || is_object($rows)) {
-                                                foreach ($rows as $row) {
-                                                    if ($row['first_name'] == '') {
-                                                         $row['first_name'] = '-';
- 
-                                                    }
-                                                    echo "<tr>
-                                                            <td class='list-td'>{$row['first_name']} {$row['middle_name']} {$row['last_name']}</td>
-                                                            <td class='list-td'><a href='view_profile.php?studID={$row['studID']}'> {$row['research_owner_email']}<i class='ti-arrow-top-right'></i></a></td>
-                                                            <td class='list-td'>{$row['count']}</td>
-                                                        </tr>";
-                                                }
-                                            } else {
-                                                echo "<p class='text-center' style='color: #333; font-size: 14px; font-weight:700'>No data available.</p>";
-                                            }
-                                            
                                             ?>
-                                        </tbody>
-                                    </table>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>  
-                        </div>                                       
+                            </div>
+                        </div>
                     </div>
-                    <?php include 'templates/footer.php'; ?>
-            </div>
-<!-- <script src="js/lib/calendar-2/moment.latest.min.js"></script>
-<script src="js/lib/calendar-2/pignose.calendar.min.js"></script>
-<script src="js/lib/calendar-2/pignose.init.js"></script> -->
+                    
+                    <div class="col-md-6 col-xl-4 autoShow">
+                        <div class="card h-100">
+                            <h4 class="card-title mb-3">
+                            <?php if($filterByDepartment): ?>
+                                Students
+                            <?php else: ?>
+                                Departments
+                            <?php endif; ?>
+                            </h4>
+                            <div class="chart-container">
+                                <canvas id="departmentStatusChart" width="300" height="440"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-xl-4 autoShow">
+                        <div class="card h-100">
+                            <h4 class="card-title mb-3">Courses</h4>
+                            <div class="chart-container">
+                                <canvas id="courseStatusChart" width="300" height="440"></canvas>
+                            </div>  
+                        </div>
+                    </div>
+                </div>
+                <div class="b-row">
+                    <div class="col-md-12 col-xl-8">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="flex justify-content-between">
+                                <h4 class="card-title mb-3">Plagiarized Research Content </h4>
+                                    <?php if (hasPermission($permissions, 'dashboard_download')): ?>
+                                    <div class="action-container">
+                                        <div>
+                                            <button type="button" class="action-button"  id="action-button_plagiarized-content" aria-expanded="true" aria-haspopup="true">
+                                                <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><line x1="5.99" y1="12" x2="6" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="11.99" y1="12" x2="12" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="17.99" y1="12" x2="18" y2="12" stroke-linecap="round" stroke-width="2"></line>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_plagiarized-content" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                                            <div role="none">
+                                                <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=plagiarized_content"  class="dropdown-action-item">
+                                                    Generate PDF
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="card-text">
+                                    <ul>
+                                    <?php 
+                                        if($filterByDepartment){
+                                            $rows = $db->SELECT_PLAGIARIZED_RESEARCH_CONTENT_WHERE_DEPARTMENT($departmentId);
+                                        }else{
+                                            $rows = $db->SELECT_PLAGIARIZED_RESEARCH_CONTENT();
+                                        }
+                                        if (!empty($rows)){
+                                            foreach ($rows as $row) {
+                                                $percentage = $row['total_percentage'];
+                                                if ($percentage > 100){
+                                                    $percentage = 100;
+                                                }
+                                                echo '
+                                                <li class="flex justify-content-between">
+                                                    <div class="w-100">
+                                                        <p class="mb-0"><a href="plagiarism_result.php?archiveID='.$row['aid'].'" style="color: #333; font-size: 14px; font-weight:700">'.$row['project_title'].'</a></p>
+                                                        <p class="" style=" font-size: 12px;">'.(new DateTime($row['dateOFSubmit']))->format("d F Y h:i:s A").'</p>
+                                                    </div>
+                                                    <div class="d-flex align-items-center w-100">
+                                                        <div class="progress w-100" style="height: 10px">
+                                                            <div class="progress-bar-danger progress-bar" role="progressbar" style="width: '.round($percentage, 1).'%" aria-valuenow="'.round($percentage, 1).'" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                        <span style="color: #a33333; font-size: 16px; margin-left: .75rem !important;">'.round($percentage, 1).'%</span>
+                                                    </div>
+                                                </li>
+
+                                                
+                                                ';
+                                            }
+                                        } else {
+                                                echo '<p class="text-center" style="color: #666; font-size: 12px;" >No plagiarized research content found.</p>';
+
+                                        }
+                                    ?>
+                                    </ul>                   
+                                </div>
+                            </div>
+                        </div>                                    
+                    </div>
+                    <div class="col-md-12 col-xl-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="flex justify-content-between">
+                                    <h4 class="card-title mb-3">Top Contributor</h4>
+                                    <?php if (hasPermission($permissions, 'dashboard_download')): ?>
+                                    <div class="action-container">
+                                        <div>
+                                            <button type="button" class="action-button"  id="action-button_top-contributor" aria-expanded="true" aria-haspopup="true">
+                                                <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><line x1="5.99" y1="12" x2="6" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="11.99" y1="12" x2="12" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="17.99" y1="12" x2="18" y2="12" stroke-linecap="round" stroke-width="2"></line>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_top-contributor" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                                            <div role="none">
+                                                <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=top_contributor"  class="dropdown-action-item">
+                                                    Generate PDF
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="card-text" style="overflow-x: auto;">
+                                <table class="table list-table w-100">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Email Address</th>
+                                            <th>Published Research</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        if($filterByDepartment){
+                                            $rows = $db->SELECT_TOP_RESEARCH_CONTRIBUTOR_WHERE_DEPARTMENT($departmentId);
+                                        }else{
+                                            $rows = $db->SELECT_TOP_RESEARCH_CONTRIBUTOR();
+                                        }
+                                        $data = json_encode($rows);
+                                        
+                                        if (is_array($rows) || is_object($rows)) {
+                                            foreach ($rows as $row) {
+                                                if ($row['first_name'] == '') {
+                                                        $row['first_name'] = '-';
+
+                                                }
+                                                echo "<tr>
+                                                        <td class='list-td'>{$row['first_name']} {$row['middle_name']} {$row['last_name']}</td>
+                                                        <td class='list-td'><a href='view_profile.php?studID={$row['studID']}'> {$row['research_owner_email']}<i class='ti-arrow-top-right'></i></a></td>
+                                                        <td class='list-td'>{$row['count']}</td>
+                                                    </tr>";
+                                            }
+                                        } else {
+                                            echo "<p class='text-center' style='color: #333; font-size: 14px; font-weight:700'>No data available.</p>";
+                                        }
+                                        
+                                        ?>
+                                    </tbody>
+                                </table>
+                                </div>
+                            </div>
+                        </div>  
+                    </div>                                       
+                </div>
+                <?php include 'templates/footer.php'; ?>
+            </section>
+        </div>
+    </div>
+<?php endif; ?>
+
 <script>
 <?php 
-    $result = $db->Archive_Research_Views_BasedOn_Departments();
+    if ($filterByDepartment) {
+        $result = $db->Archive_Research_Views_BasedOn_Department($departmentId);
+    } else {
+        $result = $db->Archive_Research_Views_BasedOn_Departments();
+    }
     $data = json_encode($result);
 ?>
 
@@ -600,7 +613,11 @@ const departmentViewsData = <?php echo $data; ?>;
     });
 
 <?php
-    $rows = $db->SELECT_RESEARCH_PUBLISHED_PER_WEEK();
+    if ($filterByDepartment) {
+        $rows = $db->SELECT_RESEARCH_PUBLISHED_PER_WEEK_BY_DEPARTMENT($departmentId);
+    } else {
+        $rows = $db->SELECT_RESEARCH_PUBLISHED_PER_WEEK();
+    }
     $data = json_encode($rows);
 ?>
     const dataFromPHP = <?php echo $data; ?>;
@@ -685,8 +702,13 @@ const departmentViewsData = <?php echo $data; ?>;
         }
     });
 <?php 
-    $totalCourses = $db->SELECT_COUNT_ALL_COURSES();
-    $activeCourses = $db->SELECT_COUNT_ALL_ACTIVE_COURSES();
+    if($filterByDepartment){
+        $totalCourses = $db->SELECT_COUNT_ALL_COURSES_WHERE_DEPARTMENT($departmentId);
+        $activeCourses = $db->SELECT_COUNT_ALL_ACTIVE_COURSES_WHERE_DEPARTMENT($departmentId);
+    }else{
+        $totalCourses = $db->SELECT_COUNT_ALL_COURSES();
+        $activeCourses = $db->SELECT_COUNT_ALL_ACTIVE_COURSES();
+    }
 
     $activePercentage = $activeCourses['count'] ;
     $inactivePercentage = $totalCourses['total_count'] - $activePercentage;
@@ -734,10 +756,15 @@ const departmentViewsData = <?php echo $data; ?>;
         }
     });
     <?php 
-    $totalDepartment = $db->SELECT_COUNT_ALL_DEPARTMENT();
-    $activeDepartment = $db->SELECT_COUNT_ALL_ACTIVE_DEPARTMENT();
+    if($filterByDepartment){
+        $totalDepartment = $db->SELECT_COUNT_ACCEPTED_STUDENTS_WHERE_DEPARTMENT($departmentId);
+        $activeDepartment = $db->SELECT_COUNT_ALL_ACTIVE_STUDENTS_WHERE_DEPARTMENT($departmentId);
+    }else{
+        $totalDepartment = $db->SELECT_COUNT_ALL_DEPARTMENT();
+        $activeDepartment = $db->SELECT_COUNT_ALL_ACTIVE_DEPARTMENT();
+    }
 
-    $activePercentage = $activeDepartment['count'] ;
+    $activePercentage = $activeDepartment['count'];
     $inactivePercentage = $totalDepartment['total_count'] - $activePercentage;
 ?>
     const ctx3 = document.getElementById('departmentStatusChart').getContext('2d');
@@ -795,7 +822,11 @@ const departmentViewsData = <?php echo $data; ?>;
     });    
 
 <?php
-    $rows = $db->SELECT_TOP_10_VIEWS_RESEARCH_PAPER();
+    if ($filterByDepartment) {
+        $rows = $db->SELECT_TOP_10_VIEWS_RESEARCH_PAPER_BY_DEPARTMENT($departmentId);
+    } else {
+        $rows = $db->SELECT_TOP_10_VIEWS_RESEARCH_PAPER();
+    }
     $data = json_encode($rows);
 ?>
 

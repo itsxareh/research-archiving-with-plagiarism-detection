@@ -229,7 +229,7 @@ require_once 'templates/admin_navbar.php';
                             ?>
                             <tr>
                                 <td class="list-td"><?= $result['course_name'] ?></td>
-                                <td class="list-td"><?= $result['name'] ?></td>
+                                <td class="list-td"><?= isset($result['name']) ? $result['name'] : 'N/A' ?></td>
                                 <td class="list-td" style="display:flex; align-items:center; justify-content:center; margin:auto">
                                     <!-- <?php 
                                         $status = $result['course_status'];

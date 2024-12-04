@@ -20,15 +20,17 @@ if (isset($_POST[$uniquePrefix.'update'])){
     } else {
         $stmt = $db->UPDATE_STUDENT_INFO($student_id, $first_name, $last_name, $phonenumber, $email, $password, $department, $course);
         if ($stmt) {    
-        date_default_timezone_set('Asia/Manila');
-        $date = date('F / d l / Y');
-        $time = date('g:i A');
-        $logs = 'You updated '.$stmt['first_name'].' '.$stmt['last_name'].'’s information.';
-        $stmt = $db->admin_Insert_NOTIFICATION($admin_id, $logs, $date, $time);
+            $update_archive = $db->UPDATE_ARCHIVE_RESEARCH_WHERE_STUDENT_ID($student_id, $department, $course);
+            
+            date_default_timezone_set('Asia/Manila');
+            $date = date('F / d l / Y');
+            $time = date('g:i A');
+            $logs = 'You updated '.$stmt['first_name'].' '.$stmt['last_name'].'’s information.';
+            $stmt = $db->admin_Insert_NOTIFICATION($admin_id, $logs, $date, $time);
 
-        $_SESSION['alert'] = "Success";
-        $_SESSION['status'] = "Student information updated.";
-        $_SESSION['status-code'] = "success";
+            $_SESSION['alert'] = "Success";
+            $_SESSION['status'] = "Student information updated.";
+            $_SESSION['status-code'] = "success";
             echo "<script>window.location.href = 'student_list.php'</script>";
         } else {
             echo "<script>alert('Failed to update student information.');</script>";
@@ -110,7 +112,7 @@ if (isset($_POST[$uniquePrefix.'update'])){
                         <div class="col-sm-12 col-md-6 col-xl-6">
                             <div class="form-input">
                                 <label for="<?= $uniquePrefix ?>password">Password</label>
-                                <input type="password" name="password" id="<?= $uniquePrefix ?>password" minlength="8" value="<?= $result['student_password'] ?>" required>
+                                <input type="password" name="password" id="<?= $uniquePrefix ?>password" minlength="8">
                                 <span id="<?= $uniquePrefix ?>password-error" class="error-message m-t-2">Use 8 or more characters with a mix of letters, numbers, & symbols</span>
                             </div>
                         </div>

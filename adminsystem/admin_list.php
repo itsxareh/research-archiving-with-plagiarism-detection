@@ -272,9 +272,9 @@ require_once 'templates/admin_navbar.php';
                             ?>
                             <tr>
                                 <td class="list-td"><?= $result['first_name']. ' ' .$result['middle_name'].' ' .$result['last_name'] ?></td>
-                                <td class="list-td"><?= $result['admin_email'] ?></td>
-                                <td class="list-td"><?= $result['phone_number'] ?></td>
-                                <td class="list-td"><?= $result['role_name'] ?></td>
+                                <td class="list-td"><?= isset($result['admin_email']) ? $result['admin_email'] : 'N/A' ?></td>
+                                <td class="list-td"><?= isset($result['phone_number']) ? $result['phone_number'] : 'N/A' ?></td>
+                                <td class="list-td"><?= isset($result['role_name']) ? $result['role_name'] : 'N/A' ?></td>
                                 <td class="list-td" style="text-align: center;">
                                     <!-- <?php 
                                         $status = $result['admin_status'];
@@ -362,11 +362,12 @@ require_once 'templates/admin_navbar.php';
                                                         <div class="row m-0" style="justify-content: space-between;">
                                                             <div class="col-sm-6 item-detail p-0">
                                                                 <label for="" class="info-label m-l-4">Password</label>
-                                                                <input type="password" class="info-input" name="password" value="<?= $result['admin_password'] ?>" required>
+                                                                <input type="password" class="info-input" name="password">
                                                             </div>
                                                             <div class="col-sm-5 item-detail p-0">
                                                                 <label for="" class="info-label m-l-4">Role</label>
                                                                 <select class="info-input" name="role_id" required>
+                                                                    <option value="" selected disabled>Select role</option>
                                                                     <?php
                                                                     $data = $db->showRoles();
                                                                     foreach ($data as $role) {
@@ -488,18 +489,18 @@ if(department != " "){
 });
 
 $("#add_email").on("input", function() {
-        validateEmailAddress('add_email', 'add-email-error');
+        validateEmailAddress('add_email', 'add-email-error', 0);
     });
 
 $('[id^="edit_email"]').each(function() {
     const id = $(this).attr('id');
-    const errorId = id.replace('edit_email', 'edit-email-error');
+    const errorId = id.replace('edit_email', 'edit-email-error', id);
     $(this).on("input", function() {
         validateEmailAddress(id, errorId);
     });
 });
 
-    function validateEmailAddress(inputId, errorId) {
+    function validateEmailAddress(inputId, errorId, adminID) {
         const emailInput = document.getElementById(inputId);
         const errorElement = document.getElementById(errorId);
         const emailValue = emailInput.value;
@@ -509,7 +510,7 @@ $('[id^="edit_email"]').each(function() {
         fetch("../php/checkAdminEmailAddress.php", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `email=${encodeURIComponent(emailValue)}`
+            body: `email=${encodeURIComponent(emailValue)}&adminID=${encodeURIComponent(adminID)}`
         })
         .then(response => response.json())
         .then(data => {

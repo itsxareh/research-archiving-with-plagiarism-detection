@@ -11,6 +11,7 @@ ini_set('display_errors', 1);
 session_start();
 
 $userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
+$departmentId = $userRole['department_id'];
 $permissions = explode(',', $userRole['permissions']);
 
 // Helper function to check permissions
@@ -31,6 +32,7 @@ if($_SESSION['auth_user']['admin_id']==0){
     exit(); 
 } else {
     $admin_id = $_SESSION['auth_user']['admin_id'];
+    $filterByDepartment = ($departmentId != 0);
 }
 
 ?>
@@ -96,6 +98,7 @@ require_once 'templates/admin_navbar.php';
                             <div class="col-sm-12 col-md-12 col-xl-12  flex justify-content-between align-items-center page-title">
                                 <h1 style="display: flex; ">Students</h1>
                                 <?php if (hasPermission($permissions, 'student_list_download')): ?>
+
                                 <div class="generate-report ">
                                     <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=all_students" class="btn print-button">
                                         Print
@@ -121,8 +124,11 @@ require_once 'templates/admin_navbar.php';
             </thead>
             <tbody>
                 <?php
-                
-                $data = $db->SELECT_ALL_StudentsData();
+                if ($departmentId != 0) {
+                    $data = $db->SELECT_ALL_StudentsData_WHERE_DEPARTMENT_IS($departmentId);
+                } else {
+                    $data = $db->SELECT_ALL_StudentsData();
+                }
 
                 foreach ($data as $result) {
                     $studentId = htmlspecialchars($result['student_id']);

@@ -144,6 +144,8 @@ ob_start();
                 </tr>
             <?php 
                 }
+            } else {
+                echo "<tr><td colspan='5' class='text-center'>No available data found</td></tr>";
             }
             ?>
             </tbody>

@@ -10,6 +10,7 @@ ini_set('display_errors', 1);
 session_start();
 
 $userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
+$departmentId = $userRole['department_id'];
 $permissions = explode(',', $userRole['permissions']);
 
 // Helper function to check permissions
@@ -32,8 +33,6 @@ if($_SESSION['auth_user']['admin_id']==0){
     $admin_id = $_SESSION['auth_user']['admin_id'];
 }
 
-$userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
-$departmentId = $userRole['department_id'];
 
 
 if(ISSET($_POST['add_research'])){

@@ -5,27 +5,30 @@ if($_SESSION['auth_user']['admin_id']==0){
 }
 
 
-if(isset($_SESSION['auth_user']['admin_id'])) {
-    $activity = $db->admin_all_activity_log();
-    $current_admin_id = $_SESSION['auth_user']['admin_id'];
+if(hasPermission($permissions, 'user_logs')) {
+    $activity = $db->admin_all_activity_log($admin_id);
+    
+    function isValidDateFormat($date) {
+        // Regular expression to match 'Month / Day Weekday / Year'
+        return preg_match('/^[A-Za-z]+ \/ \d{2} [A-Za-z]+ \/ \d{4}$/', $date);
+    }
     
     // Organize logs by date
     $organized_logs = [];
     foreach ($activity as $log) {
-        // Parse the date string to a standardized format
+        if (!isValidDateFormat($log['logs_date'])) {
+            continue;
+        }
+        
         $date_parts = explode(' / ', $log['logs_date']);
         $month = trim($date_parts[0]);
         $day = explode(' ', trim($date_parts[1]))[0];
         $year = trim($date_parts[2]);
         
-        // Create a standardized date key for sorting
         $date_key = sprintf('%s-%02d-%s', $year, date('m', strtotime($month)), $day);
         
-        // Modify the log message to replace 'You' with admin name if needed
         $modified_log = $log;
-        if ($log['admin_id'] != $current_admin_id) {
-            // Fetch the admin's name based on admin_id
-            // You'll need to implement this function to retrieve the admin name
+        if ($log['admin_id'] != $admin_id) {
             $admin_name = $db->get_admin_name_by_id($log['admin_id']);
             $modified_log['logs'] = str_replace('You', $admin_name, $log['logs']);
         }
@@ -38,9 +41,6 @@ if(isset($_SESSION['auth_user']['admin_id'])) {
         }
         $organized_logs[$date_key]['logs'][] = $modified_log;
     }
-    
-    // Sort by date (newest first)
-    krsort($organized_logs);
 }
 ?>
 

@@ -5,7 +5,7 @@ if($_SESSION['auth_user']['admin_id']==0){
 }
 
 
-if(isset($_SESSION['auth_user']['admin_id'])) {
+if(hasPermission($permissions, 'user_logs')) {
     $student_id = $_SESSION['auth_user']['admin_id'];
     $activity = $db->admin_activity_log($student_id);
     

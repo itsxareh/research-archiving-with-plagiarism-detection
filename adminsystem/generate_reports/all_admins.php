@@ -2,7 +2,7 @@
 include '../../connection/config.php';
 $db = new Database();
 session_start();
-if($_SESSION['auth_user']['admin_id']==0 || $_SESSION['auth_user']['admin_type']==1){
+if($_SESSION['auth_user']['admin_id']==0){
     header('Location:../../bad-request.php');
     exit(); 
 }
@@ -119,8 +119,8 @@ ob_start();
                 <tr>
                     <th style="width: 20%">Name</th>
                     <th style="width: 30%">Email address</th>
-                    <th style="width: 25%">Phone number</th>
-                    <th style="width: 10%">Type</th>
+                    <th style="width: 15%">Phone number</th>
+                    <th style="width: 20%">Type</th>
                     <th style="width: 10%" class="text-center">Status</th>
                 </tr>
             </thead>
@@ -134,11 +134,13 @@ ob_start();
                     <td><?php echo htmlspecialchars($admin['first_name'].' '.$admin['last_name']); ?></td>
                     <td><?php echo htmlspecialchars($admin['admin_email']); ?></td>
                     <td><?php echo htmlspecialchars($admin['phone_number']); ?></td>
-                    <td><?php echo htmlspecialchars($admin['admin_type'] === 0 ? 'Super Admin' : 'Admin'); ?></td>
+                    <td><?php echo htmlspecialchars($admin['role_name']); ?></td>
                     <td class="text-center <?php echo $status_class; ?>"><?php echo htmlspecialchars($admin['admin_status']); ?></td>
                 </tr>
             <?php 
                 }
+            } else {
+                echo "<tr><td colspan='5' class='text-center'>No available data found</td></tr>";
             }
             ?>
             </tbody>

@@ -91,7 +91,7 @@ $db = new Database();
 <div class="sidebar sidebar-hide-to-small sidebar-shrink sidebar-gestures">
     <div class="nano">
         <div class="nano-content">
-        <?php
+            <?php
             // Get user's role and permissions
             $userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
             $permissions = explode(',', $userRole['permissions']);
@@ -107,34 +107,36 @@ $db = new Database();
             }
             ?>
 
-            <ul class="navbar" style="height: <?= $_SESSION['auth_user']['role_id'] == 1 ? '100%' : 'auto' ?>">
-                <?php if ($_SESSION['auth_user']['role_id'] == 0 || hasPermission($permissions, 'dashboard_view')): ?>
+            <ul class="navbar" style="height: <?= hasPermission($permissions, 'role_view') ? '100%' : 'auto' ?>">
+                <?php if (hasPermission($permissions, 'dashboard_view')): ?>
                     <li><a href="dashboard.php"><img src="../../images/home.svg" style="width: 2.225rem; height: 2.225rem;">Home</a></li>
                 <?php endif; ?>
                 
-                <?php if ($_SESSION['auth_user']['role_id'] == 0 || hasPermission($permissions, 'research_view')): ?>
+                <?php if (hasPermission($permissions, 'research_view')): ?>
                     <li><a href="archive_list.php"><img src="../../images/documents.svg" style="width: 2.225rem; height: 2.225rem;">Research </a></li>
                 <?php endif; ?>
 
-                <?php if ($_SESSION['auth_user']['role_id'] == 0 || hasPermission($permissions, 'student_list_view')): ?>
+                <?php if (hasPermission($permissions, 'student_list_view')): ?>
                     <li><a href="student_list.php"><img src="../../images/students.svg" style="width: 2.225rem; height: 2.225rem;"><span>Student</span></a></li>
                 <?php endif; ?>
 
-                <?php if ($_SESSION['auth_user']['role_id'] == 0 || hasPermission($permissions, 'department_view')): ?>
+                <?php if (hasPermission($permissions, 'department_view')): ?>
                     <li><a href="department_list.php"><img src="../../images/department.svg" style="width: 2.225rem; height: 2.225rem;"><span>Department</span></a></li>
                 <?php endif; ?>
 
-                <?php if ($_SESSION['auth_user']['role_id'] == 0 || hasPermission($permissions, 'course_view')): ?>
+                <?php if (hasPermission($permissions, 'course_view')): ?>
                     <li><a href="course_list.php"><img src="../../images/course.svg" style="width: 2.225rem; height: 2.225rem;"><span>Course</span></a></li>
                 <?php endif; ?>
 
-                <?php if ($_SESSION['auth_user']['role_id'] == 0 || hasPermission($permissions, 'role_view')): ?>
+                <?php if (hasPermission($permissions, 'user_view')): ?>
+                    <li><a href="admin_list.php"><img src="../../images/admin.svg" style="width: 2.225rem; height: 2.225rem;"><span>Admin</span></a></li>
+                <?php endif; ?>
+
+                <?php if (hasPermission($permissions, 'role_view')): ?>
                     <li><a href="role_list.php"><img src="../../images/role.svg" style="width: 2.225rem; height: 2.225rem;"><span>Role</span></a></li>
                 <?php endif; ?>
 
-                <?php if ($_SESSION['auth_user']['role_id'] == 0 || hasPermission($permissions, 'user_view')): ?>
-                    <li><a href="admin_list.php"><img src="../../images/admin.svg" style="width: 2.225rem; height: 2.225rem;"><span>Admin</span></a></li>
-                <?php endif; ?>
+                
             </ul>
         </div>
     </div>
@@ -180,15 +182,15 @@ $db = new Database();
                             ?>
                             </span>
                         </img>
-                        <div class="drop-down dropdown-menu dropdown-menu-right" style="position: absolute; transform: translate3d(-227px, -3px, 0px); top: 0px; left: 0px; will-change: transform; height: 300px; overflow: auto; border: 1px solid #ccc;">
+                        <div class="drop-down dropdown-menu dropdown-menu-right" style="position: absolute; transform: translate3d(-227px, -3px, 0px); top: 0px; left: 0px; will-change: transform; max-height: 300px; overflow: auto; border: 1px solid #ccc;">
                             <div class="dropdown-content-heading">
-                                <span class="text-left">Recent Notifications</span>
+                                <span class="text-left" style="font-size: 11px">Recent Notifications</span>
+                                <span class="text-center">
+                                        <a href="#" style="font-size: 10px" class="more-link" id="markASread">Mark all as read</a>
+                                </span>
                             </div>
                             <div class="dropdown-content-body">
                                 <ul>
-                                <li class="text-center">
-                                        <a href="#" class="more-link" id="markASread"><i class="ti-email"></i> Mark all as read</a>
-                                </li>
                                 <?php
                                     $notifications = $db->adminsystemNOTIFICATION_Read_Unread($adminID);
                                     foreach ($notifications as $notification) {

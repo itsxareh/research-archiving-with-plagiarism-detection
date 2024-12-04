@@ -178,7 +178,7 @@ if (hasPermission($permissions, 'role_view')):
                                 <h1 style="display: flex; ">Role</h1>
                                 <?php if (hasPermission($permissions, 'role_download')): ?>
                                 <div class="generate-report ">
-                                    <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=all_admins" class="btn print-button">
+                                    <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=all_roles" class="btn print-button">
                                         Print
                                     </a>
                                 </div>
@@ -233,6 +233,22 @@ if (hasPermission($permissions, 'role_view')):
                                             <div class="col-12 p-0"> 
                                                 <label class="info-label m-l-4">Permissions</label> 
                                                 <div class="permissions-list">
+                                                    <div class="permission-group">
+                                                        <div class="permission-group-header">
+                                                            <input type="checkbox" name="permissions[]" value="dashboard">
+                                                            <h6>Dashboard Access</h6>
+                                                        </div>
+                                                        <div class="permission-group-items">
+                                                            <div class="permission-item">
+                                                                <input type="checkbox" name="permissions[]" value="dashboard_view">
+                                                                <label>View Dashboard</label>
+                                                            </div>
+                                                            <div class="permission-item">
+                                                                <input type="checkbox" name="permissions[]" value="dashboard_download">
+                                                                <label>Download PDF</label>
+                                                            </div>
+                                                        </div> 
+                                                    </div> 
                                                     <div class="permission-group">
                                                         <div class="permission-group-header">
                                                             <input type="checkbox" name="permissions[]" value="research_paper">
@@ -300,22 +316,6 @@ if (hasPermission($permissions, 'role_view')):
                                             <div class="col-12 p-0"> 
                                                 <label class="info-label m-l-4">Other Permissions</label> 
                                                 <div class="permissions-list">
-                                                    <div class="permission-group">
-                                                        <div class="permission-group-header">
-                                                            <input type="checkbox" name="permissions[]" value="dashboard">
-                                                            <h6>Dashboard Access</h6>
-                                                        </div>
-                                                        <div class="permission-group-items">
-                                                            <div class="permission-item">
-                                                                <input type="checkbox" name="permissions[]" value="dashboard_view">
-                                                                <label>View Dashboard</label>
-                                                            </div>
-                                                            <div class="permission-item">
-                                                                <input type="checkbox" name="permissions[]" value="dashboard_download">
-                                                                <label>Download PDF</label>
-                                                            </div>
-                                                        </div> 
-                                                    </div> 
                                                     <div class="permission-group">
                                                         <div class="permission-group-header">
                                                             <input type="checkbox" name="permissions[]" value="department">
@@ -403,6 +403,10 @@ if (hasPermission($permissions, 'role_view')):
                                                                 <label>Delete Role</label>
                                                             </div>
                                                             <div class="permission-item">
+                                                                <input type="checkbox" name="permissions[]" value="role_status">
+                                                                <label>Change Status</label>
+                                                            </div>
+                                                            <div class="permission-item">
                                                                 <input type="checkbox" name="permissions[]" value="role_download">
                                                                 <label>Download PDF</label>
                                                             </div>
@@ -429,6 +433,10 @@ if (hasPermission($permissions, 'role_view')):
                                                             <div class="permission-item">
                                                                 <input type="checkbox" name="permissions[]" value="user_delete">
                                                                 <label>Delete User</label>
+                                                            </div>
+                                                            <div class="permission-item">
+                                                                <input type="checkbox" name="permissions[]" value="user_logs">
+                                                                <label>User Logs</label>
                                                             </div>
                                                             <div class="permission-item">
                                                                 <input type="checkbox" name="permissions[]" value="user_status">
@@ -470,7 +478,7 @@ if (hasPermission($permissions, 'role_view')):
                                 <th class="list-th">Name</th>
                                 <th class="list-th">Department</th>
                                 <th class="list-th">Description</th>
-                                <!-- <th class="list-th">Status</th> -->
+                                <th class="list-th">Status</th>
                                 <th class="list-th"></th>
                             </tr>
                         </thead>
@@ -490,30 +498,25 @@ if (hasPermission($permissions, 'role_view')):
                                 <td class="list-td"><?= $result['role_name'] ?></td>
                                 <td class="list-td"><?= ($result['department_id'] == 0) ? 'All' : $result['name'] ?></td>
                                 <td class="list-td"><?= $result['role_description'] ?></td>
-                                <!-- <td class="list-td" style="text-align: center;">
-                                     <?php 
-                                        $status = $result['role_status'];
-                                        $badgeColor = ($status === 'Active') ? 'badge-success' : 'badge-danger';
-                                    ?>
-                                    <span class="badge <?= $badgeColor ?>">
-                                        <?= $status ?>
-                                    </span> 
+                                <td class="list-td" style="text-align: center;">
                                     <label class="switch">
                                     <input 
                                         type="checkbox" 
                                         class="toggle-status" 
-                                        data-id="<?= $result['id'] ?>" 
+                                        data-id="<?= $result['roleID'] ?>" 
                                         data-toggle="toggle" 
                                         data-on="Accept" 
                                         data-off="Don't Accept" 
                                         data-onstyle="success" 
                                         data-offstyle="danger"
                                         <?= ($result['role_status'] === 'Active') ? 'checked' : '' ?>
+                                        <?php if (!hasPermission($permissions, 'role_status')): ?>
+                                            disabled
+                                        <?php endif; ?>
                                     >
                                     <span class="slider round"></span>
                                     </label>
-                                </td> -->
-
+                                </td>
                                 <td class="list-td" style="text-align: center;">
                                     <div class="action-container">
                                         <div>
@@ -532,7 +535,7 @@ if (hasPermission($permissions, 'role_view')):
                                                 <?php if(hasPermit($permissions, 'role_delete')): 
                                                     if ($result['roleID'] != 1) {
                                                         ?>
-                                                        <a href="#" data-toggle="modal" data-target="#deleteRoleModal_<?= $result['roleID'] ?>" class="dropdown-action-item">Delete role</a>
+                                                        <a href="#" onclick="confirmDelete(<?= $result['roleID'] ?>)" class="dropdown-action-item">Delete role</a>
                                                     <?php } ?>
                                                 <?php endif; ?>
                                             </div>
@@ -583,6 +586,25 @@ if (hasPermission($permissions, 'role_view')):
                                                             <div class="col-12 p-0"> 
                                                                 <label class="info-label m-l-4">Permissions</label> 
                                                                 <div class="permissions-list">
+                                                                    <div class="permission-group">
+                                                                        <div class="permission-group-header">
+                                                                            <input type="checkbox" name="permissions[]" value="dashboard" 
+                                                                            <?= in_array('dashboard', $existingPermissions) ? 'checked' : '' ?>>
+                                                                            <h6>Dashboard Access</h6>
+                                                                        </div>
+                                                                        <div class="permission-group-items">
+                                                                            <div class="permission-item">
+                                                                                <input type="checkbox" name="permissions[]" value="dashboard_view" 
+                                                                                <?= in_array('dashboard_view', $existingPermissions) ? 'checked' : '' ?>>
+                                                                                <label>View Dashboard</label>
+                                                                            </div>
+                                                                            <div class="permission-item">
+                                                                                <input type="checkbox" name="permissions[]" value="dashboard_download" 
+                                                                                <?= in_array('dashboard_download', $existingPermissions) ? 'checked' : '' ?>>
+                                                                                <label>Download PDF</label>
+                                                                            </div>
+                                                                        </div> 
+                                                                    </div> 
                                                                     <div class="permission-group">
                                                                         <div class="permission-group-header">
                                                                             <input type="checkbox" name="permissions[]" value="research_paper" 
@@ -663,25 +685,6 @@ if (hasPermission($permissions, 'role_view')):
                                                             <div class="col-12 p-0"> 
                                                                 <label class="info-label m-l-4">Other Permissions</label> 
                                                                 <div class="permissions-list">
-                                                                    <div class="permission-group">
-                                                                        <div class="permission-group-header">
-                                                                            <input type="checkbox" name="permissions[]" value="dashboard" 
-                                                                            <?= in_array('dashboard', $existingPermissions) ? 'checked' : '' ?>>
-                                                                            <h6>Dashboard Access</h6>
-                                                                        </div>
-                                                                        <div class="permission-group-items">
-                                                                            <div class="permission-item">
-                                                                                <input type="checkbox" name="permissions[]" value="dashboard_view" 
-                                                                                <?= in_array('dashboard_view', $existingPermissions) ? 'checked' : '' ?>>
-                                                                                <label>View Dashboard</label>
-                                                                            </div>
-                                                                            <div class="permission-item">
-                                                                                <input type="checkbox" name="permissions[]" value="dashboard_download" 
-                                                                                <?= in_array('dashboard_download', $existingPermissions) ? 'checked' : '' ?>>
-                                                                                <label>Download PDF</label>
-                                                                            </div>
-                                                                        </div> 
-                                                                    </div> 
                                                                     <div class="permission-group">
                                                                         <div class="permission-group-header">
                                                                             <input type="checkbox" name="permissions[]" value="department" 
@@ -788,6 +791,11 @@ if (hasPermission($permissions, 'role_view')):
                                                                                 <label>Delete Role</label>
                                                                             </div>
                                                                             <div class="permission-item">
+                                                                                <input type="checkbox" name="permissions[]" value="role_status" 
+                                                                                <?= in_array('role_status', $existingPermissions) ? 'checked' : '' ?>>
+                                                                                <label>Change Status</label>
+                                                                            </div>
+                                                                            <div class="permission-item">
                                                                                 <input type="checkbox" name="permissions[]" value="role_download" 
                                                                                 <?= in_array('role_download', $existingPermissions) ? 'checked' : '' ?>>
                                                                                 <label>Download PDF</label>
@@ -820,6 +828,11 @@ if (hasPermission($permissions, 'role_view')):
                                                                                 <input type="checkbox" name="permissions[]" value="user_delete" 
                                                                                 <?= in_array('user_delete', $existingPermissions) ? 'checked' : '' ?>>
                                                                                 <label>Delete User</label>
+                                                                            </div>
+                                                                            <div class="permission-item">
+                                                                                <input type="checkbox" name="permissions[]" value="user_logs" 
+                                                                                <?= in_array('user_logs', $existingPermissions) ? 'checked' : '' ?>>
+                                                                                <label>User Logs</label>
                                                                             </div>
                                                                             <div class="permission-item">
                                                                                 <input type="checkbox" name="permissions[]" value="user_status" 
@@ -957,7 +970,7 @@ departmentSelect.addEventListener('change', function() {
             permissionsHelpText.textContent = 'Permissions will apply to all departments';
         } else {
             const departmentName = this.options[this.selectedIndex].text;
-            permissionsHelpText.textContent = `Research and Student List permissions will only apply to ${departmentName}`;
+            permissionsHelpText.textContent = `Dashboard, Research, Student List permissions will only apply to ${departmentName}`;
         }
     }
 });
@@ -981,7 +994,7 @@ $('#datatablesss_wrapper').children('.row').eq(1).find('.col-sm-12').css({
     'padding-left': 0,
     'padding-right': 0
 });
-function confirmDelete(adminID){
+function confirmDelete(roleID){
     swal({
         title: "Are you sure you want to delete?",
         text: "You will not be able to recover this data!",
@@ -995,27 +1008,17 @@ function confirmDelete(adminID){
     }, function(isConfirm){
         if (isConfirm) {
             $.ajax({
-                url: "delete_admin.php",
+                url: "delete_role.php",
                 type: "GET",
-                data: { adminID: adminID },
+                data: { roleID: roleID },
                 success: function(response) {
                     swal({
                         title: "Deleted!",
-                        text: "Admin deleted.",
+                        text: "Role deleted.",
                         type: "success",
                         confirmButtonText: 'Okay',
                     }, 
                     function (isConfirm) {
-                        // if (isConfirm) {
-                        //     const listItem = document.getElementById(`li_${studID}`)
-                        //     const searchResult = document.getElementById('search-result');
-                        //     if (listItem){
-                        //         listItem.remove();
-                        //     }
-                        //     if (!searchResult.querySelector('.project-list')) {
-                        //         searchResult.innerHTML = "<p style='text-align: center'>No uploaded research found.</p>";
-                        //     }
-                        // }
                         location.reload();
                     });
                 }
@@ -1098,7 +1101,7 @@ $('.toggle-status').change(function() {
             url: 'update_role_status.php',
             type: 'POST',
             data: {
-                adminID: adminID,
+                roleID: roleID,
                 status: status
             },
             success: function(response) {
