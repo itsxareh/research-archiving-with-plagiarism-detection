@@ -115,7 +115,7 @@ public function admin_update_verify_status($verified, $adminID) {
             $_SESSION['alert'] = "Success";
             $_SESSION['status'] = "Log In Success";
             $_SESSION['status-code'] = "success";
-            
+
             $userRole = $this->getRoleById($_SESSION['auth_user']['role_id']);
             $permissions = explode(',', $userRole['permissions']);
 
@@ -143,8 +143,8 @@ public function admin_update_verify_status($verified, $adminID) {
                 header("Location: ../adminsystem/all_project_list.php");
                 exit();
             } elseif(hasPermit($permissions, 'department_view')) {
-              header("Location: ../adminsystem/department_list.php");
-              exit();
+                header("Location: ../adminsystem/department_list.php");
+                exit();
             } elseif(hasPermit($permissions, 'course_view')) {
                 header("Location: ../adminsystem/course_list.php");
                 exit();
