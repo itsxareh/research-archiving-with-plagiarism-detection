@@ -8,9 +8,27 @@ ini_set('display_errors', 1);
 
 
 session_start();
+$userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
+$permissions = explode(',', $userRole['permissions']);
+
+// Helper function to check permissions
+function hasPermit($permissions, $permissionToCheck) {
+    foreach ($permissions as $permission) {
+        if (strpos($permission, $permissionToCheck) === 0) {
+            return true;
+        }
+    }
+    return false;
+}
 if($_SESSION['auth_user']['admin_id']==0){
-  header("Location: login.php");
+  header("Location: index.php");
   exit();
+    
+} elseif(!hasPermit($permissions, 'research_view')) {
+    header('Location:../../bad-request.php');
+    exit(); 
+} else {
+    $admin_id = $_SESSION['auth_user']['admin_id'];
 }
 
 function highlightPlagiarizedWords($submitted_sentence, $existing_sentence) {
@@ -54,7 +72,7 @@ function highlightPlagiarizedWords($submitted_sentence, $existing_sentence) {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Archive Research: EARIST Research Archiving System</title>
+    <title>Archive Research: EARIST Repository</title>
 
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
@@ -128,13 +146,15 @@ require_once 'templates/admin_navbar.php';
         </div>
       <div class="form-group" style="padding-top: 1rem;">
         <iframe src="<?php echo $data['documents']; ?>" width="100%" height="900px" allowfullscreen></iframe>
+        <?php if (hasPermit($permissions, 'research_download')): ?>
         <div class="text-center">
           <a href="download_file.php?archiveID=<?= $archiveID ?>" class="download-pdf-button" download>Download PDF</a>
         </div>
+        <?php endif; ?>
     </div>
     </div>
     <div class="col-md-4">
-    <div class="title-margin-left">
+    <div class="">
       <div class="page-header">
         <div class="page-title information-meta">
         <span class="info-font text-white"></i>RESULTS</span>
@@ -150,15 +170,27 @@ require_once 'templates/admin_navbar.php';
         if ($percentage >= 100){
           $percentage = 100;
         }
-        echo '<div class="info-container" style="display: flex; justify-content:space-between; align-items: center">
-                <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Plagiarized Content</p>
-                <div class="d-flex align-items-center">
-                  <div class="progress w-100" style="height: 10px">
-                    <div class="progress-bar-danger progress-bar" role="progressbar" style="width: '.round($percentage, 1).'%" aria-valuenow="'.round($percentage, 1).'" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                  <span style="color: #a33333; font-size: 16px; margin-left: .75rem !important;">'.round($percentage, 1).'%</span>
-                </div>
+        echo '<div class="info-container">
+                <div style="display: flex; justify-content:space-between; align-items: center">
+                  <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Plagiarized Content</p>
+                  <div class="d-flex align-items-center">
+                    <div class="progress w-100" style="height: 10px">
+                      <div class="progress-bar-danger progress-bar" role="progressbar" style="width: '.round($percentage, 1).'%" aria-valuenow="'.round($percentage, 1).'" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <span style="color: #a33333; font-size: 16px; margin-left: .75rem !important;">'.round($percentage, 1).'%</span>
+                  </div>  
               </div>';
+              ?>
+              <?php if (hasPermit($permissions, 'research_download')): ?>
+                <div class="info-container" style="border: none; margin-top: .875rem;">
+                  <div class="text-center">
+                    <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=plagiarism_report&archiveID=<?= $archive_id ?>" class="download-plagiarism-pdf">
+                      Download Plagiarism Report
+                    </a>
+                  </div>
+                </div>
+              <?php endif;
+              echo '</div>';
       }
     } ?> 
     

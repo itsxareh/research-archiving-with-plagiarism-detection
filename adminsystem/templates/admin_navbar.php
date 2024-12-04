@@ -91,19 +91,50 @@ $db = new Database();
 <div class="sidebar sidebar-hide-to-small sidebar-shrink sidebar-gestures">
     <div class="nano">
         <div class="nano-content">
-            <ul class="navbar" style="height: <?= $_SESSION['auth_user']['admin_type'] == 0 ? '100%' : 'auto' ?>">
-                <li><a href="dashboard.php"><img src="../../images/home.svg" style="width: 2.225rem; height: 2.225rem;">Home</a></li>
-                <li><a href="archive_list.php"><img src="../../images/documents.svg" style="width: 2.225rem; height: 2.225rem;">Research </a></li>
-                <li><a href="student_list.php"><img src="../../images/students.svg" style="width: 2.225rem; height: 2.225rem;"><span>Student</span></a></li>
-                <li><a href="department_list.php"><img src="../../images/department.svg" style="width: 2.225rem; height: 2.225rem;"><span>Department</span></a></li>
-                <li ><a href="course_list.php"><img src="../../images/course.svg" style="width: 2.225rem; height: 2.225rem;"><span>Course</span></a></li>
-                <?php 
-                if ($_SESSION['auth_user']['admin_type'] == 0){
-                    echo '<li><a href="add_role.php"><img src="../../images/role.svg" style="width: 2.225rem; height: 2.225rem;"><span>Role</span></a></li>';
-                    echo '<li><a href="admin_list.php"><img src="../../images/admin.svg" style="width: 2.225rem; height: 2.225rem;"><span>Admin</span></a></li>';
+        <?php
+            // Get user's role and permissions
+            $userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
+            $permissions = explode(',', $userRole['permissions']);
+
+            // Helper function to check permissions
+            function hasPermission($permissions, $permissionToCheck) {
+                foreach ($permissions as $permission) {
+                    if (strpos($permission, $permissionToCheck) === 0) {
+                        return true;
+                    }
                 }
+                return false;
+            }
+            ?>
+
+            <ul class="navbar" style="height: <?= $_SESSION['auth_user']['role_id'] == 1 ? '100%' : 'auto' ?>">
+                <?php if ($_SESSION['auth_user']['role_id'] == 0 || hasPermission($permissions, 'dashboard_view')): ?>
+                    <li><a href="dashboard.php"><img src="../../images/home.svg" style="width: 2.225rem; height: 2.225rem;">Home</a></li>
+                <?php endif; ?>
                 
-                ?>
+                <?php if ($_SESSION['auth_user']['role_id'] == 0 || hasPermission($permissions, 'research_view')): ?>
+                    <li><a href="archive_list.php"><img src="../../images/documents.svg" style="width: 2.225rem; height: 2.225rem;">Research </a></li>
+                <?php endif; ?>
+
+                <?php if ($_SESSION['auth_user']['role_id'] == 0 || hasPermission($permissions, 'student_list_view')): ?>
+                    <li><a href="student_list.php"><img src="../../images/students.svg" style="width: 2.225rem; height: 2.225rem;"><span>Student</span></a></li>
+                <?php endif; ?>
+
+                <?php if ($_SESSION['auth_user']['role_id'] == 0 || hasPermission($permissions, 'department_view')): ?>
+                    <li><a href="department_list.php"><img src="../../images/department.svg" style="width: 2.225rem; height: 2.225rem;"><span>Department</span></a></li>
+                <?php endif; ?>
+
+                <?php if ($_SESSION['auth_user']['role_id'] == 0 || hasPermission($permissions, 'course_view')): ?>
+                    <li><a href="course_list.php"><img src="../../images/course.svg" style="width: 2.225rem; height: 2.225rem;"><span>Course</span></a></li>
+                <?php endif; ?>
+
+                <?php if ($_SESSION['auth_user']['role_id'] == 0 || hasPermission($permissions, 'role_view')): ?>
+                    <li><a href="role_list.php"><img src="../../images/role.svg" style="width: 2.225rem; height: 2.225rem;"><span>Role</span></a></li>
+                <?php endif; ?>
+
+                <?php if ($_SESSION['auth_user']['role_id'] == 0 || hasPermission($permissions, 'user_view')): ?>
+                    <li><a href="admin_list.php"><img src="../../images/admin.svg" style="width: 2.225rem; height: 2.225rem;"><span>Admin</span></a></li>
+                <?php endif; ?>
             </ul>
         </div>
     </div>
@@ -119,7 +150,7 @@ $db = new Database();
                     <span class="line"></span>
                     <span class="line"></span>
                 </div>
-                <a href="dashboard.php">
+                <a href="index.php">
                     <div class="logo-w-name">
                         <div class="logo-img">
                             <img class="logo-header" src="../images/logo2.webp" alt="">

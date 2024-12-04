@@ -80,7 +80,7 @@ public function admin_update_verify_status($verified, $adminID) {
         $pword = $data['admin_password'];
         $verifystatus = $data['verify_status'];
         $admin_status = $data['admin_status'];
-        $admin_type = $data['admin_type'];
+        $role_id = $data['role_id'];
     }
 
     if ($pword == $password && $admin_status == 'Active') {
@@ -109,13 +109,55 @@ public function admin_update_verify_status($verified, $adminID) {
                 'admin_id' => $admin_id,
                 'admin_uniqueID' => $admin_UNIQUEid,
                 'admin_email' => $admin_email,
-                'admin_type' => $admin_type
+                'role_id' => $role_id
             ];
 
             $_SESSION['alert'] = "Success";
             $_SESSION['status'] = "Log In Success";
             $_SESSION['status-code'] = "success";
-            header("location: ../adminsystem/dashboard.php");
+            
+            $userRole = $this->getRoleById($_SESSION['auth_user']['role_id']);
+            $permissions = explode(',', $userRole['permissions']);
+
+            // Helper function to check permissions
+            function hasPermit($permissions, $permissionToCheck) {
+                foreach ($permissions as $permission) {
+                    if (strpos($permission, $permissionToCheck) === 0) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            // Check admin status and permissions
+            if($_SESSION['auth_user']['admin_id'] == 0) {
+                echo "<script>window.location.href='index.php'</script>";
+                exit();
+            } elseif(hasPermit($permissions, 'dashboard_view')) {
+                header("Location: ../adminsystem/dashboard.php");
+                exit();
+            } elseif(hasPermit($permissions, 'student_list_view')) {
+                header("Location: ../adminsystem/student_list.php");
+                exit();
+            } elseif(hasPermit($permissions, 'research_view')) {
+                header("Location: ../adminsystem/all_project_list.php");
+                exit();
+            } elseif(hasPermit($permissions, 'department_view')) {
+              header("Location: ../adminsystem/department_list.php");
+              exit();
+            } elseif(hasPermit($permissions, 'course_view')) {
+                header("Location: ../adminsystem/course_list.php");
+                exit();
+            } elseif(hasPermit($permissions, 'role_view')) {
+                header("Location: ../adminsystem/role_list.php");
+                exit();
+            } elseif(hasPermit($permissions, 'user_view')) {
+                header("Location: ../adminsystem/admin_list.php");
+                exit(); 
+            } else {
+                header('Location: ../bad-request.php');
+                exit();
+            }
         }
     } elseif($admin_status == 'Not Active') {
         $_SESSION['alert'] = "Oppss...";
@@ -264,13 +306,20 @@ public function UPDATE_admin_password($npword, $adminID) {
 
 public function showAdmins($admin_id){
   $connection = $this->getConnection();
-  $stmt = $connection->prepare("SELECT * FROM admin_account WHERE id != ? AND delete_flag = 0");
+  $stmt = $connection->prepare("SELECT *, admin_account.id AS adminID FROM admin_account LEFT JOIN roles ON roles.id = admin_account.role_id WHERE admin_account.id != ? AND admin_account.delete_flag = 0");
   $stmt->execute([$admin_id]);
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   return $result;
 }
+public function showRoles(){
+  $connection = $this->getConnection();
+  $stmt = $connection->prepare("SELECT *, roles.id AS roleID, roles.description AS role_description FROM roles LEFT JOIN departments ON departments.id = roles.department_id");
+  $stmt->execute();
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+  return $result;
+}
 public function showDepartments(){
   $connection = $this->getConnection();
   $stmt = $connection->prepare("SELECT * FROM departments");
@@ -401,7 +450,18 @@ public function SELECT_ALL_ARCHIVE_RESEARCH(){
 
   return $result;
 }
+public function SELECT_ALL_ARCHIVE_RESEARCH_WHERE_DEPARTMENT_IS($department){
+  $connection = $this->getConnection();
+  $stmt = $connection->prepare("SELECT *, archive_research.id AS archiveID, archive_research.archive_id as aid FROM archive_research 
+  LEFT JOIN departments ON departments.id = archive_research.department_id
+  LEFT JOIN course ON course.id = archive_research.course_id 
+  LEFT JOIN plagiarism_summary ON plagiarism_summary.archive_id = archive_research.id
+  WHERE archive_research.department_id = ? GROUP BY archive_research.archive_id ORDER BY archive_research.id DESC");
+  $stmt->execute([$department]);
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+  return $result;
+}
 public function SELECT_ALL_ARCHIVE_RESEARCH_WHERE_DEPARTMENT_FROM_DATE_PUBLISHED_TO_DATE_PUBLISHED($department, $from_date, $to_date){
   $connection = $this->getConnection();
   $stmt = $connection->prepare("SELECT *, archive_research.id AS archiveID FROM archive_research 
@@ -574,7 +634,33 @@ public function SELECT_PLAGIARIZED_RESEARCH_CONTENT(){
 
   return $result;
 }
+public function SELECT_PLAGIARIZED_RESEARCH_CONTENT_OF($archiveID){
+  $connection = $this->getConnection();
 
+  $stmt = $connection->prepare("SELECT *, plagiarism_summary.archive_id as plagiarism_id, archive_research.archive_id as aid FROM plagiarism_summary LEFT JOIN archive_research ON archive_research.id = plagiarism_summary.similar_archive_id WHERE plagiarism_summary.archive_id = ? ORDER BY plagiarism_summary.id DESC;");
+  $stmt->execute([$archiveID]);
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+public function SELECT_PROJECT_TITLE_WHERE_ARCHIVE_ID($archiveID){
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT project_title FROM archive_research WHERE id = ? ");
+  $stmt->execute([$archiveID]);
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+public function SELECT_TOTAL_PERCENTAGE_PLAGIARISM_WHERE_ARCHIVE_ID($archiveID){
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT SUM(plagiarism_percentage) as total_percentage  FROM plagiarism_summary WHERE archive_id = ? ");
+  $stmt->execute([$archiveID]);
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+}
 public function SELECT_TOP_10_VIEWS_RESEARCH_PAPER(){
   $connection = $this->getConnection();
 
@@ -686,11 +772,13 @@ public function SELECT_ARCHIVE_RESEARCH($archiveID){
     students_data.last_name as lname,
     departments.*,
     course.*,
+    SUM(plagiarism_summary.plagiarism_percentage) AS total_percentage,
     (SELECT COUNT(id) FROM archive_research_views WHERE archive_research_views.archive_research_id = archive_research.archive_id) AS view_count
     FROM archive_research
     LEFT JOIN departments ON departments.id = archive_research.department_id
     LEFT JOIN course ON course.id = archive_research.course_id
     LEFT JOIN students_data ON students_data.id = archive_research.student_id
+	LEFT JOIN plagiarism_summary ON archive_research.id = plagiarism_summary.archive_id
     WHERE archive_research.archive_id = ?");
   $stmt->execute([$archiveID]);
   $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -835,20 +923,20 @@ public function SELECT_ALL_DEPARTMENTS_WHERE_ACTIVE(){
   return $result;
 }
 
-public function insert_Admin($uniqueId, $first_name, $last_name, $complete_address, $phone_number, $email, $password, $admin_type){
+public function insert_Admin($uniqueId, $first_name, $last_name, $complete_address, $phone_number, $email, $password, $role_id){
   $connection = $this->getConnection();
 
-  $sql = $connection->prepare("INSERT INTO admin_account(uniqueID, first_name, last_name, complete_address, phone_number, admin_email, admin_password, admin_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+  $sql = $connection->prepare("INSERT INTO admin_account(uniqueID, first_name, last_name, complete_address, phone_number, admin_email, admin_password, role_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
   
-  return $sql->execute([$uniqueId, $first_name, $last_name, $complete_address, $phone_number, $email, md5($password), $admin_type]);
+  return $sql->execute([$uniqueId, $first_name, $last_name, $complete_address, $phone_number, $email, md5($password), $role_id]);
   
 }
-public function update_Admin($first_name, $last_name, $complete_address, $phone_number, $email, $password, $admin_type, $id){
+public function update_Admin($first_name, $last_name, $complete_address, $phone_number, $email, $password, $role_id, $id){
   $connection = $this->getConnection();
 
-  $sql = $connection->prepare("UPDATE admin_account SET first_name = ?, last_name = ?, complete_address = ?, phone_number = ?, admin_email = ?, admin_password = ?, admin_type = ? WHERE id = ?");
+  $sql = $connection->prepare("UPDATE admin_account SET first_name = ?, last_name = ?, complete_address = ?, phone_number = ?, admin_email = ?, admin_password = ?, role_id = ? WHERE id = ?");
   
-  return $sql->execute([$first_name, $last_name, $complete_address, $phone_number, $email, md5($password), $admin_type, $id]);
+  return $sql->execute([$first_name, $last_name, $complete_address, $phone_number, $email, md5($password), $role_id, $id]);
   
 }
 public function insert_Department($department_code, $department_name, $description){
@@ -987,6 +1075,20 @@ public function update_admin_status($adminID, $status) {
   $fetch = $stmt1->fetch(PDO::FETCH_ASSOC);
   return $fetch;
 }
+public function update_Role_status($roleID, $status) {
+  $connection = $this->getConnection();
+  $query = "UPDATE roles SET role_status = :status WHERE id = :roleID";
+  $stmt = $this->conn->prepare($query);
+  
+  $stmt->bindParam(':status', $status, PDO::PARAM_STR);
+  $stmt->bindParam(':roleID', $roleID, PDO::PARAM_INT);
+  $stmt->execute();
+
+  $stmt1 = $connection->prepare("SELECT * FROM roles WHERE id = ?");
+  $stmt1->execute([$roleID]);
+  $fetch = $stmt1->fetch(PDO::FETCH_ASSOC);
+  return $fetch;
+}
 public function update_course_status($courseID, $status) {
   $connection = $this->getConnection();
   $query = "UPDATE course SET course_status = :status WHERE id = :courseID";
@@ -1002,6 +1104,41 @@ public function update_course_status($courseID, $status) {
   return $fetch;
 }
 
+public function insert_Role($role_name, $description, $department, $permissions) {
+  try {
+      $connection = $this->getConnection();
+
+      $sql = $connection->prepare("INSERT INTO roles(role_name, description, department_id, permissions) VALUES (?, ?, ?, ?)");
+      $result = $sql->execute([$role_name, $description, $department, $permissions]);
+      
+      return $result;
+  } catch (PDOException $e) {
+      error_log("Error inserting role: " . $e->getMessage());
+      return false;
+  }
+}
+public function update_Role($role_id, $role_name, $description, $department_id, $permissions) {
+  try {
+      $stmt = $this->conn->prepare("UPDATE roles SET 
+          role_name = ?, 
+          description = ?, 
+          department_id = ?, 
+          permissions = ? 
+          WHERE id = ?");
+          
+      $stmt->execute([$role_name, $description, $department_id, $permissions, $role_id]);
+      return true;
+  } catch(PDOException $e) {
+      error_log("Failed to update role: " . $e->getMessage());
+      return false;
+  }
+}
+public function getRoleById($roleId) {
+  $connection = $this->getConnection();
+  $stmt = $connection->prepare("SELECT * FROM roles WHERE id = ?");
+  $stmt->execute([$roleId]);
+  return $stmt->fetch(PDO::FETCH_ASSOC);
+}
 public function SELECT_ALL_COURSES(){
   $connection = $this->getConnection();
   $stmt = $connection->prepare("SELECT *, course.id AS course_ID FROM course LEFT JOIN departments ON departments.id = course.department_id ");

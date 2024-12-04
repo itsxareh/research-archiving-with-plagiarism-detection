@@ -9,13 +9,28 @@ ini_set('display_errors', 1);
 
 
 session_start();
+$userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
+$permissions = explode(',', $userRole['permissions']);
 
+// Helper function to check permissions
+function hasPermit($permissions, $permissionToCheck) {
+    foreach ($permissions as $permission) {
+        if (strpos($permission, $permissionToCheck) === 0) {
+            return true;
+        }
+    }
+    return false;
+}
 if($_SESSION['auth_user']['admin_id']==0){
     echo"<script>window.location.href='index.php'</script>";
+    exit(); 
     
+} elseif(!hasPermit($permissions, 'dashboard_view')) {
+    header('Location:../../bad-request.php');
+    exit(); 
+} else {
+    $admin_id = $_SESSION['auth_user']['admin_id'];
 }
-
-
 ?>
 
 
@@ -84,6 +99,7 @@ require_once 'templates/admin_navbar.php';
                                 <div class="card-body">
                                     <div class="flex justify-content-between">
                                         <h4 class="card-title mb-3">Published Research/Month</h4>
+                                        <?php if (hasPermission($permissions, 'dashboard_download')): ?>
                                         <div class="action-container">
                                             <div>
                                                 <button type="button" class="action-button"  id="action-button_published-research" aria-expanded="true" aria-haspopup="true">
@@ -99,6 +115,7 @@ require_once 'templates/admin_navbar.php';
                                                 </div>
                                             </div>
                                         </div>
+                                        <?php endif; ?>
                                     </div>
                                     <div class="chart-container">
                                         <canvas id="publishedResearchPerMonthChart" width="400" height="400"></canvas>
@@ -155,6 +172,7 @@ require_once 'templates/admin_navbar.php';
                                         <div class="card-body">
                                             <div class="flex justify-content-between">
                                                 <h4 class="card-title mb-3">Research Papers/Department</h4>
+                                                <?php if (hasPermission($permissions, 'dashboard_download')): ?>
                                                 <div class="action-container">
                                                     <div>
                                                         <button type="button" class="action-button"  id="action-button_research-paper-per-dept" aria-expanded="true" aria-haspopup="true">
@@ -170,6 +188,7 @@ require_once 'templates/admin_navbar.php';
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <?php endif; ?>
                                             </div>
                                             <div class="card-text" style="white-space: nowrap; overflow-x: auto;">
                                             <?php
@@ -205,6 +224,7 @@ require_once 'templates/admin_navbar.php';
                                                 <img src="../adminsystem/images/top.png" alt="publish">
                                             </div>
                                         </div>
+                                        <?php if (hasPermission($permissions, 'dashboard_download')): ?>
                                         <div class="action-container">
                                             <div>
                                                 <button type="button" class="action-button"  id="action-button_most-viewed-paper" aria-expanded="true" aria-haspopup="true">
@@ -220,6 +240,7 @@ require_once 'templates/admin_navbar.php';
                                                 </div>
                                             </div>
                                         </div>
+                                        <?php endif; ?>
                                     </div>
                                     <div class="card-text">
                                         <div class="chart-container" style="position: relative; height:400px; width:100%;">
@@ -234,6 +255,7 @@ require_once 'templates/admin_navbar.php';
                                 <div class="card-body">
                                     <div class="flex justify-content-between">
                                         <h4 class="card-title mb-3">Research Views/Department</h4>
+                                        <?php if (hasPermission($permissions, 'dashboard_download')): ?>
                                             <div class="action-container">
                                                 <div>
                                                     <button type="button" class="action-button"  id="action-button_research-views-per-dept" aria-expanded="true" aria-haspopup="true">
@@ -250,6 +272,8 @@ require_once 'templates/admin_navbar.php';
                                                 </div>
                                             </div>
                                         </div>
+                                        <?php endif; ?>
+                                    </div>
                                     <div class="chart-container">
                                     <canvas id="viewsPerDepartmentChart" width="400" height="500"></canvas>
                                 </div>
@@ -305,11 +329,12 @@ require_once 'templates/admin_navbar.php';
                                         <div class="card-list-container">
                                             <div class="flex justify-content-between">
                                                 <h4 class="card-title mb-3">Recent Published Research</h4>
+                                                <?php if (hasPermission($permissions, 'dashboard_download')): ?>
                                                 <div class="action-container">
                                                     <div>
                                                         <button type="button" class="action-button"  id="action-button_recent-published-paper" aria-expanded="true" aria-haspopup="true">
-                                                            <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><line x1="5.99" y1="12" x2="6" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="11.99" y1="12" x2="12" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="17.99" y1="12" x2="18" y2="12" stroke-linecap="round" stroke-width="2"></line>
-                                                            </svg>
+                                                        <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><line x1="5.99" y1="12" x2="6" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="11.99" y1="12" x2="12" y2="12" stroke-linecap="round" stroke-width="2"></line><line x1="17.99" y1="12" x2="18" y2="12" stroke-linecap="round" stroke-width="2"></line>
+                                                        </svg>
                                                         </button>
                                                     </div>
                                                     <div class="dropdown-action" style="width: 120px; line-height: 24px;" id="dropdown_recent-published-paper" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
@@ -321,6 +346,7 @@ require_once 'templates/admin_navbar.php';
                                                     </div>
                                                 </div>
                                             </div>
+                                            <?php endif; ?>
                                             <div class="card-text mt-4">
                                                 <ul>
                                                 <?php 
@@ -367,6 +393,7 @@ require_once 'templates/admin_navbar.php';
                                 <div class="card-body">
                                     <div class="flex justify-content-between">
                                     <h4 class="card-title mb-3">Plagiarized Research Content </h4>
+                                        <?php if (hasPermission($permissions, 'dashboard_download')): ?>
                                         <div class="action-container">
                                             <div>
                                                 <button type="button" class="action-button"  id="action-button_plagiarized-content" aria-expanded="true" aria-haspopup="true">
@@ -382,6 +409,7 @@ require_once 'templates/admin_navbar.php';
                                                 </div>
                                             </div>
                                         </div>
+                                        <?php endif; ?>
                                     </div>
                                     <div class="card-text">
                                         <ul>
@@ -425,6 +453,7 @@ require_once 'templates/admin_navbar.php';
                                 <div class="card-body">
                                     <div class="flex justify-content-between">
                                         <h4 class="card-title mb-3">Top Contributor</h4>
+                                        <?php if (hasPermission($permissions, 'dashboard_download')): ?>
                                         <div class="action-container">
                                             <div>
                                                 <button type="button" class="action-button"  id="action-button_top-contributor" aria-expanded="true" aria-haspopup="true">
@@ -440,6 +469,7 @@ require_once 'templates/admin_navbar.php';
                                                 </div>
                                             </div>
                                         </div>
+                                        <?php endif; ?>
                                     </div>
                                     <div class="card-text" style="overflow-x: auto;">
                                     <table class="table list-table w-100">
@@ -479,11 +509,8 @@ require_once 'templates/admin_navbar.php';
                             </div>  
                         </div>                                       
                     </div>
-                </section>
+                    <?php include 'templates/footer.php'; ?>
             </div>
-            <?php include 'templates/footer.php'; ?>
-        </div>
-    </div>
 <!-- <script src="js/lib/calendar-2/moment.latest.min.js"></script>
 <script src="js/lib/calendar-2/pignose.calendar.min.js"></script>
 <script src="js/lib/calendar-2/pignose.init.js"></script> -->

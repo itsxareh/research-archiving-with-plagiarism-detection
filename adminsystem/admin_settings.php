@@ -125,7 +125,7 @@ if (isset($_POST['updatePword'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- theme meta -->
     <meta name="theme-name" content="focus" />
-    <title>Admin Settings: EARIST Research Archiving System</title>
+    <title>Admin Settings: EARIST Repository</title>
 
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
@@ -170,7 +170,7 @@ require_once 'templates/admin_navbar.php';
                         </div>
                     </div>
                     <!-- /# column -->
-                    <div class="col-lg-4 p-l-0 title-margin-left">
+                    <div class="col-lg-4 p-l-0 ">
                         <div class="page-header">
                             <div class="page-title">
                                 <ol class="breadcrumb">

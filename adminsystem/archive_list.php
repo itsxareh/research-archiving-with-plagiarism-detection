@@ -8,10 +8,32 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 session_start();
+
+$userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
+$permissions = explode(',', $userRole['permissions']);
+
+// Helper function to check permissions
+function hasPermit($permissions, $permissionToCheck) {
+    foreach ($permissions as $permission) {
+        if (strpos($permission, $permissionToCheck) === 0) {
+            return true;
+        }
+    }
+    return false;
+}
 if($_SESSION['auth_user']['admin_id']==0){
     echo"<script>window.location.href='index.php'</script>";
+    exit(); 
     
+} elseif(!hasPermit($permissions, 'research_view')) {
+    header('Location:../../bad-request.php');
+    exit(); 
+} else {
+    $admin_id = $_SESSION['auth_user']['admin_id'];
 }
+
+$userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
+$departmentId = $userRole['department_id'];
 
 
 if(ISSET($_POST['add_research'])){
@@ -72,7 +94,7 @@ if(ISSET($_POST['add_research'])){
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- theme meta -->
     <meta name="theme-name" content="focus" />
-    <title>Research Paper List: EARIST Research Archiving System</title>
+    <title>Research Paper List: EARIST Repository</title>
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
     <link rel="shortcut icon" href="images/logo2.webp">
@@ -113,6 +135,7 @@ require_once 'templates/admin_navbar.php';
 
 
 
+<?php if (hasPermission($permissions, 'research_view')): ?>
 <div class="content-wrap">
     <div class="main container-fluid">
         <div class="col-sm-12 col-md-12 col-xl-12 title-page">
@@ -121,14 +144,17 @@ require_once 'templates/admin_navbar.php';
                     <div class="col-sm-12 col-md-12 col-xl-12  flex justify-content-between align-items-center page-title">
                         <h1 style="display: flex; ">Research Papers</h1>
                         <div class="generate-report ">
-                            <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=all_research_papers" class="btn print-button">
-                                Print
-                            </a>
+                            <?php if (hasPermission($permissions, 'research_download')): ?>
+                                <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=all_research_papers" class="btn print-button">
+                                    Print
+                                </a>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <?php if (hasPermission($permissions, 'research_add')): ?>      
         <div class="modal fade" id="modelId" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
@@ -225,13 +251,16 @@ require_once 'templates/admin_navbar.php';
                 </div>
             </div>
         </div>
+        <?php endif; ?>
         <section class="project-page-content">
             <div class="col-sm-12 col-md-12 col-xl-12">
-                <div class="add-research">
+            <div class="add-research">
+                <?php if ($_SESSION['auth_user']['role_id'] == 0 || hasPermission($permissions, 'research_add')): ?>
                     <button type="button" class="add-research-button item-meta" data-toggle="modal" data-target="#modelId">
                         <i class="ti-plus m-r-4"></i> Add research
                     </button>
-                </div>
+                <?php endif; ?>
+            </div>
                 <div class="list-container">
                     <table id="datatablesss" class="table list-table" style="width:100%">
                         <colgroup>
@@ -260,7 +289,11 @@ require_once 'templates/admin_navbar.php';
                                 <?php
                                 
                                 
-                                $data = $db->SELECT_ALL_ARCHIVE_RESEARCH();
+                                if ($departmentId != 0) {
+                                    $data = $db->SELECT_ALL_ARCHIVE_RESEARCH_WHERE_DEPARTMENT_IS($departmentId);
+                                } else {
+                                    $data = $db->SELECT_ALL_ARCHIVE_RESEARCH();
+                                }
 
                                 foreach ($data as $result) {
                                 ?>
@@ -304,19 +337,27 @@ require_once 'templates/admin_navbar.php';
                                             </div>
                                             <div class="dropdown-action" id="dropdown_<?= $result['archiveID'] ?>" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
                                                 <div role="none">
-                                                <a href="view_archive_research.php?archiveID=<?= $result['aid'] ?>" class="dropdown-action-item">View paper</a>
-                                                <a href="download_file.php?archiveID=<?= $result['aid'] ?>" class="dropdown-action-item" download>Download PDF</a>
-                                                <?php 
-                                                $document_status = $result['document_status'];
-                                                if ($document_status === 'Accepted'){
-                                                    echo '<a href="unpublish_research.php?archiveID='.$result['archiveID'].'" class="dropdown-action-item">Unpublish</a>';
-                                                } elseif ($document_status === 'Not Accepted'){
-                                                    echo '<a href="publish_research.php?archiveID='.$result['archiveID'].'" class="dropdown-action-item">Publish</a>';
-                                                }
-                                                ?>
-                                                <a target="_blank" href="generate_reports/view_details.php?full_details=research_paper&archiveID=<?=  $result['aid'] ?>" class="dropdown-action-item">View receipt</a>
+                                                <?php if (hasPermission($permissions, 'research_view')): ?>
+                                                    <a href="view_archive_research.php?archiveID=<?= $result['aid'] ?>" class="dropdown-action-item">View paper</a>
+                                                <?php endif; ?>
+                                                <?php if (hasPermission($permissions, 'research_download')): ?>
+                                                    <a href="download_file.php?archiveID=<?= $result['aid'] ?>" class="dropdown-action-item" download>Download PDF</a>
+                                                <?php endif; ?>
+                                                <?php if (hasPermission($permissions, 'research_publish')): ?>
+                                                    <?php if ($result['document_status'] === 'Accepted'): ?>
+                                                        <a href="unpublish_research.php?archiveID=<?= $result['archiveID'] ?>" class="dropdown-action-item">Unpublish</a>
+                                                    <?php elseif ($result['document_status'] === 'Not Accepted'): ?>
+                                                        <a href="publish_research.php?archiveID=<?= $result['archiveID'] ?>" class="dropdown-action-item">Publish</a>
+                                                    <?php endif; ?>
+                                                <?php endif; ?>
+
+                                                <?php if (hasPermission($permissions, 'research_download')): ?>
+                                                    <a target="_blank" href="generate_reports/view_details.php?full_details=research_paper&archiveID=<?= $result['aid'] ?>" class="dropdown-action-item">View receipt</a>
+                                                <?php endif; ?>
+
+                                                <?php if (hasPermission($permissions, 'research_delete')): ?>
                                                 <a href="#" onclick="confirmDelete(<?= $result['archiveID'] ?>)" class="dropdown-action-item">Delete</a>
-                                                </div>
+                                            <?php endif; ?>
                                             </div>
                                         </div>
                                     </td>
@@ -332,7 +373,7 @@ require_once 'templates/admin_navbar.php';
     </div>
     <?php include 'templates/footer.php'; ?>
 </div>
-
+<?php endif; ?>
 
 <script>
 const keywordsInput = document.getElementById('keywords');

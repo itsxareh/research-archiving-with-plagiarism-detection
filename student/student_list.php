@@ -25,7 +25,7 @@ if($_SESSION['auth_user']['admin_id']==0){
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- theme meta -->
     <meta name="theme-name" content="focus" />
-    <title>Student List: EARIST Research Archiving System</title>
+    <title>Student List: EARIST Repository</title>
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
     <link rel="shortcut icon" href="images/logo2.webp">
@@ -78,7 +78,7 @@ require_once 'templates/admin_navbar.php';
                         </div>
                     </div>
                     <!-- /# column -->
-                    <div class="col-lg-4 p-l-0 title-margin-left">
+                    <div class="col-lg-4 p-l-0 ">
                         <div class="page-header">
                             <div class="page-title">
                                 <ol class="breadcrumb">

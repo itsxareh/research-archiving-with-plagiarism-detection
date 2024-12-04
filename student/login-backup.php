@@ -18,7 +18,7 @@ header("location:all_project_list.php");
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Student Login - EARIST Research Archiving System</title>
+    <title>Student Login - EARIST Repository</title>
 
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
@@ -50,7 +50,7 @@ header("location:all_project_list.php");
                 <div class="col-lg-6">
                     <div class="login-content">
                         <div class="login-logo">
-                            <a href="../index.php"><span>EARIST Research Archiving System</span></a>
+                            <a href="../index.php"><span>EARIST Repository</span></a>
                         </div>
                         <div class="login-form" >
                             <h4>Student Login</h4>

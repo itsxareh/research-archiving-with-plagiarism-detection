@@ -22,7 +22,7 @@ if ($generate_reports_for) {
 
     $dompdf->render();
 
-    $dompdf->stream('EARIST Research Archive - '.ucwords($_GET['generate_report_for']).".pdf", [
+    $dompdf->stream('EARIST Repository - '.ucwords($_GET['generate_report_for']).".pdf", [
         "Attachment" => false,
         "Compress" => 1,
         "DeflateLevel" => 9

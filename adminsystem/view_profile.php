@@ -8,11 +8,28 @@ ini_set('display_errors', 1);
 
 
 session_start();
-if($_SESSION['auth_user']['admin_id']==0){
-  echo"<script>window.location.href='index.php'</script>";
-  
-}
+$userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
+$permissions = explode(',', $userRole['permissions']);
 
+// Helper function to check permissions
+function hasPermit($permissions, $permissionToCheck) {
+    foreach ($permissions as $permission) {
+        if (strpos($permission, $permissionToCheck) === 0) {
+            return true;
+        }
+    }
+    return false;
+}
+if($_SESSION['auth_user']['admin_id']==0){
+    echo"<script>window.location.href='index.php'</script>";
+    exit(); 
+    
+} elseif(!hasPermit($permissions, 'student_list_view')) {
+    header('Location:../../bad-request.php');
+    exit(); 
+} else {
+    $admin_id = $_SESSION['auth_user']['admin_id'];
+}
 
 ?>
 
@@ -25,7 +42,7 @@ if($_SESSION['auth_user']['admin_id']==0){
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Student Info: EARIST Research Archiving System</title>
+    <title>Student Info: EARIST Repository</title>
 
     <!-- ================= Favicon ================== -->
     <!-- Standard -->

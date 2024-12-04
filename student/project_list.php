@@ -48,7 +48,7 @@ if ($searchInput || $keywords || $fromYear || $toYear || $research_date) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- theme meta -->
     <meta name="theme-name" content="focus" />
-    <title>Project List: EARIST Research Archiving System</title>
+    <title>Project List: EARIST Repository</title>
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
     <link rel="shortcut icon" href="images/logo2.webp">

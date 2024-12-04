@@ -9,9 +9,28 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 session_start();
+
+$userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
+$permissions = explode(',', $userRole['permissions']);
+
+// Helper function to check permissions
+function hasPermit($permissions, $permissionToCheck) {
+    foreach ($permissions as $permission) {
+        if (strpos($permission, $permissionToCheck) === 0) {
+            return true;
+        }
+    }
+    return false;
+}
 if($_SESSION['auth_user']['admin_id']==0){
     echo"<script>window.location.href='index.php'</script>";
+    exit(); 
     
+} elseif(!hasPermit($permissions, 'department_view')) {
+    header('Location:../../bad-request.php');
+    exit(); 
+} else {
+    $admin_id = $_SESSION['auth_user']['admin_id'];
 }
 
 
@@ -84,7 +103,7 @@ if(ISSET($_POST['edit'])){
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- theme meta -->
     <meta name="theme-name" content="focus" />
-    <title>Department List: EARIST Research Archiving System</title>
+    <title>Department List: EARIST Repository</title>
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
     <link rel="shortcut icon" href="images/logo2.webp">
@@ -125,7 +144,7 @@ require_once 'templates/admin_navbar.php';
 <!---------NAVIGATION BAR ENDS-------->
 
 
-
+<?php if (hasPermission($permissions, 'department_view')): ?>
     <div class="content-wrap">
         <div class="main">
             <div class="container-fluid">
@@ -134,16 +153,19 @@ require_once 'templates/admin_navbar.php';
                         <div class="row">
                             <div class="col-sm-12 col-md-12 col-xl-12  flex justify-content-between align-items-center page-title">
                                 <h1 style="display: flex; ">Departments</h1>
+                                <?php if (hasPermission($permissions, 'department_download')): ?>
                                 <div class="generate-report ">
                                     <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=all_departments" class="btn print-button">
                                         Print
                                     </a>
                                 </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
                 </div>
                 <!-- Modal -->
+                <?php if (hasPermission($permissions, 'department_add')): ?>
                 <div class="modal fade" id="modelId" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
                     <div class="modal-dialog modal-md" role="document">
                         <div class="modal-content">
@@ -176,14 +198,16 @@ require_once 'templates/admin_navbar.php';
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
                 <div class="col-md-12 ">
                     <!-- Button trigger modal -->
+                    <?php if (hasPermission($permissions, 'department_add')): ?>
                     <div class="add-department">
                         <button type="button" class="add-department-button item-meta" data-toggle="modal" data-target="#modelId">
                         <i class="ti-plus m-r-4"></i> Add department
                         </button>
                     </div>
-
+                    <?php endif; ?>
                 <div class="list-container">
                     <table id="datatablesss" class="table" style="width:100%">
                         <thead>
@@ -225,6 +249,9 @@ require_once 'templates/admin_navbar.php';
                                         data-onstyle="success" 
                                         data-offstyle="danger"
                                         <?= ($result['department_status'] === 'Active') ? 'checked' : '' ?>
+                                        <?php if (!hasPermission($permissions, 'department_status')): ?>
+                                            disabled
+                                        <?php endif; ?>
                                     >
                                     <span class="slider round"></span>
                                     </label>
@@ -242,13 +269,18 @@ require_once 'templates/admin_navbar.php';
                                         </div>
                                         <div class="dropdown-action" id="dropdown_<?= $result['id'] ?>" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
                                             <div role="none">
-                                                <a href="#" data-toggle="modal" data-target="#modelId_<?= $result['id'] ?>" class="dropdown-action-item">Edit department</a>
-                                                <a onclick="confirmDelete(<?= $result['id'] ?>)" href="#" data-toggle="delete-modal" data-target="#delete_modelId_<?= $result['id'] ?>" class="dropdown-action-item">Delete department</a>
+                                                <?php if (hasPermission($permissions, 'department_edit')): ?>   
+                                                    <a href="#" data-toggle="modal" data-target="#modelId_<?= $result['id'] ?>" class="dropdown-action-item">Edit department</a>
+                                                <?php endif; ?>
+                                                <?php if (hasPermission($permissions, 'department_delete')): ?>
+                                                    <a onclick="confirmDelete(<?= $result['id'] ?>)" href="#" data-toggle="delete-modal" data-target="#delete_modelId_<?= $result['id'] ?>" class="dropdown-action-item">Delete department</a>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     </div>
                                 </td>
                                 <!-- Modal -->
+                                <?php if (hasPermission($permissions, 'department_edit')): ?>
                                 <div class="modal fade" id="modelId_<?= $result['id'] ?>" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
                                     <div class="modal-dialog modal-md" role="document">
                                         <div class="modal-content">
@@ -277,11 +309,10 @@ require_once 'templates/admin_navbar.php';
                                                     <button name="edit" class="btn btn-danger">Update</button>
                                                 </div>
                                             </form>
-
                                         </div>
                                     </div>
                                 </div>
-
+                                <?php endif; ?>
                                 </td>
                             </tr>
                             <?php
@@ -295,6 +326,7 @@ require_once 'templates/admin_navbar.php';
     </div>
     <?php include 'templates/footer.php'; ?>
 </div>
+<?php endif; ?>
 
 
 <script>

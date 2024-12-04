@@ -23,7 +23,7 @@ if ($archive_id && $generate_reports_for) {
 
     $dompdf->render();
 
-    $dompdf->stream('EARIST Research Archive - '.$archive_id.".pdf", [
+    $dompdf->stream('EARIST Repository - '.$archive_id.".pdf", [
         "Attachment" => false,
         "Compress" => 1,
         "DeflateLevel" => 9

@@ -25,7 +25,7 @@ session_start();
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Admin Register - EARIST Research Archiving System</title>
+    <title>Admin Register - EARIST Repository</title>
 
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
@@ -55,7 +55,7 @@ session_start();
                 <div class="col-lg-6">
                     <div class="login-content">
                         <div class="login-logo">
-                            <a href="dashboard.php"><span>EARIST Research Archiving System</span></a>
+                            <a href="dashboard.php"><span>EARIST Repository</span></a>
                         </div>
                         <div class="login-form">
                             <h4>Admin Register</h4>

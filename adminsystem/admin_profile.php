@@ -75,7 +75,7 @@ if (isset($_POST['upload'])) {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Admin Profile: EARIST Research Archiving System</title>
+    <title>Admin Profile: EARIST Repository</title>
 
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
@@ -138,7 +138,7 @@ require_once 'templates/admin_navbar.php';
                     <li><a class="menu-accountSecurity" href="admin_profile.php?menuTab=accountSecurity"><span>Security</span></a></li>
                     <li><a class="menu-accountActivityLogs" href="admin_profile.php?menuTab=accountActivityLogs"><span>Activity Log</span></a></li>
                     <?php 
-                     if ($_SESSION['auth_user']['admin_type'] == 0){
+                     if ($_SESSION['auth_user']['role_id'] == 0){
                       echo '<li><a class="menu-AdminActivityLogs" href="admin_profile.php?menuTab=AdminActivityLogs"><span>Admin Logs</span></a></li>';
                      }
                      echo '<li><a class="menu-accountInbox" href="admin_profile.php?menuTab=accountInbox"><span>Inbox</span></a></li>';

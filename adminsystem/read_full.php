@@ -8,25 +8,29 @@ ini_set('display_errors', 1);
 
 
 session_start();
+$userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
+$permissions = explode(',', $userRole['permissions']);
+
+// Helper function to check permissions
+function hasPermit($permissions, $permissionToCheck) {
+    foreach ($permissions as $permission) {
+        if (strpos($permission, $permissionToCheck) === 0) {
+            return true;
+        }
+    }
+    return false;
+}
 if($_SESSION['auth_user']['admin_id']==0){
   $current_url = urlencode($_SERVER['REQUEST_URI']);
-  header("Location: login.php?redirect_to=$current_url");
+  header("Location: index.php?redirect_to=$current_url");
   exit();
-}
-
-// if(isset($_GET['archiveID'])){
-
-//     date_default_timezone_set('Asia/Manila');
-//     $date = date('Y-m-d');
     
-//     $archiveID = $_GET['archiveID'];
-//     $student_id = $_SESSION['auth_user']['admin_id'];
-  
-  
-//     $data = $db->insert_Research_Views($archiveID, $student_id, $date);
-        
-// }
-
+} elseif(!hasPermit($permissions, 'research_view')) {
+    header('Location:../../bad-request.php');
+    exit(); 
+} else {
+    $admin_id = $_SESSION['auth_user']['admin_id'];
+}
 ?>
 
 
@@ -38,7 +42,7 @@ if($_SESSION['auth_user']['admin_id']==0){
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Archive Research: EARIST Research Archiving System</title>
+    <title>Read Full Research: EARIST Repository</title>
 
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
@@ -56,6 +60,7 @@ if($_SESSION['auth_user']['admin_id']==0){
     <link href="css/lib/font-awesome.min.css" rel="stylesheet">
     <link href="css/lib/menubar/sidebar.css" rel="stylesheet">
     <link href="css/lib/bootstrap.min.css" rel="stylesheet">
+    <link href="css/lib/themify-icons.css" rel="stylesheet">
     <link href="css/lib/helper.css" rel="stylesheet">
     <link href="../student/css/style.css" rel="stylesheet">
     <link href="css/lib/sweetalert/sweetalert.css" rel="stylesheet">
@@ -110,13 +115,15 @@ require_once 'templates/admin_navbar.php';
         </div>
       <div class="form-group" style="padding-top: 1rem;">
         <iframe src="<?php echo $data['documents']; ?>" width="100%" height="900px" allowfullscreen></iframe>
-        <div class="text-center">
-          <a href="download_file.php?archiveID=<?= $archiveID ?>" class="download-pdf-button" download>Download PDF</a>
-        </div>
+        <?php if (hasPermission($permissions, 'research_download')): ?>
+          <div class="text-center">
+            <a href="download_file.php?archiveID=<?= $archiveID ?>" class="download-pdf-button" download>Download PDF</a>
+          </div>
+        <?php endif; ?>
     </div>
     </div>
     <div class="col-md-4">
-    <div class="title-margin-left">
+    <div class="">
       <div class="page-header">
         <div class="page-title information-meta">
           <span class="info-font text-white"><i class="ti-info text-black" style="background-color: white; border-radius: 50%; margin-right:6px"></i>Information</span>

@@ -8,9 +8,27 @@ ini_set('display_errors', 1);
 
 
 session_start();
+$userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
+$permissions = explode(',', $userRole['permissions']);
+
+// Helper function to check permissions
+function hasPermit($permissions, $permissionToCheck) {
+    foreach ($permissions as $permission) {
+        if (strpos($permission, $permissionToCheck) === 0) {
+            return true;
+        }
+    }
+    return false;
+}
 if($_SESSION['auth_user']['admin_id']==0){
-  echo"<script>window.location.href='index.php'</script>";
-  
+    echo"<script>window.location.href='index.php'</script>";
+    exit(); 
+    
+} elseif(!hasPermit($permissions, 'research_view')) {
+    header('Location:../../bad-request.php');
+    exit(); 
+} else {
+    $admin_id = $_SESSION['auth_user']['admin_id'];
 }
 
 
@@ -25,7 +43,7 @@ if($_SESSION['auth_user']['admin_id']==0){
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Archive Research: EARIST Research Archiving System</title>
+    <title>Archive Research: EARIST Repository</title>
 
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
@@ -109,7 +127,7 @@ require_once 'templates/admin_navbar.php';
             </div>
           </div>
           <div class="col-md-4">
-          <div class="title-margin-left">
+          <div class="">
                   <div class="page-header">
                     <div class="page-title information-meta">
                       <span class="info-font text-white"><i class="ti-info text-black" style="background-color: white; border-radius: 50%; margin-right:6px"></i>Information</span>
@@ -153,6 +171,47 @@ require_once 'templates/admin_navbar.php';
                           </div>';
                   }
                 ?>
+                <?php
+    if ($data['aid'] !== ''){
+      $archive_id = $data['aid'];
+      $smtm = $db->SELECT_PLAGIARISM_SUMMARY_RESEARCH($archive_id);
+      if (!empty($smtm)) {
+        $percentage = $smtm['total_percentage'];
+        if ($percentage >= 100){
+          $percentage = 100;
+        }
+        echo '<div class="info-container">
+                <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Results</p>
+                <ul>
+                  <li class="info-meta">
+                    <label>Plagiarism Match:</label>
+                    <div class="d-flex align-items-center">
+                      <div class="progress w-100" style="height: 10px">
+                        <div class="progress-bar-danger progress-bar" role="progressbar" style="width: '.round($percentage, 1).'%" aria-valuenow="'.round($percentage, 1).'" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                      <span style="color: #a33333; font-size: 16px; margin-left: .75rem !important;">'.round($percentage, 1).'%</span>
+                    </div>
+                  </li>
+                  <li class="info-meta"><label class="see-more"><a href="plagiarism_result.php?archiveID='.$data['archiveID'].'">See more</a></label></li>
+                </ul>
+              </div>';
+      } else { 
+        echo '<div class="info-container">
+                <p class="info-meta" style="font-size: 14px; margin-bottom: 0; font-weight: 500">Results</p>
+                <ul>
+                  <li class="info-meta">
+                    <label>Plagiarism Match:</label>
+                    <div class="d-flex align-items-center">
+                      <div class="progress w-100" style="height: 10px">
+                        <div class="progress-bar-danger progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                      <span style="color: #a33333; font-size: 20px; margin-left: .75rem !important;">0%</span>
+                    </div>
+                  </li>
+                </ul>
+              </div>';
+      }
+    } ?>
           </div>
         </div>
       </div>

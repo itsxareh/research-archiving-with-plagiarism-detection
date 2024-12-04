@@ -72,7 +72,7 @@ if(ISSET($_POST['add_research'])){
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- theme meta -->
     <meta name="theme-name" content="focus" />
-    <title>Project List: EARIST Research Archiving System</title>
+    <title>Project List: EARIST Repository</title>
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
     <link rel="shortcut icon" href="images/logo2.webp">
@@ -125,7 +125,7 @@ require_once 'templates/student_navbar.php';
                         </div>
                     </div>
                     <!-- /# column -->
-                    <div class="col-lg-4 p-l-0 title-margin-left">
+                    <div class="col-lg-4 p-l-0 ">
                         <div class="page-header">
                             <div class="page-title">
                                 <ol class="breadcrumb">

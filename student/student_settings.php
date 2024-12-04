@@ -123,7 +123,7 @@ if (isset($_POST['updatePword'])) {
                         </div>
                     </div>
                     <!-- /# column -->
-                    <div class="col-lg-4 p-l-0 title-margin-left">
+                    <div class="col-lg-4 p-l-0 ">
                         <div class="page-header">
                             <div class="page-title">
                                 <ol class="breadcrumb">

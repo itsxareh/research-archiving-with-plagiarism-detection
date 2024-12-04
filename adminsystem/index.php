@@ -1,10 +1,53 @@
 <?php
 
 include '../connection/config.php';
-
+$db = new Database();
 session_start();
-if(isset($_SESSION['auth_user']['admin_id']))
-header("location:dashboard.php");
+if(isset($_SESSION['auth_user']['admin_id'])) {
+  // Get user role and permissions
+  $userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
+  $permissions = explode(',', $userRole['permissions']);
+
+  // Helper function to check permissions
+  function hasPermit($permissions, $permissionToCheck) {
+      foreach ($permissions as $permission) {
+          if (strpos($permission, $permissionToCheck) === 0) {
+              return true;
+          }
+      }
+      return false;
+  }
+
+  // Check admin status and permissions
+  if($_SESSION['auth_user']['admin_id'] == 0) {
+      echo "<script>window.location.href='index.php'</script>";
+      exit();
+  } elseif(hasPermit($permissions, 'dashboard_view')) {
+      header("Location: dashboard.php");
+      exit();
+  } elseif(hasPermit($permissions, 'student_list_view')) {
+      header("Location: student_list.php");
+      exit();
+  } elseif(hasPermit($permissions, 'research_view')) {
+      header("Location: all_project_list.php");
+      exit();
+  } elseif(hasPermit($permissions, 'department_view')) {
+    header("Location: department_list.php");
+    exit();
+  } elseif(hasPermit($permissions, 'course_view')) {
+      header("Location: course_list.php");
+      exit();
+  } elseif(hasPermit($permissions, 'role_view')) {
+      header("Location: role_list.php");
+      exit();
+  } elseif(hasPermit($permissions, 'user_view')) {
+      header("Location: admin_list.php");
+      exit(); 
+  } else {
+      header('Location: ../../bad-request.php');
+      exit();
+  }
+}
 
 ?>
 
@@ -13,7 +56,7 @@ header("location:dashboard.php");
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EARIST Research Archiving System</title>
+  <title>EARIST Repository</title>
   <link rel="shortcut icon" href="images/logo2.webp">
   <link rel="stylesheet" href="../css/login-sign-up.css">
   <link rel="stylesheet" href="../css/bootstrap.min.css">

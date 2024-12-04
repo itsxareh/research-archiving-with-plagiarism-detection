@@ -25,7 +25,7 @@ if($_SESSION['auth_user']['student_id']==0){
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Archive Research:  EARIST Research Archiving System</title>
+    <title>Archive Research:  EARIST Repository</title>
 
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
@@ -71,7 +71,7 @@ require_once 'templates/student_navbar.php';
             </div>
           </div>
           <!-- /# column -->
-          <div class="col-lg-4 p-l-0 title-margin-left">
+          <div class="col-lg-4 p-l-0 ">
             <div class="page-header">
               <div class="page-title">
                 <ol class="breadcrumb">

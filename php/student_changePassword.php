@@ -59,8 +59,8 @@ if(isset($_POST['npassword']) && isset($_POST['cnpassword']) && isset($_SESSION[
 			$mail->setFrom('researcharchiverplagiarism@gmail.com');
 			$mail->addAddress($email);
 			$mail->isHTML(true);
-			$mail->Subject = 'EARIST Research Archiver Account';
-			$mail->Body = 'Recently your EARIST Research Archiver password has changed.';
+			$mail->Subject = 'EARIST Research Repository Account';
+			$mail->Body = 'Recently your EARIST Research Repository password has changed.';
 
 			if($mail->send()){
 				echo json_encode(array("status_code" => "success", "status" => "Account Recovery Success", "alert" => "Success", "redirect" => "../student/all_project_list.php"));

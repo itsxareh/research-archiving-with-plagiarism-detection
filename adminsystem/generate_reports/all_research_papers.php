@@ -21,7 +21,7 @@ ob_start();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EARIST Research Archive - Research Paper's List</title>
+    <title>EARIST Repository - Research Paper's List</title>
     <link rel="stylesheet" href="../../css/styles.css"/>
     <link rel="shortcut icon" href="../images/logo2.webp">
     <style>
@@ -106,7 +106,7 @@ ob_start();
 </head>
 <body>
     <div class="header">
-        <h1>EARIST Research Archive - Research Paper's List</h1>
+        <h1>EARIST Repository - Research Paper's List</h1>
         <p>Generated on: <?php echo $current_date_time; ?></p>
     </div>
     
@@ -147,7 +147,7 @@ ob_start();
     </div>
 
     <div class="footer">
-        <p>EARIST Research Archive - Generated Report</p>
+        <p>EARIST Repository - Generated Report</p>
     </div>
 </body>
 </html>

@@ -9,12 +9,29 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 session_start();
+
+$userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
+$permissions = explode(',', $userRole['permissions']);
+
+// Helper function to check permissions
+function hasPermit($permissions, $permissionToCheck) {
+    foreach ($permissions as $permission) {
+        if (strpos($permission, $permissionToCheck) === 0) {
+            return true;
+        }
+    }
+    return false;
+}
 if($_SESSION['auth_user']['admin_id']==0){
     echo"<script>window.location.href='index.php'</script>";
+    exit(); 
     
+} elseif(!hasPermit($permissions, 'student_list_view')) {
+    header('Location:../../bad-request.php');
+    exit(); 
+} else {
+    $admin_id = $_SESSION['auth_user']['admin_id'];
 }
-
-$admin_id = $_SESSION['auth_user']['admin_id'];
 
 ?>
 
@@ -27,7 +44,7 @@ $admin_id = $_SESSION['auth_user']['admin_id'];
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- theme meta -->
     <meta name="theme-name" content="focus" />
-    <title>Student List: EARIST Research Archiving System</title>
+    <title>Student List: EARIST Repository</title>
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
     <link rel="shortcut icon" href="images/logo2.webp">
@@ -69,7 +86,7 @@ require_once 'templates/admin_navbar.php';
 <!---------NAVIGATION BAR ENDS-------->
 
 
-
+<?php if (hasPermission($permissions, 'student_list_view')): ?>
     <div class="content-wrap">
         <div class="main">
             <div class="container-fluid">
@@ -78,11 +95,13 @@ require_once 'templates/admin_navbar.php';
                         <div class="row">
                             <div class="col-sm-12 col-md-12 col-xl-12  flex justify-content-between align-items-center page-title">
                                 <h1 style="display: flex; ">Students</h1>
+                                <?php if (hasPermission($permissions, 'student_list_download')): ?>
                                 <div class="generate-report ">
                                     <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=all_students" class="btn print-button">
                                         Print
                                     </a>
                                 </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -136,8 +155,11 @@ require_once 'templates/admin_navbar.php';
                             </div>
                             <div class="dropdown-action" id="dropdown_<?= $result['student_id'] ?>" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
                                 <div role="none">
+                                    <?php if (hasPermission($permissions, 'student_list_view')): ?>
                                     <a href="view_profile.php?studID=<?= $result['student_id'] ?>" class="dropdown-action-item">View Information</a>
+                                    <?php endif; ?>
                                     <?php
+                                    if (hasPermission($permissions, 'student_list_status')):
                                         $school_status = $result['school_verify'];
                                         if ($school_status === 'Approved'){
                                             echo '<a href="block_student.php?studID='.$result['studID'].'" class="dropdown-action-item">Block Student</a>';
@@ -146,15 +168,25 @@ require_once 'templates/admin_navbar.php';
                                         } elseif ($school_status === 'Blocked'){
                                             echo '<a href="unblock_student.php?studID='.$result['studID'].'" class="dropdown-action-item">Unblock Student</a>';
                                         }
+                                    endif;
                                     ?>
+                                    <?php if (hasPermission($permissions, 'student_list_edit')): ?>
                                     <a href="#" data-toggle="modal"  data-target="#<?= $uniquePrefix ?>edit_modal" class="dropdown-action-item">Edit information</a>
+                                    <?php endif; ?>
+                                    <?php if (hasPermission($permissions, 'student_list_delete')): ?>
                                     <a onclick="confirmDelete(<?= $result['studID'] ?>)" href="#" class="dropdown-action-item">Delete Student</a>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
                     </td>
                 </tr>
-                <?php include 'templates/edit_student_modal.php'; ?>
+                
+                <?php 
+                    if (hasPermission($permissions, 'student_list_edit')):
+                        include 'templates/edit_student_modal.php'; 
+                    endif;
+                ?>
                 <?php
                 }
                 ?>
@@ -165,7 +197,7 @@ require_once 'templates/admin_navbar.php';
     </div>
     <?php include 'templates/footer.php'; ?>
 </div>
-
+<?php endif; ?>
 <script>
     new DataTable('#datatablesss');
     

@@ -1408,6 +1408,16 @@ option {
 .page-title:has(h1) {
   padding-top: .675rem;
 }
+.download-plagiarism-pdf {
+  margin-top: 10px;
+  background-color: #a33333;
+  color: white;
+  padding: 10px 20px;
+  font-size: 12px;
+  border-radius: 5px;
+  border: none;
+  text-decoration: none;
+}
 .download-pdf-button {
   display: none;
   margin-top: 10px;
@@ -1418,6 +1428,10 @@ option {
   border-radius: 5px;
   border: none;
   text-decoration: none;
+}
+.download-plagiarism-pdf:hover {
+  background-color: #bb4747;
+  color: white;
 }
 @media (max-width: 767px) {
   .download-pdf-button {

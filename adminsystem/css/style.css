@@ -800,6 +800,16 @@ input:checked + .slider:before {
   margin: 1.275rem 0 2rem;
 } */
  
+.download-plagiarism-pdf {
+  margin-top: 10px;
+  background-color: #a33333;
+  color: white;
+  padding: 10px 20px;
+  font-size: 12px;
+  border-radius: 5px;
+  border: none;
+  text-decoration: none;
+}
 .download-pdf-button {
   margin-top: 10px;
   background-color: #a33333;
@@ -809,6 +819,10 @@ input:checked + .slider:before {
   border-radius: 5px;
   border: none;
   text-decoration: none;
+}
+.download-plagiarism-pdf:hover, .download-plagiarism-pdf:focus {
+  background-color: #bb4747;
+  color: white;
 }
 @media (max-width: 767px) {
   .download-pdf-button {
@@ -2967,21 +2981,28 @@ ul {
   }
 }
 .permissions-list {
-  padding: 15px;
+  padding: 15px 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
-
+.permission-group:last-child {
+  margin-bottom: 0;
+}
 .permission-group {
   margin-bottom: 20px;
 }
 
 .permission-group-header {
-  margin-bottom: 10px;
-  padding-bottom: 5px;
-  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-
+.permission-group-header input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
 .permission-group-header h6 {
   margin: 0;
   color: #333;
@@ -2989,9 +3010,12 @@ ul {
 }
 
 .permission-group-items {
+  display: none;
   padding-left: 15px;
 }
-
+.permission-group.active .permission-group-items {
+  display: block;
+}
 .permission-item {
   margin: 8px 0;
   display: flex;
@@ -3000,13 +3024,14 @@ ul {
 }
 
 .permission-item input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
+  cursor: pointer;
 }
 
 .permission-item label {
   margin: 0;
-  font-size: 14px;
+  font-size: 12px;
   color: #555;
 }
 /* TO DO LIST

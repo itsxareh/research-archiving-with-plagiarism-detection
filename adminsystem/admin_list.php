@@ -9,11 +9,23 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 session_start();
+$userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
+$permissions = explode(',', $userRole['permissions']);
+
+// Helper function to check permissions
+function hasPermit($permissions, $permissionToCheck) {
+    foreach ($permissions as $permission) {
+        if (strpos($permission, $permissionToCheck) === 0) {
+            return true;
+        }
+    }
+    return false;
+}
 if($_SESSION['auth_user']['admin_id']==0){
     echo"<script>window.location.href='index.php'</script>";
     exit(); 
     
-} elseif(!$_SESSION['auth_user']['admin_type']==0) {
+} elseif(!hasPermit($permissions, 'user_view')) {
     header('Location:../../bad-request.php');
     exit(); 
 } else {
@@ -30,7 +42,7 @@ if(ISSET($_POST['add_admin'])){
     $phone_number = $_POST['phone_number'];
     $email = $_POST['email_address'];
     $password = trim($_POST['password']);
-    $admin_type = $_POST['admin_type'];
+    $role_id = $_POST['role_id'];
 
     $user = $db->admin_register_select_email($email, $admin_id);
 
@@ -43,7 +55,7 @@ if(ISSET($_POST['add_admin'])){
         exit();
     }
 
-    $sql = $db->insert_Admin($uniqueID, $first_name, $last_name, $complete_address, $phone_number, $email, $password, $admin_type);
+    $sql = $db->insert_Admin($uniqueID, $first_name, $last_name, $complete_address, $phone_number, $email, $password, $role_id);
 
     if ($sql){
         date_default_timezone_set('Asia/Manila');
@@ -61,10 +73,6 @@ if(ISSET($_POST['add_admin'])){
 
 }
 
-
-
-
-
 if(ISSET($_POST['edit'])){
     $id = $_POST['id'];
     $first_name = $_POST['first_name'];
@@ -73,10 +81,9 @@ if(ISSET($_POST['edit'])){
     $phone_number = $_POST['phone_number'];
     $email = $_POST['email_address'];
     $password = trim($_POST['password']);
-    $admin_type = $_POST['admin_type'];
+    $role_id = $_POST['role_id'];
     
-
-    $sql = $db->update_Admin($first_name, $last_name, $complete_address, $phone_number, $email, $password, $admin_type, $id);
+    $sql = $db->update_Admin($first_name, $last_name, $complete_address, $phone_number, $email, $password, $role_id, $id);
 
     if ($sql){
         date_default_timezone_set('Asia/Manila');
@@ -88,7 +95,7 @@ if(ISSET($_POST['edit'])){
 
 
         $_SESSION['alert'] = "Success";
-        $_SESSION['status'] = "Updated Successfully";
+        $_SESSION['status'] = "Updated successfully";
         $_SESSION['status-code'] = "success";
     }
     
@@ -105,7 +112,7 @@ if(ISSET($_POST['edit'])){
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- theme meta -->
     <meta name="theme-name" content="focus" />
-    <title>Admin List: EARIST Research Archiving System</title>
+    <title>Admin List: EARIST Repository</title>
     <!-- ================= Favicon ================== -->
     <!-- Standard -->
     <link rel="shortcut icon" href="images/logo2.webp">
@@ -142,9 +149,7 @@ if(ISSET($_POST['edit'])){
 require_once 'templates/admin_navbar.php';
 ?>
 <!---------NAVIGATION BAR ENDS-------->
-
-
-
+<?php if (hasPermission($permissions, 'user_view')): ?>
     <div class="content-wrap">
         <div class="main">
             <div class="container-fluid">
@@ -153,16 +158,19 @@ require_once 'templates/admin_navbar.php';
                         <div class="row">
                             <div class="col-sm-12 col-md-12 col-xl-12  flex justify-content-between align-items-center page-title">
                                 <h1 style="display: flex; ">Admins</h1>
+                                <?php if (hasPermission($permissions, 'user_download')): ?>
                                 <div class="generate-report ">
                                     <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=all_admins" class="btn print-button">
                                         Print
                                     </a>
                                 </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
                 </div>
                 <!-- Modal -->
+                <?php if (hasPermission($permissions, 'user_add')): ?>
                 <div class="modal fade" id="modelId" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
                     <div class="modal-dialog modal-md" role="document">
                         <div class="modal-content">
@@ -203,10 +211,17 @@ require_once 'templates/admin_navbar.php';
                                                 <input type="password" class="info-input" name="password" required>
                                             </div>
                                             <div class="col-sm-5 item-detail p-0">
-                                                <label for="" class="info-label m-l-4">Type</label>
-                                                <select class="info-input" name="admin_type" required>
-                                                    <option value="1">Admin</option>
-                                                    <option value="0">Super Admin</option>
+                                                <label for="" class="info-label m-l-4">Role</label>
+                                                <select class="info-input" name="role_id" required>
+                                                    <option value="" selected disabled>Select role</option>
+                                                    <?php
+                                                    $data = $db->showRoles();
+                                                    foreach ($data as $role) {
+                                                    ?>
+                                                    <option value="<?= $role['roleID'] ?>"><?= $role['role_name'] ?></option>
+                                                    <?php
+                                                    }
+                                                    ?>
                                                 </select>
                                             </div>
                                         </div>
@@ -224,13 +239,16 @@ require_once 'templates/admin_navbar.php';
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
                 <div class="col-md-12 ">
                     <!-- Button trigger modal -->
+                    <?php if (hasPermission($permissions, 'user_add')): ?>
                     <div class="add-department">
                         <button type="button" class="add-research-button item-meta" data-toggle="modal" data-target="#modelId">
                         <i class="ti-plus m-r-4"></i> Add an admin
                         </button>
                     </div>
+                    <?php endif; ?>
 
                 <div class="list-container">
                     <table id="datatablesss" class="table" style="width:100%">
@@ -240,7 +258,7 @@ require_once 'templates/admin_navbar.php';
                                 <!-- <th>Description</th> -->
                                 <th class="list-th">Email Address</th>
                                 <th class="list-th">Phone number</th>
-                                <th class="list-th">Type</th>
+                                <th class="list-th">Role</th>
                                 <th class="list-th">Status</th>
                                 <th class="list-th"></th>
                             </tr>
@@ -256,7 +274,7 @@ require_once 'templates/admin_navbar.php';
                                 <td class="list-td"><?= $result['first_name']. ' ' .$result['middle_name'].' ' .$result['last_name'] ?></td>
                                 <td class="list-td"><?= $result['admin_email'] ?></td>
                                 <td class="list-td"><?= $result['phone_number'] ?></td>
-                                <td class="list-td"><?= ($result['admin_type'] === 0) ? 'Super Admin' : 'Admin' ?></td>
+                                <td class="list-td"><?= $result['role_name'] ?></td>
                                 <td class="list-td" style="text-align: center;">
                                     <!-- <?php 
                                         $status = $result['admin_status'];
@@ -269,14 +287,17 @@ require_once 'templates/admin_navbar.php';
                                     <input 
                                         type="checkbox" 
                                         class="toggle-status" 
-                                        data-id="<?= $result['id'] ?>" 
+                                        data-id="<?= $result['adminID'] ?>" 
                                         data-toggle="toggle" 
                                         data-on="Accept" 
                                         data-off="Don't Accept" 
                                         data-onstyle="success" 
                                         data-offstyle="danger"
                                         <?= ($result['admin_status'] === 'Active') ? 'checked' : '' ?>
-                                    >
+                                        <?php if (!hasPermission($permissions, 'user_status')): ?>
+                                            disabled
+                                        <?php endif; ?>
+                                        >
                                     <span class="slider round"></span>
                                     </label>
                                 </td>
@@ -284,22 +305,27 @@ require_once 'templates/admin_navbar.php';
                                 <td class="list-td" style="text-align: center;">
                                     <div class="action-container">
                                         <div>
-                                            <button type="button" class="action-button"  id="action-button_<?= $result['id'] ?>" aria-expanded="true" aria-haspopup="true">
+                                            <button type="button" class="action-button"  id="action-button_<?= $result['adminID'] ?>" aria-expanded="true" aria-haspopup="true">
                                                 Action
                                                 <svg class="action-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
                                                     <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
                                                 </svg>
                                             </button>
                                         </div>
-                                        <div class="dropdown-action" id="dropdown_<?= $result['id'] ?>" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                                        <div class="dropdown-action" id="dropdown_<?= $result['adminID'] ?>" role="action" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
                                             <div role="none">
-                                                <a href="#" data-toggle="modal" data-target="#modelId_<?= $result['id'] ?>" class="dropdown-action-item">Edit info</a>
-                                                <a onclick="confirmDelete(<?= $result['id'] ?>)" href="#" data-toggle="delete-modal" data-target="#delete_modelId_<?= $result['id'] ?>" class="dropdown-action-item">Delete admin</a>
+                                                <?php if (hasPermission($permissions, 'user_edit')): ?>
+                                                    <a href="#" data-toggle="modal" data-target="#modelId_<?= $result['adminID'] ?>" class="dropdown-action-item">Edit info</a>
+                                                <?php endif; ?>
+                                                <?php if (hasPermission($permissions, 'user_delete')): ?>
+                                                    <a onclick="confirmDelete(<?= $result['adminID'] ?>)" href="#" data-toggle="delete-modal" data-target="#delete_modelId_<?= $result['adminID'] ?>" class="dropdown-action-item">Delete admin</a>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     </div>
                                 </td>
-                                <div class="modal fade" id="modelId_<?= $result['id'] ?>" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+                                <?php if (hasPermission($permissions, 'user_edit')): ?>
+                                <div class="modal fade" id="modelId_<?= $result['adminID'] ?>" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
                                     <div class="modal-dialog modal-md" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
@@ -310,7 +336,7 @@ require_once 'templates/admin_navbar.php';
                                             </div>
                                             <form action="" method="POST" enctype="multipart/form-data">
                                                 <div class="modal-body">
-                                                    <input type="text" style="display: none;" class="form-control" name="id" value="<?= $result['id'] ?>">
+                                                    <input type="text" style="display: none;" class="form-control" name="id" value="<?= $result['adminID'] ?>">
                                                     <div class="form-group">
                                                         <div class="row m-0" style="justify-content: space-between; row-gap: 6px">
                                                             <div class="col-sm-6 item-detail p-0">
@@ -325,8 +351,8 @@ require_once 'templates/admin_navbar.php';
                                                         <div class="row m-0" style="justify-content: space-between;">
                                                             <div class="col-sm-6 item-detail p-0">
                                                                 <label for="" class="info-label m-l-4">Email address</label>
-                                                                <input type="email" class="info-input" name="email_address" id="edit_email<?= $result['id'] ?>" value="<?= $result['admin_email'] ?>" required>
-                                                                <span id="edit-email-error<?= $result['id'] ?>" class="error-message" style="color: #a33333; font-size: 10px"></span>
+                                                                <input type="email" class="info-input" name="email_address" id="edit_email<?= $result['adminID'] ?>" value="<?= $result['admin_email'] ?>" required>
+                                                                <span id="edit-email-error<?= $result['adminID'] ?>" class="error-message" style="color: #a33333; font-size: 10px"></span>
                                                             </div>
                                                             <div class="col-sm-5 item-detail p-0">
                                                                 <label for="" class="info-label m-l-4">Phone number</label>
@@ -339,10 +365,16 @@ require_once 'templates/admin_navbar.php';
                                                                 <input type="password" class="info-input" name="password" value="<?= $result['admin_password'] ?>" required>
                                                             </div>
                                                             <div class="col-sm-5 item-detail p-0">
-                                                                <label for="" class="info-label m-l-4">Type</label>
-                                                                <select class="info-input" name="admin_type" required>
-                                                                    <option value="1" <?= ($result['admin_type'] === 1) ? 'selected' : '' ?>>Admin</option>   
-                                                                    <option value="0" <?= ($result['admin_type'] === 0) ? 'selected' : '' ?>>Super Admin</option>
+                                                                <label for="" class="info-label m-l-4">Role</label>
+                                                                <select class="info-input" name="role_id" required>
+                                                                    <?php
+                                                                    $data = $db->showRoles();
+                                                                    foreach ($data as $role) {
+                                                                    ?>
+                                                                    <option value="<?= $role['roleID'] ?>" <?= ($role['roleID'] === $result['role_id']) ? 'selected' : '' ?>><?= $role['role_name'] ?></option>
+                                                                    <?php
+                                                                    }
+                                                                    ?>
                                                                 </select>
                                                             </div>
                                                         </div>
@@ -362,6 +394,7 @@ require_once 'templates/admin_navbar.php';
                                         </div>
                                     </div>
                                 </div>
+                                <?php endif; ?>
                             </tr>
                             <?php
                             }
@@ -375,6 +408,7 @@ require_once 'templates/admin_navbar.php';
     </div>
     <?php include 'templates/footer.php'; ?>
 </div>
+<?php endif; ?>
 
 <script>
 new DataTable('#datatablesss');

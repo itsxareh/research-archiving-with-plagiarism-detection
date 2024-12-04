@@ -153,7 +153,7 @@ ob_start()
         </div> 
         -->
         <div class="footer">
-            <p>EARIST Research Archive - Generated on: <?php echo $current_date_time; ?></p>
+            <p>EARIST Repository - Generated on: <?php echo $current_date_time; ?></p>
         </div>
     </div>
 </body>
