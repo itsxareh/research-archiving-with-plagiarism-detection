@@ -176,7 +176,10 @@ require_once 'templates/student_navbar.php';
                         </button>
                     </div>
                     <div class="advance-filter-search">
-                        <p class="font-black bold">Filter</p>
+                        <div class="d-flex align-items-end justify-content-between">
+                            <p class="font-black bold m-0">Filter</p>
+                            <a href="#" class="clear-filter-button" onclick="clearFilter()">Clear</a>
+                        </div>
                         <!-- <div class="mb-3 mb-sm-0">
                             <label for="" class="item-meta">Select Department</label>
                             <select id="inputDepartment_search" name="department" class="selectpicker form-control item-meta" required>
@@ -204,7 +207,7 @@ require_once 'templates/student_navbar.php';
                             <select class="form-control item-meta" name="documentStatus" id="documentStatus">
                                 <option value="">All</option>
                                 <option value="Accepted">Published</option>
-                                <option value="Not Accepted">Not yet published</option>
+                                <option value="Rejected">Rejected</option>
                             </select>
                         </fieldset>
                         <fieldset class="mb-3">
@@ -446,6 +449,10 @@ $('#search-result').on('click', '.item-abstract', function(event) {
     }
 });
 
+function clearFilter() {
+    window.location.href = 'project_list.php';
+}
+
 const keywordsInput = document.getElementById('keywords');
 const tagify = new Tagify(keywordsInput, {
     delimiters: ",",
@@ -532,14 +539,14 @@ form.addEventListener('submit', async function(e) {
                     // Complete the progress bar
                     progressBar.style.width = '100%';
                     progressBar.setAttribute('aria-valuenow', 100);
-                    progressText.textContent = 'Processing complete!';
+                    progressText.textContent = 'Uploading complete!';
 
                     // Short delay before showing result
                     setTimeout(() => {
                         const result = JSON.parse(xhr.responseText);
                         loadingOverlay.style.display = 'none';
-                        
                         if (result.status === 'success') {
+                            updateResearchList(result);
                             swal({
                                 title: result.stats,
                                 text: result.message,
@@ -555,7 +562,6 @@ form.addEventListener('submit', async function(e) {
                                     progressBar.style.width = '0%';
                                     
                                     // Update UI with new research entry
-                                    updateResearchList(result);
                                 }
                             });
                         } else {
@@ -735,7 +741,7 @@ function updateResearchList(result) {
         var page = 1 ;
         var limit = <?= isset($limit) ? $limit : 10 ?>;
 
-        if (documentStatus === 'Not Accepted'){
+        if (documentStatus === 'Rejected'){
             fromYear = '';
             toYear = '';
         }

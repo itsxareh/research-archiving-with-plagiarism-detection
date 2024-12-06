@@ -113,9 +113,22 @@ $('#loginForm').on('submit', function(e) {
         data: $(this).serialize(),
         success: function(response) {
             const data = JSON.parse(response);
-            console.log(data);
             if (data.status_code === 'success') {
               window.location.href = data.redirect;
+            } else if (data.status_code === 'info') {
+              if (data.redirect) {
+                swal({
+                  title: data.alert,
+                  text: data.status,
+                  icon: data.status_code,
+                }, function(isConfirm) {
+                  if (isConfirm) {
+                    window.location.href = data.redirect;
+                  }
+                });
+              } else {
+                sweetAlert(data.alert, data.status, data.status_code);
+              }
             } else {
               loginBtn.prop('disabled', false);
               sweetAlert(data.alert, data.status, data.status_code);

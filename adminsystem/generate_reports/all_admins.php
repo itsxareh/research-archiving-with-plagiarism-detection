@@ -120,7 +120,7 @@ ob_start();
                     <th style="width: 20%">Name</th>
                     <th style="width: 30%">Email address</th>
                     <th style="width: 15%">Phone number</th>
-                    <th style="width: 20%">Type</th>
+                    <th style="width: 20%">Role</th>
                     <th style="width: 10%" class="text-center">Status</th>
                 </tr>
             </thead>
@@ -134,7 +134,7 @@ ob_start();
                     <td><?php echo htmlspecialchars($admin['first_name'].' '.$admin['last_name']); ?></td>
                     <td><?php echo htmlspecialchars($admin['admin_email']); ?></td>
                     <td><?php echo htmlspecialchars($admin['phone_number']); ?></td>
-                    <td><?php echo htmlspecialchars($admin['role_name']); ?></td>
+                    <td><?php echo htmlspecialchars(isset($admin['role_name']) ? $admin['role_name'] : 'N/A'); ?></td>
                     <td class="text-center <?php echo $status_class; ?>"><?php echo htmlspecialchars($admin['admin_status']); ?></td>
                 </tr>
             <?php 

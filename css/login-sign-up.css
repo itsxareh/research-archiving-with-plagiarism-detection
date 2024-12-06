@@ -96,7 +96,7 @@ main {
 .nav-login > .login-btn, .nav-signup > .signup-btn {
     padding: .545rem 1.765rem;
     color: #f8f9ff;
-    background-color: #a33333;
+    background-color: #e05656;
     border-radius: .575rem;
     border: none !important;
     font-size: 12px;
@@ -153,7 +153,7 @@ main {
     font-size: 11px;
 }
 .form-input:focus-within input:invalid, .form-input:focus-within select:invalid {
-    border-color: #a33333;
+    border-color: #e05656;
     background-image: url('../images/close.png');
 }
 .form-input input:valid {
@@ -170,7 +170,7 @@ main {
     background-position: calc(100% - 20px);
 }
 .form-input input:invalid span {
-    color: #a20e0e;
+    color: #e05656;
 }
 .form-input input, .form-input select {
     width: 100%;
@@ -181,7 +181,7 @@ main {
 .sign-up-btn, .login-btn {
     padding: .945rem 2.265rem;
     color: #f8f9ff;
-    background-color: #a33333;
+    background-color: #e05656;
     border-radius: 1.575rem;
     border: none;
     font-size: 14px;

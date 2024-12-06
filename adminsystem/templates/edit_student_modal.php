@@ -16,7 +16,7 @@ if (isset($_POST[$uniquePrefix.'update'])){
         $_SESSION['alert'] = "Error";
         $_SESSION['status'] = "Email already exists. Please choose a different one.";
         $_SESSION['status-code'] = "error";
-        echo "<script>window.location.href = 'student_list.php'</script>";
+        echo "<script>window.location.href = 'students.php'</script>";
     } else {
         $stmt = $db->UPDATE_STUDENT_INFO($student_id, $first_name, $last_name, $phonenumber, $email, $password, $department, $course);
         if ($stmt) {    
@@ -31,7 +31,7 @@ if (isset($_POST[$uniquePrefix.'update'])){
             $_SESSION['alert'] = "Success";
             $_SESSION['status'] = "Student information updated.";
             $_SESSION['status-code'] = "success";
-            echo "<script>window.location.href = 'student_list.php'</script>";
+            echo "<script>window.location.href = 'students.php'</script>";
         } else {
             echo "<script>alert('Failed to update student information.');</script>";
         }

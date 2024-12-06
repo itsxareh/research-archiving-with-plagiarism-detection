@@ -101,10 +101,18 @@
             <h4>Quick Links</h4>
             <ul>
                 <li><a href="../adminsystem/index.php">Home</a></li>
-                <li><a href="../adminsystem/archive_list.php">Research Papers</a></li>
-                <li><a href="../adminsystem/student_list.php">Students</a></li>
-                <li><a href="../adminsystem/course_list.php">Courses</a></li>
-                <li><a href="../adminsystem/department_list.php">Departments</a></li>
+                <?php if (hasPermission($permissions, 'research_view')): ?>
+                <li><a href="../adminsystem/research-papers.php">Research Papers</a></li>
+                <?php endif; ?>
+                <?php if (hasPermission($permissions, 'student_list_view')): ?>
+                <li><a href="../adminsystem/students.php">Students</a></li>
+                <?php endif; ?>
+                <?php if (hasPermission($permissions, 'course_view')): ?>
+                <li><a href="../adminsystem/courses.php">Courses</a></li>
+                <?php endif; ?>
+                <?php if (hasPermission($permissions, 'department_view')): ?>
+                <li><a href="../adminsystem/departments.php">Departments</a></li>
+                <?php endif; ?>
             </ul>
         </div>
         

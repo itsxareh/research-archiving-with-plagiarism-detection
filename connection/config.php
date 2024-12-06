@@ -173,23 +173,23 @@ public function admin_update_verify_status($verified, $adminID) {
         } elseif (hasPermit($permissions, 'dashboard_view')) {
             header("Location: ../adminsystem/dashboard.php");
         } elseif (hasPermit($permissions, 'student_list_view')) {
-            header("Location: ../adminsystem/student_list.php");
+            header("Location: ../adminsystem/students.php");
         } elseif (hasPermit($permissions, 'research_view')) {
             header("Location: ../adminsystem/all_project_list.php");
         } elseif (hasPermit($permissions, 'department_view')) {
-            header("Location: ../adminsystem/department_list.php");
+            header("Location: ../adminsystem/departments.php");
         } elseif (hasPermit($permissions, 'course_view')) {
-            header("Location: ../adminsystem/course_list.php");
+            header("Location: ../adminsystem/courses.php");
         } elseif (hasPermit($permissions, 'role_view')) {
-            header("Location: ../adminsystem/role_list.php");
+            header("Location: ../adminsystem/roles.php");
         } elseif (hasPermit($permissions, 'user_view')) {
-            header("Location: ../adminsystem/admin_list.php");
+            header("Location: ../adminsystem/admins.php");
         } else {
             header('Location: ../bad-request.php');
         }
         exit();
       }
-    } elseif($admin_status == 'Not Active') {
+    } elseif($admin_status == 'Inactive') {
         $_SESSION['alert'] = "Oppss...";
         $_SESSION['status'] = "Sorry, but your account is now inactive.";
         $_SESSION['status-code'] = "info";
@@ -219,7 +219,26 @@ public function updateADMIN_OFFLINE($online_offline_status, $admin_id) {
 public function adminsystemNOTIFICATION_COUNT($adminID, $unread) {
   $connection = $this->getConnection();
 
-  $stmt = $connection->prepare("SELECT COUNT(*) AS total_unread FROM admin_systemnotification WHERE admin_id = ? AND status = ?");
+  $stmt = $connection->prepare("SELECT
+      COUNT(admin_systemnotification.id) AS total_unread,
+      admin_systemnotification.*,
+      admin_account.*,
+      archive_research.archive_id,
+      archive_research.project_title,
+      COALESCE(admin_account.id, archive_research.archive_id) as source_id,
+      CASE 
+        WHEN admin_account.id IS NOT NULL THEN 'admin'
+        WHEN archive_research.archive_id IS NOT NULL THEN 'research'
+      END as notification_type
+    FROM admin_systemnotification
+    LEFT JOIN admin_account 
+      ON admin_account.id = admin_systemnotification.admin_id
+    LEFT JOIN archive_research 
+      ON archive_research.archive_id = admin_systemnotification.admin_id
+    WHERE admin_systemnotification.admin_id = ?
+    AND admin_systemnotification.status = ?
+      OR archive_research.archive_id IS NOT NULL
+    ORDER BY admin_systemnotification.id DESC");
     $stmt->execute([$adminID, $unread]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     $totalUnread = $result['total_unread'];
@@ -233,11 +252,28 @@ public function adminsystemNOTIFICATION_COUNT($adminID, $unread) {
 public function adminsystemNOTIFICATION_Read_Unread($coordinatorID) {
   $connection = $this->getConnection();
 
-      $stmt = $connection->prepare("SELECT * FROM admin_systemnotification LEFT JOIN admin_account ON admin_account.id = admin_systemnotification.admin_id WHERE admin_systemnotification.admin_id = ? ORDER BY admin_systemnotification.id DESC");
+      $stmt = $connection->prepare("SELECT 
+      admin_systemnotification.*,
+      admin_account.*,
+      archive_research.archive_id,
+      archive_research.project_title,
+      COALESCE(admin_account.id, archive_research.archive_id) as source_id,
+      CASE 
+        WHEN admin_account.id IS NOT NULL THEN 'admin'
+        WHEN archive_research.archive_id IS NOT NULL THEN 'research'
+      END as notification_type
+    FROM admin_systemnotification
+    LEFT JOIN admin_account 
+      ON admin_account.id = admin_systemnotification.admin_id
+    LEFT JOIN archive_research 
+      ON archive_research.archive_id = admin_systemnotification.admin_id
+    WHERE admin_systemnotification.admin_id = ?
+      OR archive_research.archive_id IS NOT NULL
+    ORDER BY admin_systemnotification.id DESC");
         $stmt->execute([$coordinatorID]);
         $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return $notifications; // Add this line to return the notifications
+        return $notifications;
 
 }
 
@@ -247,6 +283,12 @@ public function adminsystemNOTIFICATION_MarkASRead($read, $admin_id) {
 
   $stmt = $connection->prepare("UPDATE admin_systemnotification SET status = ? WHERE admin_id = ?");
   $stmt->execute([$read, $admin_id]);
+
+  $stmt2 = $connection->prepare("UPDATE admin_systemnotification asn 
+    INNER JOIN archive_research ar ON ar.archive_id = asn.admin_id 
+    SET asn.status = ? 
+    WHERE ar.archive_id IS NOT NULL");
+  $stmt2->execute([$read]);
 
 }
 
@@ -356,7 +398,7 @@ public function showAdmins($admin_id){
 }
 public function showRoles(){
   $connection = $this->getConnection();
-  $stmt = $connection->prepare("SELECT *, roles.id AS roleID, roles.description AS role_description FROM roles LEFT JOIN departments ON departments.id = roles.department_id ORDER BY roles.id DESC");
+  $stmt = $connection->prepare("SELECT *, roles.id AS roleID, roles.description AS role_description FROM roles LEFT JOIN departments ON departments.id = roles.department_id WHERE roles.id != 1 ORDER BY roles.id DESC");
   $stmt->execute();
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -423,7 +465,7 @@ public function SELECT_ALL_AdminsData(){
 public function SELECT_ALL_RolesData(){
   $connection = $this->getConnection();
   $stmt = $connection->prepare(
-    "SELECT * FROM roles WHERE delete_flag = 0 ORDER BY id ASC");
+    "SELECT * FROM roles WHERE delete_flag = 0 AND id != 1 ORDER BY id ASC");
   $stmt->execute();
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -647,7 +689,7 @@ public function SELECT_COUNT_ALL_ARCHIVE_RESEARCH_WHERE_PUBLISH(){
 
 public function SELECT_COUNT_ALL_ARCHIVE_RESEARCH_WHERE_UNPUBLISH(){
   $connection = $this->getConnection();
-  $status = 'Not Accepted';
+  $status = 'Rejected';
 
   $stmt = $connection->prepare("SELECT COUNT(*) FROM archive_research WHERE document_status = ? ");
   $stmt->execute([$status]);
@@ -856,7 +898,7 @@ public function SELECT_COUNT_ALL_PUBLISHED_RESEARCH(){
 public function SELECT_COUNT_ALL_UNPUBLISHED_RESEARCH(){
   $connection = $this->getConnection();
 
-  $stmt = $connection->prepare("SELECT COUNT(*) as count FROM archive_research WHERE document_status = 'Not Accepted'");
+  $stmt = $connection->prepare("SELECT COUNT(*) as count FROM archive_research WHERE document_status = 'Rejected'");
   $stmt->execute();
   $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -872,7 +914,42 @@ public function SELECT_COUNT_ALL_PLAGIARIZED_RESEARCH(){
 
   return $result;
 }
+public function SELECT_DEPARTMENT_BY_NAME($department_name, $exclude_id){
+  $connection = $this->getConnection();
+  if($exclude_id != ''){
+    $stmt = $connection->prepare("SELECT * FROM departments WHERE name = ? AND id != ?");
+    $stmt->execute([$department_name, $exclude_id]);
+  }else{
+    $stmt = $connection->prepare("SELECT * FROM departments WHERE name = ?");
+    $stmt->execute([$department_name]);
+  }
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
+  return $result;
+}
+
+public function SELECT_DEPARTMENT_BY_CODE($department_code, $exclude_id){
+  $connection = $this->getConnection();
+  if($exclude_id != ''){
+    $stmt = $connection->prepare("SELECT * FROM departments WHERE dept_code = ? AND id != ?");
+    $stmt->execute([$department_code, $exclude_id]);
+  }else{
+    $stmt = $connection->prepare("SELECT * FROM departments WHERE dept_code = ?");
+    $stmt->execute([$department_code]);
+  }
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+
+public function SELECT_COURSE_BY_NAME($course_name){
+  $connection = $this->getConnection();
+  $stmt = $connection->prepare("SELECT * FROM course WHERE course_name = ?");
+  $stmt->execute([$course_name]);
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+}
 public function SELECT_COUNT_ALL_COURSES(){
   $connection = $this->getConnection();
   
@@ -1039,7 +1116,7 @@ public function SELECT_COUNT_ALL_ARCHIVE_RESEARCH_WHERE_PUBLISH_FROM_STUDENT($st
 
 public function SELECT_COUNT_ALL_ARCHIVE_RESEARCH_WHERE_NOT_PUBLISH_FROM_STUDENT($student_email){
   $connection = $this->getConnection();
-  $status = 'Not Accepted';
+  $status = 'Rejected';
 
   $stmt = $connection->prepare("SELECT COUNT(*) FROM archive_research WHERE document_status = ? AND research_owner_email = ?");
   $stmt->execute([$status, $student_email]);
@@ -1050,7 +1127,7 @@ public function SELECT_COUNT_ALL_ARCHIVE_RESEARCH_WHERE_NOT_PUBLISH_FROM_STUDENT
 
 public function SELECT_COUNT_ALL_ARCHIVE_RESEARCH_FROM_STUDENT($student_email){
   $connection = $this->getConnection();
-  $status = 'Not Accepted';
+  $status = 'Rejected';
 
   $stmt = $connection->prepare("SELECT COUNT(*) FROM archive_research WHERE research_owner_email = ?");
   $stmt->execute([$student_email]);
@@ -1153,7 +1230,7 @@ public function update_Department($department_code, $department_name, $descripti
 public function unactivate_department($departmentID){
   $connection = $this->getConnection();
 
-  $status = 'Not Active';
+  $status = 'Inactive';
 
   $sql = $connection->prepare("UPDATE departments SET department_status = ? WHERE id = ?");
   $sql->execute([$status, $departmentID]);
@@ -1233,7 +1310,7 @@ public function unpublish_research($archiveID){
   
   $date = '';
 
-  $status = 'Not Accepted';
+  $status = 'Rejected';
 
   $sql = $connection->prepare("UPDATE archive_research SET document_status = ?, date_published = ? WHERE id = ?");
   $sql->execute([$status, $date, $archiveID]);
@@ -1265,7 +1342,7 @@ public function update_department_status($departmentID, $status) {
 }
 public function update_admin_status($adminID, $status) {
   $connection = $this->getConnection();
-  $query = "UPDATE admin_account SET admin_status = :status WHERE id = :adminID";
+  $query = "UPDATE admin_account SET admin_status = :status WHERE id = :adminID AND id != 1";
   $stmt = $this->conn->prepare($query);
   
   $stmt->bindParam(':status', $status, PDO::PARAM_STR);
@@ -1279,7 +1356,7 @@ public function update_admin_status($adminID, $status) {
 }
 public function update_Role_status($roleID, $status) {
   $connection = $this->getConnection();
-  $query = "UPDATE roles SET role_status = :status WHERE id = :roleID";
+  $query = "UPDATE roles SET role_status = :status WHERE id = :roleID AND id != 1";
   $stmt = $this->conn->prepare($query);
   
   $stmt->bindParam(':status', $status, PDO::PARAM_STR);
@@ -1415,7 +1492,7 @@ public function ACTIVATE_course($courseID_activate){
 public function unactivate_course($courseID){
   $connection = $this->getConnection();
 
-  $status = 'Not Active';
+  $status = 'Inactive';
 
   $sql = $connection->prepare("UPDATE course SET course_status = ? WHERE id = ?");
   $sql->execute([$status, $courseID]);
@@ -1457,7 +1534,7 @@ public function Research_BasedOn_Department_AND_Status(){
     dept_code, 
     name, 
     COUNT(CASE WHEN archive_research.document_status = 'Accepted' THEN 1 END) AS accepted_count, 
-    COUNT(CASE WHEN archive_research.document_status = 'Not Accepted' THEN 1 END) AS not_accepted_count
+    COUNT(CASE WHEN archive_research.document_status = 'Rejected' THEN 1 END) AS rejected_count
 FROM 
     archive_research 
 LEFT JOIN 
@@ -1480,7 +1557,7 @@ public function Research_BasedOn_Department_Course($departmentId){
     dept_code, 
     course.id as id, 
     COUNT(CASE WHEN archive_research.document_status = 'Accepted' THEN 1 END) AS accepted_count, 
-    COUNT(CASE WHEN archive_research.document_status = 'Not Accepted' THEN 1 END) AS not_accepted_count
+    COUNT(CASE WHEN archive_research.document_status = 'Rejected' THEN 1 END) AS rejected_count
 FROM 
     archive_research 
 LEFT JOIN 
@@ -1739,7 +1816,10 @@ public function get_admin_name_by_id($admin_id) {
 public function admin_activity_log($admin_id) {
   $connection = $this->getConnection();
 
-  $stmt = $connection->prepare("SELECT * FROM admin_systemnotification WHERE admin_id = ? ORDER BY id DESC");
+  $stmt = $connection->prepare("SELECT * FROM admin_account 
+                                LEFT JOIN admin_systemnotification ON admin_systemnotification.admin_id = admin_account.id 
+                                WHERE admin_account.id = ? 
+                                ORDER BY admin_systemnotification.id DESC");
   $stmt->execute([$admin_id]);
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -1748,7 +1828,7 @@ public function admin_activity_log($admin_id) {
 public function admin_all_activity_log($admin_id) {
   $connection = $this->getConnection();
 
-  $stmt = $connection->prepare("SELECT * FROM admin_systemnotification LEFT JOIN admin_account ON admin_systemnotification.admin_id = admin_account.id WHERE admin_id != ? ORDER BY admin_systemnotification.id DESC");
+  $stmt = $connection->prepare("SELECT * FROM admin_account LEFT JOIN admin_systemnotification ON admin_systemnotification.admin_id = admin_account.id WHERE admin_id != ? ORDER BY admin_systemnotification.id DESC;");
   $stmt->execute([$admin_id]);
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -1823,12 +1903,10 @@ public function SELECT_ACCOUNT_INBOX($student_id) {
 public function SELECT_ADMIN_INBOX() {
   $connection = $this->getConnection();
 
-    $stmt = $connection->prepare("SELECT *, admin_systemnotification.id as asnid, admin_systemnotification.status as inbox_status, archive_research.id as arid, admin_account.id as aaid 
+    $stmt = $connection->prepare("SELECT *, admin_systemnotification.id as asnid, admin_systemnotification.status as inbox_status, archive_research.id as arid
                                 FROM admin_systemnotification
-                                LEFT JOIN admin_account
-                                ON admin_systemnotification.admin_id = admin_account.id
                                 LEFT JOIN archive_research ON admin_systemnotification.admin_id = archive_research.archive_id
-                                WHERE admin_account.id IS NULL AND archive_research.project_title != NULL;");
+                                WHERE archive_research.archive_id = admin_systemnotification.admin_id;");
   $stmt->execute();
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -1867,19 +1945,14 @@ public function studentLogin($email, $password, $redirect_to) {
 
   if ($pword == md5($password)) {
       if ($verifystatus == 'Not Verified') {
-          // Handle account verification if needed
-          $_SESSION['alert'] = "Account Verification";
-          $_SESSION['status'] = "Verify your Account";
-          echo json_encode(array('status_code' => 'info', 'status' => 'Verify your account', 'alert' => 'Oppss...'));
-          exit();
+        $_SESSION['email'] = $student_email;
+        return json_encode(array('status_code' => 'info', 'status' => 'Please verify your account first', 'alert' => 'Account Verification', 'redirect' => 'student_verify_account.php?student_no='.$student_no));    
       } else if ($school_verify == 'For Approval') {
         // Handle account verification if needed
-          echo json_encode(array('status_code' => 'info', 'status' => 'Wait for admin approve your account', 'alert' => 'Oppss...'));
-          exit();
+          return json_encode(array('status_code' => 'info', 'status' => 'Wait for admin approve your account', 'alert' => 'Oppss...'));
       } else if ($school_verify == 'Blocked') {
         // Handle account verification if needed
-          echo json_encode(array('status_code' => 'info', 'status' => 'Sorry, but your account has been blocked', 'alert' => 'Oppss...'));
-          exit();
+          return json_encode(array('status_code' => 'info', 'status' => 'Sorry, but your account has been blocked', 'alert' => 'Account Blocked'));
       } else {
           // Handle successful login
           date_default_timezone_set('Asia/Manila');
@@ -1900,17 +1973,16 @@ public function studentLogin($email, $password, $redirect_to) {
               'course_id' => $course_id,
           ];
 
-          
+
           if (isset($redirect_to) || !empty($redirect_to) || $redirect_to !== '') {
-            return true;
+            return json_encode(array('status_code' => 'success', 'status' => 'Login successful', 'alert' => 'Success', 'redirect' => $redirect_to));
           } 
           if (!isset($redirect_to) || empty($redirect_to)) {
-            return true;
+            return json_encode(array('status_code' => 'success', 'status' => 'Login successful', 'alert' => 'Success', 'redirect' => '../student/all_project_list.php'));
           }
       }
   } else {
-      echo json_encode(array('status_code' => 'info', 'status' => 'Incorrect log in details', 'alert' => 'Oppss...'));
-      exit();
+      return json_encode(array('status_code' => 'info', 'status' => 'Incorrect log in details', 'alert' => 'Oppss...'));
   }
 }
 
@@ -2396,13 +2468,6 @@ public function SELECT_OWNED_ARCHIVE_RESEARCH($owner_email, $searchInput, $keywo
 }
 //-------------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
 
 }
 

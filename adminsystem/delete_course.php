@@ -34,7 +34,7 @@ if(isset($_GET['courseID'])){
     $_SESSION['status'] = "Course deleted";
     $_SESSION['status-code'] = "success";
 
-    header('location: course_list.php');
+    header('location: courses.php');
     
     
 }

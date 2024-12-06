@@ -184,7 +184,7 @@
   color: #ffffff;
 }
 .badge-success {
-  background: #28a745;
+  background: #39d35d;
   color: #ffffff;
 }
 .badge-info {
@@ -196,7 +196,7 @@
   color: #ffffff;
 }
 .badge-danger {
-  background: #dc3545;
+  background: #e05656;
   color: #ffffff;
 }
 .badge-pink {
@@ -1795,7 +1795,7 @@ footer p {
 .item-detail input, .form-input select {
   width: 100%;
   border-radius: .575rem;
-  padding: .625rem .625rem;
+  padding: .625rem 2rem .625rem .625rem;
   border: #cccccc solid 1px;
 }
 .item-detail select {
@@ -4605,7 +4605,6 @@ h6.h1 {
   background-color: #f3f3f3;
   border-radius: 5px;
   overflow: hidden;
-  margin-top: 1rem;
 }
 
 .progress-bar {

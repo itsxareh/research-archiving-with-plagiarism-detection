@@ -112,7 +112,7 @@ require_once 'templates/student_navbar.php';
                                 <div class="stat-widget-one">
                                     <div class="stat-icon dib"><i class="ti-archive color-danger border-danger"></i></div>
                                     <div class="stat-content dib">
-                                        <div class="stat-text">Not Accepted Research</div>
+                                        <div class="stat-text">Rejected Research</div>
                                         <?php
                                         $student_email = $_SESSION['auth_user']['student_email'];
                                         $count = $db->SELECT_COUNT_ALL_ARCHIVE_RESEARCH_WHERE_NOT_PUBLISH_FROM_STUDENT($student_email);

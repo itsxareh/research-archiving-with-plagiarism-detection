@@ -179,7 +179,7 @@
   color: #ffffff;
 }
 .badge-success {
-  background: #28a745;
+  background: #39d35d;
   color: #ffffff;
 }
 .badge-info {
@@ -191,7 +191,7 @@
   color: #ffffff;
 }
 .badge-danger {
-  background: #dc3545;
+  background: #e05656;
   color: #ffffff;
 }
 .badge-pink {
@@ -926,7 +926,7 @@ a.dt-button.active:not(.disabled) {
 .item-detail input, .form-input select {
   width: 100%;
   border-radius: .575rem;
-  padding: .625rem .625rem;
+  padding: .625rem 2rem .625rem .625rem;
   border: #cccccc solid 1px;
 }
 .item-detail select {
@@ -4875,18 +4875,21 @@ h6.h1 {
   margin-bottom: 1rem;
   color: #666;
 }
-
+.clear-filter-button {
+  color: #666;
+  font-size: 12px;
+  font-weight: 600;
+}
 .progress {
   height: 10px;
   background-color: #f3f3f3;
   border-radius: 5px;
   overflow: hidden;
-  margin-top: 1rem;
 }
 
 .progress-bar {
   height: 100%;
-  background-color: #a33333;
+  background-color: #e05656;
   transition: width 0.3s ease;
 }
 

@@ -113,27 +113,27 @@ $db = new Database();
                 <?php endif; ?>
                 
                 <?php if (hasPermission($permissions, 'research_view')): ?>
-                    <li><a href="archive_list.php"><img src="../../images/documents.svg" style="width: 2.225rem; height: 2.225rem;">Research </a></li>
+                    <li><a href="research-papers.php"><img src="../../images/documents.svg" style="width: 2.225rem; height: 2.225rem;">Research </a></li>
                 <?php endif; ?>
 
                 <?php if (hasPermission($permissions, 'student_list_view')): ?>
-                    <li><a href="student_list.php"><img src="../../images/students.svg" style="width: 2.225rem; height: 2.225rem;"><span>Student</span></a></li>
+                    <li><a href="students.php"><img src="../../images/students.svg" style="width: 2.225rem; height: 2.225rem;"><span>Student</span></a></li>
                 <?php endif; ?>
 
                 <?php if (hasPermission($permissions, 'department_view')): ?>
-                    <li><a href="department_list.php"><img src="../../images/department.svg" style="width: 2.225rem; height: 2.225rem;"><span>Department</span></a></li>
+                    <li><a href="departments.php"><img src="../../images/department.svg" style="width: 2.225rem; height: 2.225rem;"><span>Department</span></a></li>
                 <?php endif; ?>
 
                 <?php if (hasPermission($permissions, 'course_view')): ?>
-                    <li><a href="course_list.php"><img src="../../images/course.svg" style="width: 2.225rem; height: 2.225rem;"><span>Course</span></a></li>
+                    <li><a href="courses.php"><img src="../../images/course.svg" style="width: 2.225rem; height: 2.225rem;"><span>Course</span></a></li>
                 <?php endif; ?>
 
                 <?php if (hasPermission($permissions, 'user_view')): ?>
-                    <li><a href="admin_list.php"><img src="../../images/admin.svg" style="width: 2.225rem; height: 2.225rem;"><span>Admin</span></a></li>
+                    <li><a href="admins.php"><img src="../../images/admin.svg" style="width: 2.225rem; height: 2.225rem;"><span>Admin</span></a></li>
                 <?php endif; ?>
 
                 <?php if (hasPermission($permissions, 'role_view')): ?>
-                    <li><a href="role_list.php"><img src="../../images/role.svg" style="width: 2.225rem; height: 2.225rem;"><span>Role</span></a></li>
+                    <li><a href="roles.php"><img src="../../images/role.svg" style="width: 2.225rem; height: 2.225rem;"><span>Role</span></a></li>
                 <?php endif; ?>
 
                 
@@ -158,7 +158,7 @@ $db = new Database();
                             <img class="logo-header" src="../images/logo2.webp" alt="">
                         </div>
                         <div class="logo-name">
-                            <p class="title-system">Repository</p>
+                            <p class="title-system">Imbakan ni Amang</p>
                         </div>
                     </div>
                 </a>
@@ -192,6 +192,7 @@ $db = new Database();
                             <div class="dropdown-content-body">
                                 <ul>
                                 <?php
+                                    
                                     $notifications = $db->adminsystemNOTIFICATION_Read_Unread($adminID);
                                     foreach ($notifications as $notification) {
                                 ?>
@@ -276,11 +277,9 @@ $db = new Database();
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
-        // Attach a click event handler to the bell icon
         $("#markASread").on("click", function() {
-            // Send an AJAX request to mark notifications as read
             $.ajax({
-                url: "mark_admin_notifications_as_read.php", // Replace with the correct URL
+                url: "mark_admin_notifications_as_read.php",
                 type: "POST",
                 dataType: "json",
                 success: function(response) {
@@ -291,8 +290,6 @@ $db = new Database();
                         $("#notification-badge").text(notificationCount);
                         $("#unreadTORead").text(notificationRead);
 
-                        // Update the UI or reload notifications here
-                        // You can update the notifications without reloading the page here
                     } else {
                         alert("Failed to mark notifications as read");
                     }

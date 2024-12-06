@@ -34,7 +34,7 @@ if(isset($_GET['adminID'])){
     $_SESSION['status'] = "Admin deleted";
     $_SESSION['status-code'] = "success";
 
-    header('location: admin_list.php');
+    header('location: admins.php');
     
     
 }

@@ -159,8 +159,11 @@ require_once 'templates/student_navbar.php';
             <section class="project-page-content row" >
                 <div class="col-sm-12 col-md-3">
                     <div class="advance-filter-search">
-                        <p class="font-black bold">Filter</p>
-                        <div class="mb-3">
+                        <div class="d-flex align-items-end justify-content-between">
+                            <p class="font-black bold m-0">Filter</p>
+                            <a href="#" class="clear-filter-button" onclick="clearFilter()">Clear</a>
+                        </div>
+                        <div class="mt-3 mb-3">
                             <label class="item-meta" for="research_date">Sort by</label>
                             <select id="research_date" name="research_date" class="form-control item-meta" required>
                                 <option value=""></option>
@@ -336,6 +339,10 @@ require_once 'templates/student_navbar.php';
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
 <script src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
 <script>
+
+    function clearFilter() {
+        window.location.href = 'all_project_list.php';
+    }
 
     window.onpopstate = function(event) {
         filteredData();

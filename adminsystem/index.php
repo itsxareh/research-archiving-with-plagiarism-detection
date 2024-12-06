@@ -26,22 +26,22 @@ if(isset($_SESSION['auth_user']['admin_id'])) {
       header("Location: dashboard.php");
       exit();
   } elseif(hasPermit($permissions, 'student_list_view')) {
-      header("Location: student_list.php");
+      header("Location: students.php");
       exit();
   } elseif(hasPermit($permissions, 'research_view')) {
       header("Location: all_project_list.php");
       exit();
   } elseif(hasPermit($permissions, 'department_view')) {
-    header("Location: department_list.php");
+    header("Location: departments.php");
     exit();
   } elseif(hasPermit($permissions, 'course_view')) {
-      header("Location: course_list.php");
+      header("Location: courses.php");
       exit();
   } elseif(hasPermit($permissions, 'role_view')) {
-      header("Location: role_list.php");
+      header("Location: roles.php");
       exit();
   } elseif(hasPermit($permissions, 'user_view')) {
-      header("Location: admin_list.php");
+      header("Location: admins.php");
       exit(); 
   } else {
       header('Location: ../../bad-request.php');

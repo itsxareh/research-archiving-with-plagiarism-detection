@@ -21,7 +21,7 @@ if(isset($_GET['departmentID'])){
     $_SESSION['status'] = "Department is now unactivated";
     $_SESSION['status-code'] = "success";
 
-    header('location: department_list.php');
+    header('location: departments.php');
     
     
 }
@@ -36,7 +36,7 @@ if(isset($_GET['departmentID_activate'])){
     $_SESSION['status'] = "Department is now ACTIVATED";
     $_SESSION['status-code'] = "success";
 
-    header('location: department_list.php');
+    header('location: departments.php');
     
     
 }

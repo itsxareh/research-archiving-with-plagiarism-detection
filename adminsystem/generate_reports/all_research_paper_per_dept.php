@@ -15,7 +15,7 @@ ob_start();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EARIST Repository - Research Paper/<?php echo htmlspecialchars($departmentId != 0 ? $db->getDepartmentById($departmentId)['name'] : 'All Departments'); ?></title>
+    <title><?php echo htmlspecialchars($departmentId != 0 ? $db->getDepartmentById($departmentId)['name'] : 'All Departments'); ?> - Research Paper</title>
     <link rel="stylesheet" href="../../css/styles.css"/>
     <link rel="shortcut icon" href="../images/logo2.webp">
     <style>
@@ -117,7 +117,7 @@ ob_start();
                 </tr>
                 <tr>
                     <th style="width: 50%" class="text-center">No. of Published</th>
-                    <th style="width: 50%" class="text-center">No. of Not Published</th>
+                    <th style="width: 50%" class="text-center">No. of Rejected</th>
                 </tr>
             </thead>
             <tbody>
@@ -127,8 +127,8 @@ ob_start();
             ?>  
                 <tr>
                     <td><?php echo htmlspecialchars($student['name']); ?></td>
-                    <td class="text-center"><?php echo htmlspecialchars($student['accepted_count']); ?></td>
-                    <td class="text-center"><?php echo htmlspecialchars($student['not_accepted_count']); ?></td>
+                    <td class="text-center"><?php echo htmlspecialchars(isset($student['accepted_count']) ? $student['accepted_count'] : '0'); ?></td>
+                    <td class="text-center"><?php echo htmlspecialchars(isset($student['rejected_count']) ? $student['rejected_count'] : '0'); ?></td>
                 </tr>
             <?php 
                 }

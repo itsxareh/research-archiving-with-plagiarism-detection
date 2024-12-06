@@ -29,7 +29,7 @@ if (isset($_GET['studID'])) {
     $_SESSION['status'] = "Student blocked";
     $_SESSION['status-code'] = "success";
 
-    header('location: student_list.php');
+    header('location: students.php');
 }
 
 

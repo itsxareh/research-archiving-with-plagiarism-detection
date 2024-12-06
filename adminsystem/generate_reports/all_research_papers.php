@@ -1,19 +1,13 @@
 <?php 
 include '../../connection/config.php';
-$db = new Database();
-session_start();
-if($_SESSION['auth_user']['admin_id']==0){
-    header('Location:../../bad-request.php');
-    exit();
+include 'helper.php';
+
+
+if($departmentId != 0){
+    $student_list = $db->SELECT_ALL_ARCHIVE_RESEARCH_WHERE_DEPARTMENT_IS($departmentId);
+} else {
+    $student_list = $db->SELECT_ALL_ARCHIVE_RESEARCH();
 }
-//display all errors
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-date_default_timezone_set('Asia/Manila');
-$current_date_time = date('Y-m-d H:i:s A');
-
-$student_list = $db->SELECT_ALL_ARCHIVE_RESEARCH();
 ob_start();
 ?>
 <!DOCTYPE html>
@@ -21,7 +15,7 @@ ob_start();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EARIST Repository - Research Paper's List</title>
+    <title><?php echo htmlspecialchars($departmentId != 0 ? $db->getDepartmentById($departmentId)['name'] : 'All Departments'); ?> - Research Paper's List</title>
     <link rel="stylesheet" href="../../css/styles.css"/>
     <link rel="shortcut icon" href="../images/logo2.webp">
     <style>
@@ -106,7 +100,8 @@ ob_start();
 </head>
 <body>
     <div class="header">
-        <h1>EARIST Repository - Research Paper's List</h1>
+        <h1><?php echo htmlspecialchars($departmentId != 0 ? $db->getDepartmentById($departmentId)['name'] : 'All Departments'); ?></h1>
+        <h3>Research Paper's List</h3>
         <p>Generated on: <?php echo $current_date_time; ?></p>
     </div>
     
@@ -118,7 +113,7 @@ ob_start();
                     <th style="width: 30%;">Research title</th>
                     <th style="width: 10%;">Department</th>
                     <th style="width: 12%;">Course</th>
-                    <th style="width: 10%;">Plagiarized</th>
+                    <th style="width: 10%;">Plagiarism</th>
                     <th style="width: 12%;">Date uploaded</th>
                     <th style="width: 10%;" class="text-center">Status</th>
                 </tr>
@@ -130,13 +125,13 @@ ob_start();
                     $status_class = $student['document_status'] === 'Accepted' ? 'status-approved' : 'status-not-approved';
             ?>
                 <tr>
-                    <td class="text-center"><?php echo htmlspecialchars($student['aid']); ?></td>
-                    <td><?php echo htmlspecialchars($student['project_title']); ?></td>
-                    <td><?php echo htmlspecialchars($student['dept_code']); ?></td>
-                    <td><?php echo htmlspecialchars($student['course_name']); ?></td>
-                    <td class="text-center"><?php echo htmlspecialchars($student['plagiarism_percentage'] === NULL ? 'No' : 'Yes'); ?></td>
-                    <td><?php echo htmlspecialchars((new DateTime($student['dateOFSubmit']))->format("d M Y")); ?></td>
-                    <td class="text-center <?php echo $status_class; ?>"><?php echo htmlspecialchars($student['document_status']); ?></td>
+                    <td class="text-center"><?php echo htmlspecialchars(isset($student['aid']) ? $student['aid'] : 'N/A'); ?></td>
+                    <td><?php echo htmlspecialchars(isset($student['project_title']) ? $student['project_title'] : 'N/A'); ?></td>
+                    <td><?php echo htmlspecialchars(isset($student['dept_code']) ? $student['dept_code'] : 'N/A'); ?></td>
+                    <td><?php echo htmlspecialchars(isset($student['course_name']) ? $student['course_name'] : 'N/A'); ?></td>
+                    <td class="text-center"><?php echo htmlspecialchars(isset($student['plagiarism_percentage']) ? ($student['plagiarism_percentage'] === NULL ? 'No' : ($student['plagiarism_percentage'] > 100 ? '100%' : $student['plagiarism_percentage'].'%')) : 'N/A'); ?></td>
+                    <td><?php echo htmlspecialchars(isset($student['dateOFSubmit']) ? (new DateTime($student['dateOFSubmit']))->format("d M Y") : 'N/A'); ?></td>
+                    <td class="text-center <?php echo $status_class; ?>"><?php echo htmlspecialchars(isset($student['document_status']) ? $student['document_status'] : 'N/A'); ?></td>
                 </tr>
             <?php 
                 }

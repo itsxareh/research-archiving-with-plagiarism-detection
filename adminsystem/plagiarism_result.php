@@ -218,7 +218,7 @@ require_once 'templates/admin_navbar.php';
             if (!empty($plagiarism_result)) {
               foreach ($plagiarism_result as $plagiarism) {
                 $highlighted_result = highlightPlagiarizedWords($plagiarism['submitted_sentence'], $plagiarism['existing_sentence']);
-                echo '<p class="info-meta p-r-4" style="font-size: 12px; margin-bottom: 0; padding-top: 6px; font-weight: 400; color: #a33333; overflow-x: auto">'.$highlighted_result['existing'].'</p>';
+                echo '<p class="info-meta p-r-4" style="font-size: 12px; margin-bottom: 0; padding-top: 6px; font-weight: 400; color: #a33333; overflow-x: auto">'.$highlighted_result['submitted'].'</p>';
                 }
               }
             echo '</div>

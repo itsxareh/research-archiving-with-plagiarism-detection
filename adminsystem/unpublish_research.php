@@ -21,7 +21,7 @@ if(isset($_GET['archiveID'])){
     $_SESSION['status'] = "Research unpublish";
     $_SESSION['status-code'] = "success";
 
-    header('location: archive_list.php');
+    header('location: research-papers.php');
     
     
 }

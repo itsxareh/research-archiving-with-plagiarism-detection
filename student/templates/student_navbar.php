@@ -149,7 +149,7 @@ if (isset($_SESSION['auth_user']['student_id'])){
                                 <img class="logo-header" src="../images/logo2.webp" alt="">
                             </div>
                             <div class="logo-name">
-                                <p class="title-system">Archiver</p>
+                                <p class="title-system">Imbakan ni Amang</p>
                             </div>
                         </div>
                     </a>

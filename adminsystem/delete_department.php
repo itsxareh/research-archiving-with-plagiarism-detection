@@ -34,7 +34,7 @@ if(isset($_GET['departmentID'])){
     $_SESSION['status'] = "Department deleted";
     $_SESSION['status-code'] = "success";
 
-    header('location: department_list.php');
+    header('location: departments.php');
     
     
 }

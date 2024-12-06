@@ -41,6 +41,9 @@ if(hasPermission($permissions, 'user_logs')) {
         }
         $organized_logs[$date_key]['logs'][] = $modified_log;
     }
+    
+    // Sort by date (newest first)
+    krsort($organized_logs);
 }
 ?>
 

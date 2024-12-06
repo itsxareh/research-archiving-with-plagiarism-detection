@@ -47,7 +47,7 @@ foreach ($resp as $row) {
                 if ($row['document_status'] == "Accepted") {
                     echo '<span class="badge badge-success tag" style="font-size: 12px;">Published</span>';
                 } else {
-                        echo '<span class="badge badge-danger tag" style="font-size: 12px;">Not Published</span>';
+                        echo '<span class="badge badge-danger tag" style="font-size: 12px;">Rejected</span>';
 
                 }
             echo '</div>

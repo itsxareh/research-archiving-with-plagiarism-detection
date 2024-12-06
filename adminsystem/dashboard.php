@@ -9,7 +9,10 @@ ini_set('display_errors', 1);
 
 
 session_start();
-
+if(!isset($_SESSION['auth_user'])){
+    echo"<script>window.location.href='index.php'</script>";
+    exit(); 
+}
 $userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
 $departmentId = $userRole['department_id'];
 $permissions = explode(',', $userRole['permissions']);
@@ -176,9 +179,12 @@ require_once 'templates/admin_navbar.php';
                                             <img src="../adminsystem/images/publishing.png" alt="publish">
                                         </div>
                                         <?php 
-                                            
-                                            $published_percentage = ($row['count'] / $rows['count']) * 100;
-                                            echo '<p class="mb-0" style="font-size: 14px">'.round($published_percentage, 1).'%</p>';  
+                                            if($rows['count'] != 0){
+                                                $published_percentage = ($row['count'] / $rows['count']) * 100;
+                                                echo '<p class="mb-0" style="font-size: 14px">'.round($published_percentage, 1).'%</p>';  
+                                            }else{
+                                                echo '<p class="mb-0" style="font-size: 14px">0%</p>';
+                                            }
                                         ?>
                                     </div>
                                 </div>
@@ -212,22 +218,20 @@ require_once 'templates/admin_navbar.php';
                                         </div>
                                         <div class="card-text" style="white-space: nowrap; overflow-x: auto;">
                                         <?php
-                                        if($filterByDepartment){
-                                            $rows = $db->Archive_Research_BasedOn_Course_WHERE_DEPARTMENT($departmentId);
-                                        }else{
-                                            $rows = $db->Archive_Research_BasedOn_Department();
-                                        }
-                                            $data = json_encode($rows);
-                                            
-                                            if (is_array($rows) || is_object($rows)) {
+                                            if($filterByDepartment){
+                                                $rows = $db->Archive_Research_BasedOn_Course_WHERE_DEPARTMENT($departmentId);
+                                            }else{
+                                                $rows = $db->Archive_Research_BasedOn_Department();
+                                            }
+                                            if(count($rows) != 0){
                                                 foreach ($rows as $row) {
                                                     echo "<div class='b-row justify-content-between '>
-                                                            <p class='no-wrap b-text-ellipsis p-0' style='font-size: 12px; color: #666'>{$row['name']} ({$row['dept_code']})</p>
-                                                            <strong>{$row['count']}</strong>
+                                                            <p class='no-wrap b-text-ellipsis p-0' style='font-size: 12px; color: #666'>".(isset($row['name']) ? $row['name'] : '')." ".(isset($row['dept_code']) ? '('.$row['dept_code'].')' : '')."</p>
+                                                            <strong>".(isset($row['count']) ? $row['count'] : '')."</strong>
                                                         </div>";
                                                 }
                                             } else {
-                                                echo "<p>No data available.</p>";
+                                                echo "<p class='text-center' style='color: #666; font-size: 12px;'>No data available.</p>";
                                             }
                                         ?>
                                         </div>
@@ -281,7 +285,7 @@ require_once 'templates/admin_navbar.php';
                                         <?php if($filterByDepartment): ?>
                                             <h4 class="card-title mb-3">Research Views/Course</h4>
                                         <?php else: ?>
-                                            <h4 class="card-title mb-3">Research Views/All</h4>
+                                            <h4 class="card-title mb-3">Research Views/Department</h4>
                                         <?php endif; ?>
                                         <?php if (hasPermission($permissions, 'dashboard_download')): ?>
                                             <div class="action-container">
@@ -353,7 +357,7 @@ require_once 'templates/admin_navbar.php';
                                                         </li>';
                                                     }
                                                 } else {
-                                                    echo '<p class="text-center" style="color: #666; font-size: 12px;">No recent published research found.</p>';
+                                                    echo '<p class="text-center" style="color: #666; font-size: 12px;">No data available.</p>';
                                                 }
                                             ?>
                                             </ul>
@@ -443,7 +447,7 @@ require_once 'templates/admin_navbar.php';
                                                 ';
                                             }
                                         } else {
-                                                echo '<p class="text-center" style="color: #666; font-size: 12px;" >No plagiarized research content found.</p>';
+                                                echo '<p class="text-center" style="color: #666; font-size: 12px;" >No data available.</p>';
 
                                         }
                                     ?>
@@ -476,6 +480,14 @@ require_once 'templates/admin_navbar.php';
                                     <?php endif; ?>
                                 </div>
                                 <div class="card-text" style="overflow-x: auto;">
+                                <?php
+                                    if($filterByDepartment){
+                                        $rows = $db->SELECT_TOP_RESEARCH_CONTRIBUTOR_WHERE_DEPARTMENT($departmentId);
+                                    }else{
+                                        $rows = $db->SELECT_TOP_RESEARCH_CONTRIBUTOR();
+                                    }
+                                    if(count($rows) != 0){
+                                ?>
                                 <table class="table list-table w-100">
                                     <thead>
                                         <tr>
@@ -486,32 +498,27 @@ require_once 'templates/admin_navbar.php';
                                     </thead>
                                     <tbody>
                                         <?php
-                                        if($filterByDepartment){
-                                            $rows = $db->SELECT_TOP_RESEARCH_CONTRIBUTOR_WHERE_DEPARTMENT($departmentId);
-                                        }else{
-                                            $rows = $db->SELECT_TOP_RESEARCH_CONTRIBUTOR();
-                                        }
-                                        $data = json_encode($rows);
-                                        
-                                        if (is_array($rows) || is_object($rows)) {
                                             foreach ($rows as $row) {
                                                 if ($row['first_name'] == '') {
                                                         $row['first_name'] = '-';
 
                                                 }
                                                 echo "<tr>
-                                                        <td class='list-td'>{$row['first_name']} {$row['middle_name']} {$row['last_name']}</td>
-                                                        <td class='list-td'><a href='view_profile.php?studID={$row['studID']}'> {$row['research_owner_email']}<i class='ti-arrow-top-right'></i></a></td>
-                                                        <td class='list-td'>{$row['count']}</td>
+                                                        <td class='list-td'>{$row['first_name']} {$row['middle_name']} {$row['last_name']}</td>";
+                                                if ($row['studID'] != ''){
+                                                    echo "<td class='list-td'><a href='view_profile.php?studID={$row['studID']}'> {$row['research_owner_email']}<i class='ti-arrow-top-right'></i></a></td>";
+                                                }else{
+                                                    echo "<td class='list-td'>{$row['research_owner_email']}</td>";
+                                                }
+                                                echo "<td class='list-td'>{$row['count']}</td>
                                                     </tr>";
                                             }
-                                        } else {
-                                            echo "<p class='text-center' style='color: #333; font-size: 14px; font-weight:700'>No data available.</p>";
-                                        }
-                                        
                                         ?>
                                     </tbody>
                                 </table>
+                                <?php }else{ ?>
+                                    <p class="text-center" style="color: #666; font-size: 12px;">No data available.</p>
+                                <?php } ?>
                                 </div>
                             </div>
                         </div>  
@@ -618,7 +625,11 @@ const departmentViewsData = <?php echo $data; ?>;
     } else {
         $rows = $db->SELECT_RESEARCH_PUBLISHED_PER_WEEK();
     }
-    $data = json_encode($rows);
+    if(count($rows) != 0){
+        $data = json_encode($rows);
+    }else{
+        $data = json_encode([]);
+    }
 ?>
     const dataFromPHP = <?php echo $data; ?>;
     const labels = dataFromPHP.map(item => item.date_published); 

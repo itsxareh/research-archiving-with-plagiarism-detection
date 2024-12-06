@@ -21,7 +21,7 @@ if(isset($_GET['courseID'])){
     $_SESSION['status'] = "Course is now unactivated";
     $_SESSION['status-code'] = "success";
 
-    header('location: course_list.php');
+    header('location: courses.php');
     
     
 }
@@ -36,7 +36,7 @@ if(isset($_GET['courseID_activate'])){
     $_SESSION['status'] = "Course is now ACTIVATED";
     $_SESSION['status-code'] = "success";
 
-    header('location: course_list.php');
+    header('location: courses.php');
     
     
 }

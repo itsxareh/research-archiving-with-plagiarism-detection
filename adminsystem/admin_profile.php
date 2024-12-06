@@ -138,10 +138,11 @@ require_once 'templates/admin_navbar.php';
                     <li><a class="menu-accountSecurity" href="admin_profile.php?menuTab=accountSecurity"><span>Security</span></a></li>
                     <li><a class="menu-accountActivityLogs" href="admin_profile.php?menuTab=accountActivityLogs"><span>Activity Log</span></a></li>
                     <?php 
+                      echo '<li><a class="menu-accountInbox" href="admin_profile.php?menuTab=accountInbox"><span>Inbox</span></a></li>';
                      if (hasPermission($permissions, 'user_logs')){
                       echo '<li><a class="menu-AdminActivityLogs" href="admin_profile.php?menuTab=AdminActivityLogs"><span>Admin Logs</span></a></li>';
                      }
-                     echo '<li><a class="menu-accountInbox" href="admin_profile.php?menuTab=accountInbox"><span>Inbox</span></a></li>';
+                     
                     ?>
                   </ul>
                 </div>

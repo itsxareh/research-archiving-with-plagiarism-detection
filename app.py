@@ -302,7 +302,7 @@ def upload_file():
         response = {
             'status': 'success',
             'department': department,
-            'document_status': 'Processing',  # Initial status
+            'document_status': 'Processing',
             'file_metrics': file_metrics,
             'archive_id': archive_id,
             'message': 'File uploaded successfully. Plagiarism check is running in the background.'
@@ -321,8 +321,7 @@ def plagiarism_check(new_archive_id, student_id, content, current_time):
     try:
         with get_db() as conn:
             cursor = conn.cursor()
-            
-            # Update status to show plagiarism check is in progress
+        
             cursor.execute("""
                 UPDATE archive_research 
                 SET document_status = 'Checking Plagiarism' 
@@ -337,13 +336,20 @@ def plagiarism_check(new_archive_id, student_id, content, current_time):
             plagiarism_results = {}
             if submissions:
                 matching_sentences = calculate_similarity(content, submissions)
+                
+                # Track unique matched sentences per document
+                doc_matches = {}
+                
                 for match in matching_sentences:
                     similar_id = match['similar_archive_id']
-
-                    cursor.execute("SELECT content FROM archive_research WHERE id = %s", (similar_id,))
-                    similar_content = cursor.fetchone()[0]
-                    total_sentences = len(split_into_sentences(similar_content))
-
+                    
+                    if similar_id not in doc_matches:
+                        doc_matches[similar_id] = set()
+                    
+                    # Add the matched sentence to track uniqueness
+                    match_key = (match['submitted_sentence'], match['existing_sentence'])
+                    doc_matches[similar_id].add(match_key)
+                    
                     cursor.execute("""
                         INSERT INTO plagiarism_results (
                             archive_id, similar_archive_id, submitted_sentence,
@@ -353,14 +359,21 @@ def plagiarism_check(new_archive_id, student_id, content, current_time):
                         new_archive_id, similar_id, match['submitted_sentence'],
                         match['existing_sentence'], match['similarity_percentage'], True
                     ))
-
+                    
                     if similar_id not in plagiarism_results:
+                        cursor.execute("SELECT content FROM archive_research WHERE id = %s", (similar_id,))
+                        similar_content = cursor.fetchone()[0]
+                        total_sentences = len(split_into_sentences(similar_content))
+                        
                         plagiarism_results[similar_id] = {
                             'matched_sentences': 0,
                             'total_similarity': 0,
                             'total_sentences': total_sentences
                         }
-                    plagiarism_results[similar_id]['matched_sentences'] += 1
+                    
+                    # Only increment matched_sentences once per unique match
+                    if len(doc_matches[similar_id]) > plagiarism_results[similar_id]['matched_sentences']:
+                        plagiarism_results[similar_id]['matched_sentences'] = len(doc_matches[similar_id])
                     plagiarism_results[similar_id]['total_similarity'] += match['similarity_percentage']
 
                 for similar_id, results in plagiarism_results.items():
@@ -386,7 +399,7 @@ def plagiarism_check(new_archive_id, student_id, content, current_time):
             
             result = cursor.fetchone()
             sum_of_percentage = result[1] if result else 0
-            document_status = "Accepted" if sum_of_percentage < 20 else "Not Accepted"
+            document_status = "Accepted" if sum_of_percentage <= 20 else "Rejected"
             date_publish = current_time.strftime('%Y-%m-%d') if document_status == "Accepted" else None
 
             cursor.execute("""
