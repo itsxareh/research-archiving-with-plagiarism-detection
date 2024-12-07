@@ -88,25 +88,25 @@ public function admin_update_verify_status($verified, $adminID) {
     $connection = $this->getConnection();
 
     $stmt = $connection->prepare("SELECT * FROM admin_account WHERE admin_email=? AND admin_password=? ");
-    $stmt->execute([$email, $password]);
+    $stmt->execute([$email, md5($password)]);
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $admin_id = $data['id'];
-        $admin_UNIQUEid = $data['uniqueID'];
-        $admin_email = $data['admin_email'];
-        $pword = $data['admin_password'];
-        $verifystatus = $data['verify_status'];
-        $admin_status = $data['admin_status'];
-        $role_id = $data['role_id'];
+    if (!$data) {
+      return json_encode(array('status_code' => 'info', 'status' => 'Incorrect Log In Details', 'alert' => 'Oppss...'));
     }
 
-    if ($pword == $password && $admin_status == 'Active') {
+    $admin_id = $data['id'];
+    $admin_UNIQUEid = $data['uniqueID'];
+    $admin_email = $data['admin_email']; 
+    $pword = $data['admin_password'];
+    $verifystatus = $data['verify_status'];
+    $admin_status = $data['admin_status'];
+    $role_id = $data['role_id'];
+
+    if ($pword == md5($password) && $admin_status == 'Active') {
       if ($verifystatus == 'Not Verified') {
-        // Handle account verification if needed
-        $_SESSION['alert'] = "Account Verification";
-        $_SESSION['status'] = "Verify your Account";
-        $_SESSION['status-code'] = "info";
-        header("location: ../adminsystem/admin_verify_account.php?id=$admin_id");
+        $_SESSION['email'] = $admin_email;
+        return json_encode(array('status_code' => 'info', 'status' => 'Please verify your account first', 'alert' => 'Account Verification', 'redirect' => 'admin_verify_account.php?id='.$admin_id));    
       } else {
         // Handle successful login
         date_default_timezone_set('Asia/Manila');
@@ -119,19 +119,11 @@ public function admin_update_verify_status($verified, $adminID) {
         if ($userRole) {
           $role_status = $userRole['role_status'];
         } else {
-          $_SESSION['alert'] = "Role Inactive";
-          $_SESSION['status'] = "Please contact the administrator for assistance.";
-          $_SESSION['status-code'] = "info";
-          header("location: ../adminsystem/index.php");
-          exit();
+          return json_encode(array('status_code' => 'info', 'status' => 'Please contact the administrator for assistance.', 'alert' => 'Role Inactive'));
         }
         
         if ($role_status != 'Active') {
-            $_SESSION['alert'] = "Role Inactive";
-            $_SESSION['status'] = "Please contact the administrator for assistance.";
-            $_SESSION['status-code'] = "info";
-            header("location: ../adminsystem/index.php");
-            exit();
+            return json_encode(array('status_code' => 'info', 'status' => 'Please contact the administrator for assistance.', 'alert' => 'Role Inactive'));
         }
         
         // Handle login by inserting logs and updating status
@@ -150,9 +142,7 @@ public function admin_update_verify_status($verified, $adminID) {
             'role_id' => $role_id
         ];
         
-        $_SESSION['alert'] = "Success";
-        $_SESSION['status'] = "Log In Success";
-        $_SESSION['status-code'] = "success";
+        return json_encode(array('status_code' => 'success', 'status' => 'Log in success', 'alert' => 'Success'));
         
         // Check permissions and redirect
         $permissions = explode(',', $userRole['permissions']);
@@ -190,21 +180,20 @@ public function admin_update_verify_status($verified, $adminID) {
         exit();
       }
     } elseif($admin_status == 'Inactive') {
-        $_SESSION['alert'] = "Oppss...";
-        $_SESSION['status'] = "Sorry, but your account is now inactive.";
-        $_SESSION['status-code'] = "info";
-        header("location: ../adminsystem/index.php");
-        exit();
+        return json_encode(array('status_code' => 'info', 'status' => 'Sorry, but your account is now inactive.', 'alert' => 'Oppss...'));
     } else {
-        // Handle incorrect login details
-        $_SESSION['alert'] = "Oppss...";
-        $_SESSION['status'] = "Incorrect Log In Details";
-        $_SESSION['status-code'] = "info";
-        header("location: ../adminsystem/index.php");
-        exit();
+        return json_encode(array('status_code' => 'info', 'status' => 'Incorrect Log In Details', 'alert' => 'Oppss...'));
     }
 }
+public function admin_profile_by_id($admin_id) {
+  $connection = $this->getConnection();
 
+  $stmt = $connection->prepare("SELECT * FROM admin_account WHERE id = ?");
+  $stmt->execute([$admin_id]);
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+}
 //------------------------------------------------------------------------------------------------------ADMIN LOGOUT_UPDATE TO OFFLINE
 public function updateADMIN_OFFLINE($online_offline_status, $admin_id) {
   $connection = $this->getConnection();
@@ -423,7 +412,16 @@ public function showDepartments_WHERE_ACTIVE(){
 
   return $result;
 }
+public function showDepartments_WHERE_ACTIVE_PER_DEPARTMENT($departmentId){
+  $connection = $this->getConnection();
+  $status = 'Active';
 
+  $stmt = $connection->prepare("SELECT * FROM departments WHERE department_status = ? AND id = ?");
+  $stmt->execute([$status, $departmentId]);
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $result;
+}
 
 public function insert_Archive_Research($randomNumber, $student_id, $department, $department_course, $project_title, $date, $year, $abstract, $owner_email, $project_members, $pdfPath){
   $connection = $this->getConnection();
@@ -661,6 +659,15 @@ public function INSERT_STUDENT_DOWNLOAD_LOGS($user_id, $archive_id, $date) {
     $sql->execute([$user_id, $logs, $date, $time]);
   }
 
+}
+
+public function SELECT_RESEARCH_OWNER_EMAIL($archiveID){
+  $connection = $this->getConnection();
+  $stmt = $connection->prepare("SELECT research_owner_email as email, students_data.id as studentID, archive_research.project_title as project_title FROM students_data LEFT JOIN archive_research ON research_owner_email = students_data.student_email WHERE archive_research.id = ?;");
+  $stmt->execute([$archiveID]);
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
 }
 public function SELECT_ALL_ARCHIVE_RESEARCH_WHERE_PUBLISH_FILTER_DEPARTMENT_FROM_DATE_PUBLISH_TO_DATE_PUBLISH($department, $from_date, $to_date){
   $connection = $this->getConnection();
@@ -1136,7 +1143,14 @@ public function SELECT_COUNT_ALL_ARCHIVE_RESEARCH_FROM_STUDENT($student_email){
   return $result;
 }
 
+public function check_if_archive_already_viewed($archive_research_id, $student_id){
+  $connection = $this->getConnection();
+  $stmt = $connection->prepare("SELECT COUNT(*) as count FROM archive_research_views WHERE archive_research_id = ? AND student_id = ?");
+  $stmt->execute([$archive_research_id, $student_id]);
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
+  return $result;
+}
 public function insert_Research_Views($archive_research_id, $student_id, $date){
   $connection = $this->getConnection();
   $sql = $connection->prepare("INSERT INTO archive_research_views(archive_research_id, student_id, date_of_views) VALUES (?, ?, ?)");
@@ -1309,7 +1323,6 @@ public function unpublish_research($archiveID){
   $connection = $this->getConnection();
   
   $date = '';
-
   $status = 'Rejected';
 
   $sql = $connection->prepare("UPDATE archive_research SET document_status = ?, date_published = ? WHERE id = ?");
@@ -1428,6 +1441,14 @@ public function SELECT_ALL_COURSES(){
   $connection = $this->getConnection();
   $stmt = $connection->prepare("SELECT *, course.id AS course_ID FROM course LEFT JOIN departments ON departments.id = course.department_id ");
   $stmt->execute();
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+public function SELECT_ALL_COURSES_PER_DEPARTMENT($departmentId) {
+  $connection = $this->getConnection();
+  $stmt = $connection->prepare("SELECT *, course.id AS course_ID FROM course LEFT JOIN departments ON departments.id = course.department_id WHERE departments.id = ?");
+  $stmt->execute([$departmentId]);
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   return $result;
@@ -1780,6 +1801,14 @@ public function student_forgot_account($email, $verification_code) {
   $stmt->execute([$verification_code, $email]);
 
 }
+public function admin_recover_code_with_email($email, $verification_code) {
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("UPDATE admin_account SET verification_code= ? WHERE admin_email=?");
+  $stmt->execute([$verification_code, $email]);
+
+}
+
 public function recover_code_with_email($email, $verification_code) {
   $connection = $this->getConnection();
 

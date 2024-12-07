@@ -11,8 +11,8 @@ ini_set('display_errors', 1);
 session_start();
 
 $userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
+$departmentId = $userRole['department_id'];
 $permissions = explode(',', $userRole['permissions']);
-
 // Helper function to check permissions
 function hasPermit($permissions, $permissionToCheck) {
     foreach ($permissions as $permission) {
@@ -31,6 +31,7 @@ if($_SESSION['auth_user']['admin_id']==0){
     exit(); 
 } else {
     $admin_id = $_SESSION['auth_user']['admin_id'];
+    $filterByDepartment = ($departmentId != 0);
 }
 
 
@@ -186,7 +187,11 @@ require_once 'templates/admin_navbar.php';
                                             <label for="" class="info-label m-l-4">Department</label>
                                             <select class="info-input" name="department" id="department" required>
                                             <?php 
-                                                $res = $db->showDepartments_WHERE_ACTIVE();
+                                                if ($filterByDepartment){
+                                                    $res = $db->showDepartments_WHERE_ACTIVE_PER_DEPARTMENT($departmentId);
+                                                } else {
+                                                    $res = $db->showDepartments_WHERE_ACTIVE();
+                                                }
 
                                                 foreach ($res as $item) {
                                                 echo '<option value="'.$item['id'].'">'.$item['name'].'</option>';
@@ -232,8 +237,11 @@ require_once 'templates/admin_navbar.php';
                         </thead>
                         <tbody>
                             <?php
-                            
-                            $data = $db->SELECT_ALL_COURSES();       
+                            if ($filterByDepartment){
+                                $data = $db->SELECT_ALL_COURSES_PER_DEPARTMENT($departmentId);       
+                            } else {
+                                $data = $db->SELECT_ALL_COURSES();       
+                            }
                             foreach ($data as $result) {
                             ?>
                             <tr>
@@ -306,7 +314,11 @@ require_once 'templates/admin_navbar.php';
                                                                 <label for="" class="info-label m-l-4">Department</label>
                                                                 <select class="info-input" name="department" id="department_<?= $result['course_ID'] ?>" required>
                                                                     <?php 
-                                                                        $res = $db->showDepartments_WHERE_ACTIVE();
+                                                                        if ($filterByDepartment){
+                                                                            $res = $db->showDepartments_WHERE_ACTIVE_PER_DEPARTMENT($departmentId);
+                                                                        } else {
+                                                                            $res = $db->showDepartments_WHERE_ACTIVE();
+                                                                        }
                                                                         foreach ($res as $item) {
                                                                             if ($item['id'] == $result['department_id']) {
                                                                                 echo "<option value='".$item['id']."' selected>".$item['name']."</option>";
@@ -354,9 +366,8 @@ require_once 'templates/admin_navbar.php';
                 </div>
             </div>
         </div>
+        <?php include 'templates/footer.php'; ?>
     </div>
-    <?php include 'templates/footer.php'; ?>
-</div>
 
 <script>
 new DataTable('#datatablesss');

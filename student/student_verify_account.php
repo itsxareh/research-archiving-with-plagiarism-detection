@@ -15,7 +15,7 @@ header("location:all_project_list.php");
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EARIST Repository</title>
+  <title>Verify Account | EARIST Repository</title>
   <link rel="shortcut icon" href="images/logo2.webp">
   <link rel="stylesheet" href="../css/login-sign-up.css">
   <link rel="stylesheet" href="../css/bootstrap.min.css">

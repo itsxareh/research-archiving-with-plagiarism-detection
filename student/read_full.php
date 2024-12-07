@@ -21,9 +21,11 @@ if(isset($_GET['archiveID'])){
 
       $archiveID = $_GET['archiveID'];
       $student_id = $_SESSION['auth_user']['student_id'];
-    
-    
-      $data = $db->insert_Research_Views($archiveID, $student_id, $date);
+
+      $sql = $db->check_if_archive_already_viewed($archiveID, $student_id);
+      if ($sql['count'] == 0){
+        $data = $db->insert_Research_Views($archiveID, $student_id, $date);
+      }
         
     }
 

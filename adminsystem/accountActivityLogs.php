@@ -10,16 +10,30 @@ if(hasPermission($permissions, 'user_logs')) {
     $activity = $db->admin_activity_log($student_id);
     
     // Organize logs by date
+    function isValidDateFormat($date) {
+        // Regular expression to match 'Month / Day Weekday / Year'
+        return preg_match('/^[A-Za-z]+ \/ \d{2} [A-Za-z]+ \/ \d{4}$/', $date);
+    }
+    
+    // Organize logs by date
     $organized_logs = [];
     foreach ($activity as $log) {
-        // Parse the date string to a standardized format
+        if (!isValidDateFormat($log['logs_date'])) {
+            continue;
+        }
+        
         $date_parts = explode(' / ', $log['logs_date']);
         $month = trim($date_parts[0]);
         $day = explode(' ', trim($date_parts[1]))[0];
         $year = trim($date_parts[2]);
         
-        // Create a standardized date key for sorting
         $date_key = sprintf('%s-%02d-%s', $year, date('m', strtotime($month)), $day);
+        
+        $modified_log = $log;
+        if ($log['admin_id'] != $student_id) {
+            $admin_name = $db->get_admin_name_by_id($log['admin_id']);
+            $modified_log['logs'] = str_replace('You', $admin_name, $log['logs']);
+        }
         
         if (!isset($organized_logs[$date_key])) {
             $organized_logs[$date_key] = [
@@ -27,7 +41,7 @@ if(hasPermission($permissions, 'user_logs')) {
                 'logs' => []
             ];
         }
-        $organized_logs[$date_key]['logs'][] = $log;
+        $organized_logs[$date_key]['logs'][] = $modified_log;
     }
     
     // Sort by date (newest first)

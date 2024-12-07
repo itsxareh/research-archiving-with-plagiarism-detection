@@ -1,6 +1,31 @@
 <?php 
 include '../../connection/config.php';
-include 'helper.php';
+$db = new Database();
+session_start();
+date_default_timezone_set('Asia/Manila');
+$current_date_time = date('Y-m-d H:i:s A');
+
+function hasPermit($permissions, $permissionToCheck) {
+    foreach ($permissions as $permission) {
+        if (strpos($permission, $permissionToCheck) === 0) {
+            return true;
+        }
+    }
+    return false;
+}
+$userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
+$departmentId = $userRole['department_id'];
+$permissions = explode(',', $userRole['permissions']);
+if (!hasPermit($permissions, 'research_view')) {
+    header('Location:../../bad-request.php');
+    exit();
+} elseif ($_SESSION['auth_user']['admin_id']==0){
+    header('Location:../../bad-request.php');
+    exit();
+} else {
+    $admin_id = $_SESSION['auth_user']['admin_id'];
+    $filterByDepartment = ($departmentId != 0);
+}
 
 if ($filterByDepartment){
     $student_list = $db->SELECT_RESEARCH_PUBLISHED_PER_WEEK_BY_DEPARTMENT($departmentId);

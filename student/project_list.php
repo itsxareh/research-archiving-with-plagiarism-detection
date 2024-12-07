@@ -381,6 +381,12 @@ require_once 'templates/student_navbar.php';
 </div>
 
 <script>
+
+$('#fromYear, #toYear').on('change', function() {
+    if ($('#fromYear').val() > $('#toYear').val()) {
+        $('#toYear').val('');  
+    }
+});
 function confirmDelete(archiveID){
     swal({
         title: "Are you sure you want to delete?",
@@ -450,7 +456,18 @@ $('#search-result').on('click', '.item-abstract', function(event) {
 });
 
 function clearFilter() {
-    window.location.href = 'project_list.php';
+    $('#inputDepartment_search').val('');
+    $('#department_course').val('').html('<option value=""></option>'); 
+    $('#fromYear').val('');
+    $('#toYear').val('');
+    $('#research_date').val('');
+    $('#searchInput').val('');
+    
+    tagify.removeAllTags();
+    
+    filteredData();
+    
+    $('#data-result').hide();
 }
 
 const keywordsInput = document.getElementById('keywords');

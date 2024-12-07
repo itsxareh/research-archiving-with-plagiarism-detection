@@ -79,7 +79,7 @@ if(isset($_SESSION['auth_user']['admin_id'])) {
           </div>
           <div class="col-sm-12 col-md-6 col-xl-6">
             <div class="log-in-container">
-              <form class="form-container" action="../php/admin_loginCode.php" method="POST">
+              <form class="form-container" id="loginForm" method="POST">
                 <input type="hidden" name="redirect_to" value="<?= isset($_GET['redirect_to']) ? $_GET['redirect_to'] : '' ?>">
                 <h4>Login</h4>
                 <div class="row">
@@ -96,14 +96,13 @@ if(isset($_SESSION['auth_user']['admin_id'])) {
                       <label for="password">Password</label>
                       <input type="password" name="password" id="password" required>
                     </div>
-                    <!-- <a href="forgot_password.php" style="color: #666; font-size: 11px; text-align:end ">Forgot password</a>-->
                   </div> 
                 </div>
                 <div class="row mt-4">
                   <div class="col-xl-12 col-md-12 col-sm-12">
                     <div class="form-input">
                       <div class="flex justify-content-end">
-                        <button name="submit" type="submit" class="login-btn">Log in</button>
+                        <button name="submit" type="submit" class="login-btn" id="loginBtn">Log in</button>
                       </div>
                     </div>
                   </div>
@@ -116,6 +115,46 @@ if(isset($_SESSION['auth_user']['admin_id'])) {
     </div>
   </main>
 <script>
+$('#loginForm').on('submit', function(e) {
+  e.preventDefault();
+
+  const loginBtn = $('#loginBtn');
+  loginBtn.prop('disabled', true);  
+  
+  $.ajax({
+      url: '../php/admin_loginCode.php',
+      type: 'POST',
+      data: $(this).serialize(),
+      success: function(response) {
+          const data = JSON.parse(response);
+          console.log(data);
+          if (data.status_code === 'success') {
+            window.location.href = data.redirect;
+          } else if (data.status_code === 'info') {
+            if (data.redirect) {
+              swal({
+                title: data.alert,
+                text: data.status,
+                icon: data.status_code,
+              }, function(isConfirm) {
+                if (isConfirm) {
+                  window.location.href = data.redirect;
+                }
+              });
+            } else {
+              sweetAlert(data.alert, data.status, data.status_code);
+            }
+          } else {
+            loginBtn.prop('disabled', false);
+            sweetAlert(data.alert, data.status, data.status_code);
+          }
+      },
+      error: function() {
+          sweetAlert('Error', 'Something went wrong. Please try again.', 'error');
+          loginBtn.prop('disabled', false);
+      }
+  });
+});
     const searchInput = document.getElementById("searchInput");
     const searchButton = document.getElementById("search-btn");
 

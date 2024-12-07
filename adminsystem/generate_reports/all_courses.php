@@ -2,18 +2,36 @@
 include '../../connection/config.php';
 $db = new Database();
 session_start();
-if($_SESSION['auth_user']['admin_id']==0){
-    header('Location:../../bad-request.php');
-    exit();
-}
-//display all errors
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 date_default_timezone_set('Asia/Manila');
 $current_date_time = date('Y-m-d H:i:s A');
 
-$student_list = $db->SELECT_ALL_COURSES();    
+function hasPermit($permissions, $permissionToCheck) {
+    foreach ($permissions as $permission) {
+        if (strpos($permission, $permissionToCheck) === 0) {
+            return true;
+        }
+    }
+    return false;
+}
+$userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
+$departmentId = $userRole['department_id'];
+$permissions = explode(',', $userRole['permissions']);
+if (!hasPermit($permissions, 'course_view')) {
+    header('Location:../../bad-request.php');
+    exit();
+} elseif ($_SESSION['auth_user']['admin_id']==0){
+    header('Location:../../bad-request.php');
+    exit();
+} else {
+    $admin_id = $_SESSION['auth_user']['admin_id'];
+    $filterByDepartment = ($departmentId != 0);
+}
+if ($filterByDepartment){
+    $student_list = $db->SELECT_ALL_COURSES_PER_DEPARTMENT($departmentId);
+} else {
+    $student_list = $db->SELECT_ALL_COURSES();    
+}
+
 ob_start();
 ?>
 <!DOCTYPE html>
@@ -21,7 +39,7 @@ ob_start();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EARIST Repository - Course's List</title>
+    <title><?php echo htmlspecialchars($departmentId != 0 ? $db->getDepartmentById($departmentId)['name'] : 'All Departments'); ?> - Course's List</title>
     <link rel="stylesheet" href="../../css/styles.css"/>
     <link rel="shortcut icon" href="../images/logo2.webp">
     <style>
@@ -109,7 +127,8 @@ ob_start();
 </head>
 <body>
     <div class="header">
-        <h1>EARIST Repository - Course's List</h1>
+        <h1><?php echo htmlspecialchars($departmentId != 0 ? $db->getDepartmentById($departmentId)['name'] : 'All Departments'); ?></h1>
+        <h3>Courses</h3>
         <p>Generated on: <?php echo $current_date_time; ?></p>
     </div>
     

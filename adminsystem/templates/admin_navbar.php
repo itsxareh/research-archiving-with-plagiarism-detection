@@ -109,31 +109,31 @@ $db = new Database();
 
             <ul class="navbar" style="height: <?= hasPermission($permissions, 'role_view') ? '100%' : 'auto' ?>">
                 <?php if (hasPermission($permissions, 'dashboard_view')): ?>
-                    <li><a href="dashboard.php"><img src="../../images/home.svg" style="width: 2.225rem; height: 2.225rem;">Home</a></li>
+                    <li><a href="dashboard.php"><img src="../../images/home.svg" style="width: 1.825rem; height: 1.825rem;">Home</a></li>
                 <?php endif; ?>
                 
                 <?php if (hasPermission($permissions, 'research_view')): ?>
-                    <li><a href="research-papers.php"><img src="../../images/documents.svg" style="width: 2.225rem; height: 2.225rem;">Research </a></li>
+                    <li><a href="research-papers.php"><img src="../../images/documents.svg" style="width: 1.825rem; height: 1.825rem;">Research </a></li>
                 <?php endif; ?>
 
                 <?php if (hasPermission($permissions, 'student_list_view')): ?>
-                    <li><a href="students.php"><img src="../../images/students.svg" style="width: 2.225rem; height: 2.225rem;"><span>Student</span></a></li>
+                    <li><a href="students.php"><img src="../../images/students.svg" style="width: 1.825rem; height: 1.825rem;"><span>Student</span></a></li>
                 <?php endif; ?>
 
                 <?php if (hasPermission($permissions, 'department_view')): ?>
-                    <li><a href="departments.php"><img src="../../images/department.svg" style="width: 2.225rem; height: 2.225rem;"><span>Department</span></a></li>
+                    <li><a href="departments.php"><img src="../../images/department.svg" style="width: 1.825rem; height: 1.825rem;"><span>Department</span></a></li>
                 <?php endif; ?>
 
                 <?php if (hasPermission($permissions, 'course_view')): ?>
-                    <li><a href="courses.php"><img src="../../images/course.svg" style="width: 2.225rem; height: 2.225rem;"><span>Course</span></a></li>
+                    <li><a href="courses.php"><img src="../../images/course.svg" style="width: 1.825rem; height: 1.825rem;"><span>Course</span></a></li>
                 <?php endif; ?>
 
                 <?php if (hasPermission($permissions, 'user_view')): ?>
-                    <li><a href="admins.php"><img src="../../images/admin.svg" style="width: 2.225rem; height: 2.225rem;"><span>Admin</span></a></li>
+                    <li><a href="admins.php"><img src="../../images/admin.svg" style="width: 1.825rem; height: 1.825rem;"><span>Admin</span></a></li>
                 <?php endif; ?>
 
                 <?php if (hasPermission($permissions, 'role_view')): ?>
-                    <li><a href="roles.php"><img src="../../images/role.svg" style="width: 2.225rem; height: 2.225rem;"><span>Role</span></a></li>
+                    <li><a href="roles.php"><img src="../../images/role.svg" style="width: 1.825rem; height: 1.825rem;"><span>Role</span></a></li>
                 <?php endif; ?>
 
                 

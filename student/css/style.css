@@ -1072,7 +1072,7 @@ option {
   color: #ffffff;
 }
 .title-system {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 400;
   line-height: 24px;
   margin: 0 0 0 .475rem;
@@ -1090,8 +1090,8 @@ option {
   margin-left: 1rem;
 }
 .logo-img {
-  width: 45px;
-  height: 45px;
+  width: 36px;
+  height: 36px;
 }
 #viewImage {
   border-radius: .525rem;

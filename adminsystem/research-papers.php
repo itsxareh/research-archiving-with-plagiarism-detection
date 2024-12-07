@@ -344,9 +344,9 @@ require_once 'templates/admin_navbar.php';
                                                 <?php endif; ?>
                                                 <?php if (hasPermission($permissions, 'research_publish')): ?>
                                                     <?php if ($result['document_status'] === 'Accepted'): ?>
-                                                        <a href="unpublish_research.php?archiveID=<?= $result['archiveID'] ?>" class="dropdown-action-item">Unpublish</a>
+                                                        <a href="#" onclick="confirmUnpublish(<?= $result['archiveID'] ?>)" class="dropdown-action-item">Unpublish</a>
                                                     <?php elseif ($result['document_status'] === 'Rejected'): ?>
-                                                        <a href="publish_research.php?archiveID=<?= $result['archiveID'] ?>" class="dropdown-action-item">Publish</a>
+                                                        <a href="#" onclick="confirmPublish(<?= $result['archiveID'] ?>)" class="dropdown-action-item">Publish</a>
                                                     <?php endif; ?>
                                                 <?php endif; ?>
 
@@ -375,6 +375,105 @@ require_once 'templates/admin_navbar.php';
 <?php endif; ?>
 
 <script>
+function confirmPublish(archiveID){
+    event.preventDefault();
+    const button = event.target;
+    button.disabled = true;
+    button.style.opacity = '0.5';
+    button.style.cursor = 'not-allowed';
+    swal({
+        title: "Publish research paper?",
+        text: "Are you sure you want to publish this research paper?",
+        type: "warning",
+        confirmButtonText: "Confirm",
+        cancelButtonText: 'Cancel',
+        showCancelButton: true,
+    }, function(isConfirm) {
+        if (isConfirm) {
+            publishResearch(archiveID);
+        } else {
+            button.disabled = false;
+            button.style.opacity = '1';
+            button.style.cursor = 'pointer';
+        }
+    });
+}
+
+function publishResearch(archiveID){
+    fetch(`publish_research.php?archiveID=${archiveID}`)
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        const button = document.getElementById(`action-button_${archiveID}`);
+        button.disabled = false;
+        button.style.opacity = '1';
+        button.style.cursor = 'pointer';
+        if(data.status_code === 'success'){
+            location.reload();
+        } else {
+            swal({
+                title: data.alert,
+                text: data.status,
+                type: data.status_code,
+                confirmButtonText: 'Okay',
+            });
+        }
+    });
+}
+
+function confirmUnpublish(archiveID){
+    event.preventDefault();
+    const button = event.target;
+    button.disabled = true;
+    button.style.opacity = '0.5';
+    button.style.cursor = 'not-allowed';
+    swal({
+        title: "Unpublish research paper?",
+        text: "Are you sure you want to unpublish this research paper?",
+        type: "warning",
+        confirmButtonText: "Confirm",
+        cancelButtonText: 'Cancel',
+        showCancelButton: true,
+    }, function(isConfirm) {
+        if (isConfirm) {
+            unpublishResearch(archiveID);
+        } else {
+            button.disabled = false;
+            button.style.opacity = '1';
+            button.style.cursor = 'pointer';
+        }
+    });
+}
+
+function unpublishResearch(archiveID){
+    fetch(`unpublish_research.php?archiveID=${archiveID}`)
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        const button = document.getElementById(`action-button_${archiveID}`);
+        button.disabled = false;
+        button.style.opacity = '1';
+        button.style.cursor = 'pointer';
+        if(data.status_code == 'success'){
+            location.reload();
+        } else{
+            swal({
+                title: data.alert,
+                text: data.status,
+                type: data.status_code,
+                confirmButtonText: 'Okay',
+            });
+        }
+    })
+    .catch(error => {
+        swal({
+            title: 'Error',
+            text: 'An unexpected error occurred',
+            type: 'error',
+            confirmButtonText: 'Okay'
+        });
+    });
+}
 const keywordsInput = document.getElementById('keywords');
 const tagify = new Tagify(keywordsInput, {
     delimiters: ",",

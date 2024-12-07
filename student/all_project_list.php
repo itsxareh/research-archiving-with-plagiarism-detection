@@ -340,9 +340,26 @@ require_once 'templates/student_navbar.php';
 <script src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
 <script>
 
-    function clearFilter() {
-        window.location.href = 'all_project_list.php';
+$('#fromYear, #toYear').on('change', function() {
+    if ($('#fromYear').val() > $('#toYear').val()) {
+        $('#toYear').val('');  
     }
+});
+
+function clearFilter() {
+    $('#inputDepartment_search').val('');
+    $('#department_course').val('').html('<option value=""></option>'); 
+    $('#fromYear').val('');
+    $('#toYear').val('');
+    $('#research_date').val('');
+    $('#searchInput').val('');
+    
+    tagify.removeAllTags();
+    
+    filteredData();
+    
+    $('#data-result').hide();
+}
 
     window.onpopstate = function(event) {
         filteredData();

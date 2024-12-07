@@ -119,8 +119,8 @@ if (isset($_SESSION['auth_user']['student_id'])){
         <div class="nano">
             <div class="nano-content">
                 <ul class="navbar">
-                    <li><a href="project_list.php"><img src="../../images/archive.svg" style="width: 2.225rem; height: 2.225rem;">Archive</a></li>
-                    <li><a href="all_project_list.php"><img src="../../images/documents.svg" style="width: 2.225rem; height: 2.225rem;">Research</a></li>
+                    <li><a href="project_list.php"><img src="../../images/archive.svg" style="width: 1.825rem; height: 1.825rem;">Archive</a></li>
+                    <li><a href="all_project_list.php"><img src="../../images/documents.svg" style="width: 1.825rem; height: 1.825rem;">Research</a></li>
                 </ul>
             </div>
         </div>

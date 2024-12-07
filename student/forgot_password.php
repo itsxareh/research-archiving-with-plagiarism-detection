@@ -36,7 +36,9 @@ header("location:all_project_list.php");
       <div class="nav-side">
         <div class="search-bar m-r-16">
             <input id="searchInput" name="searchInput" type="text" class="form-control" placeholder="Search...">
-            <button class="search-btn" id="search-btn"><i class="ti-search"></i></button>
+            <button class="search-btn" id="search-btn" style="background-color: transparent">
+                <img style="width: 1.275rem; height: 1.275rem; " src="../../images/search.svg" alt="">
+            </button>
         </div>
         <div class="nav-signup">
             <a href="login.php" class="signup-btn">Log in</a>

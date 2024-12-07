@@ -918,7 +918,7 @@ input:checked + .slider:before {
   border-bottom-left-radius: 50rem;
 }
 .title-system {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 400;
   line-height: 24px;
   margin: 0 0 0 .475rem;
@@ -931,8 +931,8 @@ input:checked + .slider:before {
   margin-left: 1rem;
 }
 .logo-img {
-  width: 45px;
-  height: 45px;
+  width: 36px;
+  height: 36px;
 }
 .logo-header {
   width: 100%;
@@ -4162,9 +4162,9 @@ tbody tr td:last-child {
 }
 body {
   font-family: 'Poppins',  'Segoe UI','Roboto', sans-serif;
-  background: rgba(88, 115, 254, 0.04);
+  background: #fff;
   color: #868e96;
-  font-size: 14px;
+  font-size: 12px;
 }
 a,
 button {

@@ -309,6 +309,38 @@ if (hasPermission($permissions, 'role_view')):
                                                             </div>
                                                         </div> 
                                                     </div> 
+                                                    <div class="permission-group">
+                                                        <div class="permission-group-header">
+                                                            <input type="checkbox" name="permissions[]" value="course">
+                                                            <h6>Course Access</h6>
+                                                        </div>
+                                                        <div class="permission-group-items">
+                                                            <div class="permission-item">
+                                                                <input type="checkbox" name="permissions[]" value="course_view">
+                                                                <label>View Course</label>
+                                                            </div>
+                                                            <div class="permission-item">
+                                                                <input type="checkbox" name="permissions[]" value="course_add">
+                                                                <label>Add Course</label>
+                                                            </div>
+                                                            <div class="permission-item">
+                                                                <input type="checkbox" name="permissions[]" value="course_edit">
+                                                                <label>Edit Course</label>
+                                                            </div>
+                                                            <div class="permission-item">
+                                                                <input type="checkbox" name="permissions[]" value="course_delete">
+                                                                <label>Delete Course</label>
+                                                            </div>
+                                                            <div class="permission-item">
+                                                                <input type="checkbox" name="permissions[]" value="course_status">
+                                                                <label>Change Status</label>
+                                                            </div>
+                                                            <div class="permission-item">
+                                                                <input type="checkbox" name="permissions[]" value="course_download">
+                                                                <label>Download PDF</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -344,38 +376,6 @@ if (hasPermission($permissions, 'role_view')):
                                                             </div>
                                                             <div class="permission-item">
                                                                 <input type="checkbox" name="permissions[]" value="department_download">
-                                                                <label>Download PDF</label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="permission-group">
-                                                        <div class="permission-group-header">
-                                                            <input type="checkbox" name="permissions[]" value="course">
-                                                            <h6>Course Access</h6>
-                                                        </div>
-                                                        <div class="permission-group-items">
-                                                            <div class="permission-item">
-                                                                <input type="checkbox" name="permissions[]" value="course_view">
-                                                                <label>View Course</label>
-                                                            </div>
-                                                            <div class="permission-item">
-                                                                <input type="checkbox" name="permissions[]" value="course_add">
-                                                                <label>Add Course</label>
-                                                            </div>
-                                                            <div class="permission-item">
-                                                                <input type="checkbox" name="permissions[]" value="course_edit">
-                                                                <label>Edit Course</label>
-                                                            </div>
-                                                            <div class="permission-item">
-                                                                <input type="checkbox" name="permissions[]" value="course_delete">
-                                                                <label>Delete Course</label>
-                                                            </div>
-                                                            <div class="permission-item">
-                                                                <input type="checkbox" name="permissions[]" value="course_status">
-                                                                <label>Change Status</label>
-                                                            </div>
-                                                            <div class="permission-item">
-                                                                <input type="checkbox" name="permissions[]" value="course_download">
                                                                 <label>Download PDF</label>
                                                             </div>
                                                         </div>
@@ -678,6 +678,45 @@ if (hasPermission($permissions, 'role_view')):
                                                                             </div>
                                                                         </div> 
                                                                     </div> 
+                                                                    <div class="permission-group">
+                                                                        <div class="permission-group-header">
+                                                                            <input type="checkbox" name="permissions[]" value="course" 
+                                                                            <?= in_array('course', $existingPermissions) ? 'checked' : '' ?>>
+                                                                            <h6>Course Access</h6>
+                                                                        </div>
+                                                                        <div class="permission-group-items">
+                                                                            <div class="permission-item">
+                                                                                <input type="checkbox" name="permissions[]" value="course_view" 
+                                                                                <?= in_array('course_view', $existingPermissions) ? 'checked' : '' ?>>
+                                                                                <label>View Course</label>
+                                                                            </div>
+                                                                            <div class="permission-item">
+                                                                                <input type="checkbox" name="permissions[]" value="course_add" 
+                                                                                <?= in_array('course_add', $existingPermissions) ? 'checked' : '' ?>>
+                                                                                <label>Add Course</label>
+                                                                            </div>
+                                                                            <div class="permission-item">
+                                                                                <input type="checkbox" name="permissions[]" value="course_edit" 
+                                                                                <?= in_array('course_edit', $existingPermissions) ? 'checked' : '' ?>>
+                                                                                <label>Edit Course</label>
+                                                                            </div>
+                                                                            <div class="permission-item">
+                                                                                <input type="checkbox" name="permissions[]" value="course_delete" 
+                                                                                <?= in_array('course_delete', $existingPermissions) ? 'checked' : '' ?>>
+                                                                                <label>Delete Course</label>
+                                                                            </div>
+                                                                            <div class="permission-item">
+                                                                                <input type="checkbox" name="permissions[]" value="course_status" 
+                                                                                <?= in_array('course_status', $existingPermissions) ? 'checked' : '' ?>>
+                                                                                <label>Change Status</label>
+                                                                            </div>
+                                                                            <div class="permission-item">
+                                                                                <input type="checkbox" name="permissions[]" value="course_download" 
+                                                                                <?= in_array('course_download', $existingPermissions) ? 'checked' : '' ?>>
+                                                                                <label>Download PDF</label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -720,45 +759,6 @@ if (hasPermission($permissions, 'role_view')):
                                                                             <div class="permission-item">
                                                                                 <input type="checkbox" name="permissions[]" value="department_download" 
                                                                                 <?= in_array('department_download', $existingPermissions) ? 'checked' : '' ?>>
-                                                                                <label>Download PDF</label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="permission-group">
-                                                                        <div class="permission-group-header">
-                                                                            <input type="checkbox" name="permissions[]" value="course" 
-                                                                            <?= in_array('course', $existingPermissions) ? 'checked' : '' ?>>
-                                                                            <h6>Course Access</h6>
-                                                                        </div>
-                                                                        <div class="permission-group-items">
-                                                                            <div class="permission-item">
-                                                                                <input type="checkbox" name="permissions[]" value="course_view" 
-                                                                                <?= in_array('course_view', $existingPermissions) ? 'checked' : '' ?>>
-                                                                                <label>View Course</label>
-                                                                            </div>
-                                                                            <div class="permission-item">
-                                                                                <input type="checkbox" name="permissions[]" value="course_add" 
-                                                                                <?= in_array('course_add', $existingPermissions) ? 'checked' : '' ?>>
-                                                                                <label>Add Course</label>
-                                                                            </div>
-                                                                            <div class="permission-item">
-                                                                                <input type="checkbox" name="permissions[]" value="course_edit" 
-                                                                                <?= in_array('course_edit', $existingPermissions) ? 'checked' : '' ?>>
-                                                                                <label>Edit Course</label>
-                                                                            </div>
-                                                                            <div class="permission-item">
-                                                                                <input type="checkbox" name="permissions[]" value="course_delete" 
-                                                                                <?= in_array('course_delete', $existingPermissions) ? 'checked' : '' ?>>
-                                                                                <label>Delete Course</label>
-                                                                            </div>
-                                                                            <div class="permission-item">
-                                                                                <input type="checkbox" name="permissions[]" value="course_status" 
-                                                                                <?= in_array('course_status', $existingPermissions) ? 'checked' : '' ?>>
-                                                                                <label>Change Status</label>
-                                                                            </div>
-                                                                            <div class="permission-item">
-                                                                                <input type="checkbox" name="permissions[]" value="course_download" 
-                                                                                <?= in_array('course_download', $existingPermissions) ? 'checked' : '' ?>>
                                                                                 <label>Download PDF</label>
                                                                             </div>
                                                                         </div>
@@ -878,8 +878,7 @@ if (hasPermission($permissions, 'role_view')):
 <script>
 function initializeEditPermissions(roleId, existingPermissions) {
     const permissionArray = existingPermissions.split(',');
-    
-    // Check the appropriate boxes based on existing permissions
+
     permissionArray.forEach(permission => {
         const checkbox = document.querySelector(`#editRoleModal_${roleId} input[value="${permission}"]`);
         if (checkbox) {
@@ -887,8 +886,6 @@ function initializeEditPermissions(roleId, existingPermissions) {
         }
     });
     
-    // Initialize the same permission logic as in add mode
-    // (Copy the permission checkbox logic from your add form)
     
 }
 document.addEventListener('DOMContentLoaded', function() {
@@ -970,7 +967,7 @@ departmentSelect.addEventListener('change', function() {
             permissionsHelpText.textContent = 'Permissions will apply to all departments';
         } else {
             const departmentName = this.options[this.selectedIndex].text;
-            permissionsHelpText.textContent = `Dashboard, Research, Student List permissions will only apply to ${departmentName}`;
+            permissionsHelpText.textContent = `Dashboard, Research, Student, and Course List permissions will be applied to ${departmentName}`;
         }
     }
 });

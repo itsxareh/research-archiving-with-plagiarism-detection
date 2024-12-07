@@ -10,16 +10,30 @@ if(isset($_SESSION['auth_user']['student_id'])) {
     $activity = $db->student_activity_log($student_id);
     
     // Organize logs by date
+    function isValidDateFormat($date) {
+        // Regular expression to match 'Month / Day Weekday / Year'
+        return preg_match('/^[A-Za-z]+ \/ \d{2} [A-Za-z]+ \/ \d{4}$/', $date);
+    }
+    
+    // Organize logs by date
     $organized_logs = [];
     foreach ($activity as $log) {
-        // Parse the date string to a standardized format
+        if (!isValidDateFormat($log['logs_date'])) {
+            continue;
+        }
+        
         $date_parts = explode(' / ', $log['logs_date']);
         $month = trim($date_parts[0]);
         $day = explode(' ', trim($date_parts[1]))[0];
         $year = trim($date_parts[2]);
         
-        // Create a standardized date key for sorting
         $date_key = sprintf('%s-%02d-%s', $year, date('m', strtotime($month)), $day);
+        
+        $modified_log = $log;
+        if ($log['student_id'] != $student_id) {
+            $student_name = $db->get_student_name_by_id($log['student_id']);
+            $modified_log['logs'] = str_replace('You', $student_name, $log['logs']);
+        }
         
         if (!isset($organized_logs[$date_key])) {
             $organized_logs[$date_key] = [
@@ -27,9 +41,8 @@ if(isset($_SESSION['auth_user']['student_id'])) {
                 'logs' => []
             ];
         }
-        $organized_logs[$date_key]['logs'][] = $log;
+        $organized_logs[$date_key]['logs'][] = $modified_log;
     }
-    
     // Sort by date (newest first)
     krsort($organized_logs);
 }
