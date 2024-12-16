@@ -10,39 +10,45 @@ session_start();
 
 if(ISSET($_POST['verify'])){
     $otp_num = $_POST['verification_number'];
-    $admin_id = $_POST['admin_id'];
+    $email = isset($_POST['email']) ? $_POST['email'] : $_SESSION['email'];
     $verified = 'Verified';
-    $user = $db->admin_profile_by_id($admin_id);
-    if ($user) {
+    // $user NO VALUE 
+    $user = $db->admin_profile_by_email($email);
+    if (count($user) > 0) {
         $admin_UNIQUEid = $user['uniqueID'];
         $admin_email = $user['admin_email']; 
         $pword = $user['admin_password'];
         $verifystatus = $user['verify_status'];
         $admin_status = $user['admin_status'];
         $role_id = $user['role_id'];
+        $admin_id = $user['id'];
     } else {
         $_SESSION['alert'] = "Error!";
         $_SESSION['status'] = "Please contact the administrator for assistance.";
         $_SESSION['status-code'] = "error"; 
+        header("location: ../adminsystem/admin_verify_account.php?id=$admin_id");
         exit();
     }
-    if($user["verification_code"]==$otp_num){
+    print_r($user);
+    if($user['verification_code']==$otp_num){
         $stmt = $db->admin_update_verify_status($verified, $admin_id);
 
         $userRole = $db->getRoleById($user['role_id']);
-        if ($userRole) {
+        if (count($userRole) > 0) {
             $role_status = $userRole['role_status'];
         } else {
-            $_SESSION['alert'] = "Error!";
+            $_SESSION['alert'] = "Role Not Found!";
             $_SESSION['status'] = "Please contact the administrator for assistance.";
             $_SESSION['status-code'] = "error"; 
+            header("location: ../adminsystem/admin_verify_account.php?id=$admin_id");
             exit();
         }
 
         if ($role_status != 'Active') {
-            $_SESSION['alert'] = "Error!";
+            $_SESSION['alert'] = "Role Inactive";
             $_SESSION['status'] = "Please contact the administrator for assistance.";
             $_SESSION['status-code'] = "error"; 
+            header("location: ../adminsystem/admin_verify_account.php?id=$admin_id");
             exit();
         }
         date_default_timezone_set('Asia/Manila');
@@ -101,6 +107,7 @@ if(ISSET($_POST['verify'])){
         $_SESSION['status'] = "Invalid Verification Code";
         $_SESSION['status-code'] = "error"; 
         header("location: ../adminsystem/admin_verify_account.php?id=$admin_id");
+        exit();
     }
 }
 

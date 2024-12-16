@@ -113,6 +113,7 @@ $('#loginForm').on('submit', function(e) {
         data: $(this).serialize(),
         success: function(response) {
             const data = JSON.parse(response);
+            console.log(data);
             if (data.status_code === 'success') {
               window.location.href = data.redirect;
             } else if (data.status_code === 'info') {
@@ -127,6 +128,7 @@ $('#loginForm').on('submit', function(e) {
                   }
                 });
               } else {
+                loginBtn.prop('disabled', false);
                 sweetAlert(data.alert, data.status, data.status_code);
               }
             } else {

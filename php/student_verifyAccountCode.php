@@ -18,10 +18,6 @@ if(ISSET($_POST['verify'])){
     if($user["verification_code"]==$otp_num){
         $stmt = $db->student_update_verify_status($verified, $student_id);
 
-        $_SESSION['alert'] = "Success!";
-        $_SESSION['status'] = "Your account is now verified.";
-        $_SESSION['status-code'] = "success"; 
-
         $_SESSION['auth'] = true;
         $_SESSION['auth_user'] = [
             'student_id' => $user['aid'],
@@ -31,9 +27,15 @@ if(ISSET($_POST['verify'])){
         ];
         if (isset($redirect_to) || !empty($redirect_to) || $redirect_to !== '') {
             $redirect_url = urldecode($redirect_to);
+            $_SESSION['alert'] = "Success!";
+            $_SESSION['status'] = "You can now read full text. Enjoy!";
+            $_SESSION['status-code'] = "success"; 
             header("location: $redirect_url");
         } 
         if (!isset($redirect_to) || empty($redirect_to)) {
+            $_SESSION['alert'] = "Success!";
+            $_SESSION['status'] = "Your account is now verified.";
+            $_SESSION['status-code'] = "success"; 
             header("location: ../student/all_project_list.php");
         }
     } else {

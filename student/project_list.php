@@ -133,8 +133,8 @@ require_once 'templates/student_navbar.php';
                                         </div>
                                     </div>
                                     <div class="item-detail">
-                                        <label for="" class="info-label m-l-4">Researchers</label>
-                                        <input type="text" class="info-input" name="project_members" required>
+                                        <label for="" class="info-label m-l-4">Collaborators (Email Address)</label>
+                                        <input type="text" class="info-input" id="project_members" name="project_members" required>
                                     </div>
                                     <div class="item-detail">
                                         <label for="" class="info-label m-l-4">Abstract</label>
@@ -146,7 +146,7 @@ require_once 'templates/student_navbar.php';
                                     </div>
                                     <div class="item-detail">
                                         <label for="" class="info-label m-l-4">Research Paper Softcopy (PDF)</label>
-                                        <input type="file" id="pdfFile" accept=".pdf" class="info-input-file" style="border:none" name="project_file" required>
+                                        <input type="file" id="pdfFile" accept=".pdf, .doc, .docx" class="info-input-file" style="border:none" name="project_file" required>
                                     </div>
                                 </div>
                             </div>
@@ -273,7 +273,7 @@ require_once 'templates/student_navbar.php';
                                     <h4><a href="view_project_research.php?archiveID=<?= $result['archive_id'] ?>"><?php echo ucwords($result['project_title']);?></a></h4>
                                 </div>
                                 <div class="item-content">
-                                    <p><?php echo $result['project_members'];?></p>
+                                    <p><?php echo implode(', ', array_map('trim', explode(',', $result['project_members'])));?></p>
                                 </div>
                                 <div class="item-meta">
                                     <p><?php echo $result['name'];?></p>
@@ -301,9 +301,11 @@ require_once 'templates/student_navbar.php';
                                     </div>
                                 </div>
                             </div>
+                            <?php if ($result['research_owner_email'] == $_SESSION['auth_user']['student_email']): ?>
                             <div class="project-action">
                                 <button  onclick="confirmDelete(<?= $result['archiveID'] ?>)" class="btn"><img style="width: 20px; height: 20px" src="images/svg/delete.svg" title="Delete Research"></img></a>            
                             </div>
+                            <?php endif; ?>
                         </li>
                         <?php
                             $i++;
@@ -470,6 +472,21 @@ function clearFilter() {
     $('#data-result').hide();
 }
 
+const emailInput = document.getElementById('project_members');
+const emailTagify = new Tagify(emailInput, {
+    pattern: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+    delimiters: ",",
+    maxTags: 5,
+    dropdown: {
+        enabled: 0
+    },
+    validate: function(tag) {
+        const email = tag.value;
+        const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return emailRegex.test(email);
+    }
+});
+
 const keywordsInput = document.getElementById('keywords');
 const tagify = new Tagify(keywordsInput, {
     delimiters: ",",
@@ -481,6 +498,7 @@ const tagify = new Tagify(keywordsInput, {
 
 function prepareKeywords() {
     document.getElementById('keywords').value = tagify.value.map(tag => tag.value).join(',');
+    document.getElementById('project_members').value = emailTagify.value.map(tag => tag.value).join(',');
 }
 
 const filterKeywordsInput = document.getElementById('filter-keywords');
@@ -529,7 +547,6 @@ form.addEventListener('submit', async function(e) {
     submitButton.textContent = 'Uploading...';
     
     const formData = new FormData(form);
-    
     try {
         const xhr = new XMLHttpRequest();
         xhr.open('POST', 'add_research.php', true);
@@ -561,6 +578,7 @@ form.addEventListener('submit', async function(e) {
                     // Short delay before showing result
                     setTimeout(() => {
                         const result = JSON.parse(xhr.responseText);
+                        console.log(result);
                         loadingOverlay.style.display = 'none';
                         if (result.status === 'success') {
                             updateResearchList(result);
@@ -686,8 +704,9 @@ function updateResearchList(result) {
             return false;
         }
         
-        if (fileInput.files[0].type !== 'application/pdf') {
-            alert('Please upload a PDF file');
+        const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        if (!validTypes.includes(fileInput.files[0].type)) {
+            alert('Please upload a PDF, DOC, or DOCX file');
             return false;
         }
         
@@ -711,7 +730,8 @@ function updateResearchList(result) {
     document.getElementById('pdfFile').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
-            if (file.type !== 'application/pdf') {
+            const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            if (!validTypes.includes(file.type)) {
                 swal({
                     title: 'Invalid File Type',
                     text: 'Only PDF files are allowed.',

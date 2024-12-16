@@ -14,6 +14,25 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from datetime import datetime
 from threading import Thread
+import pytesseract
+#https://github.com/oschwartz10612/poppler-windows/releases/
+#https://github.com/UB-Mannheim/tesseract/wiki
+#https://github.com/tesseract-ocr/tessdata
+if os.name == 'nt':  # for Windows
+    POPPLER_PATH = r"C:\Program Files\poppler-24.08.0\Library\bin"
+    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+try:
+    print(f"Tesseract Version: {pytesseract.get_tesseract_version()}")
+    print(f"Available languages: {pytesseract.get_languages()}")
+except Exception as e:
+    print(f"Tesseract Error: {str(e)}")
+    print("Please ensure Tesseract is properly installed and the path is correct.")
+
+from PIL import Image, ImageEnhance
+from pdf2image import convert_from_path
+import cv2
+import io
+import fitz 
 import pytz
 import numpy as np
 import string
@@ -34,7 +53,6 @@ def get_db():
             database='research_repository' 
         )
         if conn.is_connected():
-            print ("Connected to MySQL")
             return conn
     except Error as e:
         print(f"Error connecting to MySQL: {e}")
@@ -89,6 +107,158 @@ def init_db():
         
         conn.commit()
 
+SUPPORTED_LANGUAGES = {
+    'eng': 'English',
+    'fil': 'Filipino/Tagalog',
+    'ceb': 'Cebuano',
+    'ilo': 'Ilocano',
+    'hil': 'Hiligaynon',
+    'bik': 'Bikol',
+    'war': 'Waray',
+    'pam': 'Kapampangan',
+    'pan': 'Pangasinan'
+}
+
+def detect_language(text):
+    """
+    Attempt to detect the language of the text to choose appropriate OCR language
+    This is a simple implementation - you might want to use a more sophisticated
+    language detection library for production
+    """
+    # Common Filipino words/markers
+    filipino_markers = [
+        'ng', 'mga', 'na', 'sa', 'ang', 'ay', 'at', 'po', 'ko', 'ka',
+        'namin', 'natin', 'kami', 'tayo', 'siya', 'niya', 'nila', 'ninyo',
+        'ako', 'bakit', 'ano', 'saan', 'paano', 'kailan'
+    ]
+    
+    text_lower = text.lower()
+    filipino_word_count = sum(1 for word in filipino_markers if word in text_lower.split())
+    
+    # If text contains significant Filipino markers, include Filipino in OCR
+    if filipino_word_count > 2:
+        return ['eng', 'fil']  # Include both English and Filipino
+    return ['eng']  # Default to English
+
+def preprocess_image(image):
+    try:
+        # Create a directory for saving preprocessing steps
+        os.makedirs('preprocessing_steps', exist_ok=True)
+        
+        # Convert PIL Image to OpenCV format if necessary
+        if isinstance(image, Image.Image):
+            image_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+        else:
+            image_cv = image
+
+        # Step 1: Convert to grayscale
+        gray = cv2.cvtColor(image_cv, cv2.COLOR_BGR2GRAY)
+        cv2.imwrite('preprocessing_steps/1_grayscale.png', gray)
+
+        # Step 2: Apply CLAHE for contrast enhancement
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        contrast_enhanced = clahe.apply(gray)
+        cv2.imwrite('preprocessing_steps/2_clahe.png', contrast_enhanced)
+
+        # Step 3: Increase image size
+        scale_factor = 2.5
+        enlarged = cv2.resize(contrast_enhanced, None, fx=scale_factor, fy=scale_factor, interpolation=cv2.INTER_CUBIC)
+        cv2.imwrite('preprocessing_steps/3_enlarged.png', enlarged)
+
+        # Step 4: Apply Gaussian blur and sharpening
+        blurred = cv2.GaussianBlur(enlarged, (5, 5), 0)
+        sharpened = cv2.addWeighted(enlarged, 1.5, blurred, -0.5, 0)
+        cv2.imwrite('preprocessing_steps/4_sharpened.png', sharpened)
+
+        # Step 5: Apply adaptive thresholding
+        binary = cv2.adaptiveThreshold(
+            sharpened,
+            255,
+            cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+            cv2.THRESH_BINARY,
+            15, 10
+        )
+        cv2.imwrite('preprocessing_steps/5_adaptive_threshold.png', binary)
+
+        # Step 6: Denoise
+        denoised = cv2.fastNlMeansDenoising(binary, None, 30, 7, 21)
+        cv2.imwrite('preprocessing_steps/6_denoised.png', denoised)
+
+        # Step 7: Convert back to PIL Image
+        enhanced_image = Image.fromarray(denoised)
+        cv2.imwrite('preprocessing_steps/7_final_output.png', denoised)
+        
+        return enhanced_image
+
+    except Exception as e:
+        print(f"Image preprocessing error: {str(e)}")
+        return image
+
+def extract_text_from_image(image, default_languages=['eng', 'fil']):
+    try:
+        # Preprocess the image
+        processed_image = preprocess_image(image)
+        
+        # Get initial OCR text
+        custom_config = r'--oem 3 --psm 6 --dpi 300'
+        text = pytesseract.image_to_string(
+            processed_image,
+            lang='+'.join(default_languages),
+            config=custom_config
+        )
+        
+        # Step 1: Initial cleanup
+        text = text.strip()
+        
+        # Step 2: Fix common OCR errors
+        common_fixes = {
+            'In strument': 'Instrument',
+            'In sights': 'Insights',
+            'In terface': 'Interface',
+            'In volved': 'Involved',
+            'schedulIn g': 'scheduling',
+            'solicitIn g': 'soliciting',
+            'ComputIn g': 'Computing',
+            'SamplIn g': 'Sampling',
+            'samplIn g': 'sampling',
+            'In cludes': 'Includes',
+            'In tentionally': 'Intentionally',
+            'In dividuals': 'Individuals',
+            'In sightful': 'Insightful',
+            'In formation': 'Information',
+            'poIn t': 'point',
+            'gaThe r': 'gather',
+            'auTo mated': 'automated'
+        }
+        common_fixes = [(re.compile(r'\b' + k + r'\b'), v) for k, v in common_fixes.items()]
+
+        for pattern, replacement in common_fixes:
+            text = pattern.sub(replacement, text)
+        
+        # Step 3: Fix word spacing
+        # Add space after period if missing
+        text = re.sub(r'\.(?=[A-Z])', '. ', text)
+        
+        # Fix spacing around punctuation
+        text = re.sub(r'\s*([,.])\s*', r'\1 ', text)
+        
+        # Remove multiple spaces
+        text = re.sub(r'\s+', ' ', text)
+        
+        # Step 4: Fix capitalization
+        text = re.sub(r'(?<=\. )([a-z])', lambda m: m.group(1).upper(), text)
+        
+        # Step 5: Final cleanup
+        text = text.strip()
+        
+        confidence = min(1.0, len(text) / 100) if text else 0.0
+
+        return text, confidence
+        
+    except Exception as e:
+        print(f"OCR Error: {str(e)}")
+        return "", 0
+
 def get_file_metrics(file_path, file_type):
     """Calculate file metrics including size, page count, word count, and character count"""
     metrics = {
@@ -99,19 +269,61 @@ def get_file_metrics(file_path, file_type):
     }
     
     content = ""
+    
+    # Default languages including Filipino
+    default_languages = ['eng', 'fil']
+    
     if file_type == 'application/pdf':
-        reader = PdfReader(file_path)
-        metrics['page_count'] = len(reader.pages)
-        for page in reader.pages:
-            page_text = page.extract_text()
+        pdf_document = fitz.open(file_path)
+        metrics['page_count'] = len(pdf_document)
+        all_texts = []
+        all_scores = []
+        
+        for page_num in range(len(pdf_document)):
+            page = pdf_document[page_num]
+            
+            # Extract text directly from PDF
+            page_text = page.get_text()
             content += page_text
             
-    elif file_type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+            detected_langs = detect_language(page_text)
+            
+            # Only process images embedded in the PDF
+            image_list = page.get_images()
+            for img_index, img in enumerate(image_list):
+                try:
+                    xref = img[0]
+                    base_image = pdf_document.extract_image(xref)
+                    image_bytes = base_image["image"]
+                    image = Image.open(io.BytesIO(image_bytes))
+                    text, score = extract_text_from_image(image, detected_langs)
+                    if text.strip():
+                        content += f"\n{text}\n"
+                except Exception as e:
+                    print(f"Error processing PDF embedded image {img_index} on page {page_num}: {str(e)}")
+
+        pdf_document.close()
+            
+    elif file_type in ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword']:
         doc = Document(file_path)
         metrics['page_count'] = len(doc.paragraphs) // 40  # Approximate pages
+        
         for para in doc.paragraphs:
             content += para.text + "\n"
-            
+        
+        # Extract images from Word document
+        for rel in doc.part.rels.values():
+            if "image" in rel.target_ref:
+                try:
+                    image_data = rel.target_part.blob
+                    image = Image.open(io.BytesIO(image_data))
+                    # Unpack the tuple returned by extract_text_from_image
+                    image_text, score = extract_text_from_image(image, default_languages)
+                    if image_text and image_text.strip():
+                        content += f"\n{image_text}\n"
+                except Exception as e:
+                    print(f"Error processing image in Word document: {str(e)}")
+    
     else:  # For text files
         with open(file_path, 'r') as file:
             content = file.read()
@@ -178,7 +390,7 @@ def split_into_sentences(text):
         word_count = len([w for w in sentence.split() if re.match(r'[a-zA-Z]{2,}', w)])
         
         # Filter sentences based on word count and other criteria
-        if (7 <= word_count <= 50 and  # Word count between 7 and 50
+        if (7 <= word_count <= 70 and  # Word count between 7 and 50
             len(sentence) >= 40 and     # Minimum character length
             not re.match(r'^[^a-zA-Z]*$', sentence) and  # Contains letters
             not re.match(r'^(table|figure|fig)', sentence.lower())):  # Not a table/figure reference
@@ -261,12 +473,11 @@ def upload_file():
         upload_folder = os.path.join(os.getcwd(), 'pdf_files')
         os.makedirs(upload_folder, exist_ok=True)
         file_path = os.path.join(upload_folder, file.filename)
-
         # File metrics and content
         file_metrics, content = get_file_metrics(file_path, file.content_type)
         if not content:
             return jsonify({'status': 'error', 'message': "Failed to extract content from file"}), 400
-
+        print(content)
         # Save the uploaded file details in the database
         manila_tz = pytz.timezone('Asia/Manila')
         current_time = datetime.now(manila_tz)

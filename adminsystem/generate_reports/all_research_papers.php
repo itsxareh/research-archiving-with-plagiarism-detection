@@ -154,7 +154,7 @@ ob_start();
                     <td><?php echo htmlspecialchars(isset($student['project_title']) ? $student['project_title'] : 'N/A'); ?></td>
                     <td><?php echo htmlspecialchars(isset($student['dept_code']) ? $student['dept_code'] : 'N/A'); ?></td>
                     <td><?php echo htmlspecialchars(isset($student['course_name']) ? $student['course_name'] : 'N/A'); ?></td>
-                    <td class="text-center"><?php echo htmlspecialchars(isset($student['plagiarism_percentage']) ? ($student['plagiarism_percentage'] === NULL ? 'No' : ($student['plagiarism_percentage'] > 100 ? '100%' : $student['plagiarism_percentage'].'%')) : 'N/A'); ?></td>
+                    <td class="text-center"><?php echo htmlspecialchars(isset($student['plagiarism_percentage']) ? ($student['plagiarism_percentage'] === NULL ? 'No' : ($student['plagiarism_percentage'] > 100 ? '100%' : round($student['plagiarism_percentage'], 2).'%')) : 'N/A'); ?></td>
                     <td><?php echo htmlspecialchars(isset($student['dateOFSubmit']) ? (new DateTime($student['dateOFSubmit']))->format("d M Y") : 'N/A'); ?></td>
                     <td class="text-center <?php echo $status_class; ?>"><?php echo htmlspecialchars(isset($student['document_status']) ? $student['document_status'] : 'N/A'); ?></td>
                 </tr>

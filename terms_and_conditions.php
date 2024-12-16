@@ -19,5 +19,5 @@
     <p>We reserve the right to modify these terms at any time. Any changes will be effective immediately upon posting on the service. Your continued use of the service after any such changes constitutes your acceptance of the new terms.</p>
     
     <h6>7. Contact Us</h6>
-    <p>If you have any questions about these terms, please contact us at support@researcharchiver.com.</p>
+    <p>If you have any questions about these terms, please contact us at support@earistmnlrepository.com.</p>
 </div>

@@ -104,7 +104,7 @@ require_once 'templates/admin_navbar.php';
     <div class="col-md-8">
         <div class="short-info">
             <p><strong style="font-size: 20px; color:#313131"><?php echo ucwords($data['project_title']); ?> </strong><br></p>
-            <p class="detail-font"><?php echo $data['project_members']; ?></p>
+            <p class="detail-font">Collab: <?php echo implode(', ', array_map('trim', explode(',', $data['project_members']))); ?></p>
             <?php if (!empty($data['date_published'])) {
               $first_published = DateTime::createFromFormat("Y-m-d", $data['date_published'])->format("d F Y");
               echo '<p class="detail-font">Published: '.$first_published.' | Archive ID: '. $data['archive_id'] .'<span class="float-right"><i class="ti-eye m-r-4 "></i>'.$data['view_count'].'</span></p>'; }
@@ -114,7 +114,26 @@ require_once 'templates/admin_navbar.php';
             ?>
         </div>
       <div class="form-group" style="padding-top: 1rem;">
-        <iframe src="<?php echo $data['documents']; ?>" width="100%" height="900px" allowfullscreen></iframe>
+      <?php
+        $fileExtension = strtolower(pathinfo($data['documents'], PATHINFO_EXTENSION));
+        
+        if ($fileExtension === 'pdf') {
+            // Display PDF directly in iframe
+            ?>
+            <iframe src="<?php echo $data['documents']; ?>" width="100%" height="900px" allowfullscreen></iframe>
+            <?php
+        } else if ($fileExtension === 'doc' || $fileExtension === 'docx') {
+            // Use Google Docs Viewer for DOC/DOCX files
+            $encodedUrl = urlencode('https://' . $_SERVER['HTTP_HOST'] . '/' . $data['documents']);
+            ?>
+            <iframe src="https://docs.google.com/viewer?url=<?php echo $encodedUrl; ?>&embedded=true" 
+                    width="100%" 
+                    height="900px" 
+                    frameborder="0">
+            </iframe>
+            <?php
+        }
+        ?>
         <?php if (hasPermission($permissions, 'research_download')): ?>
           <div class="text-center">
             <a href="download_file.php?archiveID=<?= $archiveID ?>" class="download-pdf-button" download>Download PDF</a>

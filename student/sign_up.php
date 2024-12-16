@@ -105,6 +105,7 @@ header("location:all_project_list.php");
           <div class="col-sm-12 col-md-6 col-xl-6">
             <div class="sign-up-container">
               <form class="form-container" id="signUpForm" action="../php/student_registerCode.php" method="POST">
+              <input type="hidden" name="redirect_to" value="<?= isset($_GET['redirect_to']) ? $_GET['redirect_to'] : '' ?>">
                 <h4>Sign up now</h4>
                 <div class="row">
                   <div class="col-sm-12 col-md-4 col-xl-4">

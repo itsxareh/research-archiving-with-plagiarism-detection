@@ -2,18 +2,8 @@
 
 include '../connection/config.php';
 $db = new Database();
-//display all errors
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 
 session_start();
-// if($_SESSION['auth_user']['student_id']==0){
-//   echo"<script>window.location.href='login.php'</script>";
-  
-// }
-
-
 ?>
 
 
@@ -25,7 +15,7 @@ session_start();
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Student Info: EARIST Repository</title>
+    <title>Student Info | EARIST Repository</title>
 
     <!-- ================= Favicon ================== -->
     <!-- Standard -->

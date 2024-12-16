@@ -90,21 +90,22 @@ require_once 'templates/admin_navbar.php';
 <?php if(hasPermit($permissions, 'dashboard_view')): ?>
     <div class="content-wrap">
         <div class="main container-fluid">
-            <div class="col-md-12 title-page">
-                <div class="page-header">
-                    <div class="page-title">
-                        <h1>Hello, Admin</h1>
+        <div class="col-sm-12 col-md-12 col-xl-12 title-page">
+                    <div class="page-header">
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12 col-xl-12  flex justify-content-between align-items-center page-title">
+                                <h1 style="display: flex; ">Dashboard</h1>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <!-- /# row -->
             <section class="col-md-12 col-xl-12">
                 <div class="b-row">
                     <div class="col-md-12 col-xl-8">
                         <div class="card h-100">
                             <div class="card-body">
                                 <div class="flex justify-content-between">
-                                    <h4 class="card-title mb-3">Published Research/Month</h4>
+                                    <h4 class="card-title mb-3">Published Research This Month</h4>
                                     <?php if (hasPermission($permissions, 'dashboard_download')): ?>
                                     <div class="action-container">
                                         <div>
@@ -641,7 +642,7 @@ const departmentViewsData = <?php echo $data; ?>;
         data: {
             labels: labels,
             datasets: [{
-                label: 'Research Published Per Month',
+                label: 'Research Published This Month',
                 data: values,
                 borderColor: '#3a7bd5',
                 backgroundColor: 'rgba(58, 123, 213, 0.2)',

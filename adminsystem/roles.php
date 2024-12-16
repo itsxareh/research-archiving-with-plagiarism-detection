@@ -6,6 +6,7 @@ $db = new Database();
 
 session_start();
 $userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
+$departmentId = $userRole['department_id'];
 $permissions = explode(',', $userRole['permissions']);
 
 // Helper function to check permissions
@@ -26,6 +27,7 @@ if($_SESSION['auth_user']['admin_id']==0){
     exit(); 
 } else {
     $admin_id = $_SESSION['auth_user']['admin_id'];
+    $filterByDepartment = ($departmentId != 0);
 }
 
 if (isset($_POST['add_role'])) {
@@ -216,23 +218,32 @@ if (hasPermission($permissions, 'role_view')):
                                             <label for="" class="info-label m-l-4">Department</label>
                                             <select class="info-input" name="department_id" id="department" required>
                                                 <option value="" selected disabled>Select Department</option>
-                                                <option value="0">All</option>
                                             <?php 
-                                                $res = $db->showDepartments_WHERE_ACTIVE();
+                                                if($filterByDepartment){
+                                                    $res = $db->showDepartments_WHERE_ACTIVE_PER_DEPARTMENT($departmentId);
+                                                }else{
+                                                    $res = $db->showDepartments_WHERE_ACTIVE();
+                                                    echo '<option value="0">All</option>';
+                                                }
 
                                                 foreach ($res as $item) {
-                                                echo '<option value="'.$item['id'].'">'.$item['name'].'</option>';
+                                                echo '<option value="'.$item['id'].'" '.($item['id'] == $departmentId ? 'selected' : '').'>'.$item['name'].'</option>';
                                                 }
                                             ?>
                                             </select>
+                                            <?php if(!$filterByDepartment): ?>
                                             <small class="permissions-help-text text-muted m-l-4">
                                                 Select a department to continue
                                             </small>
+                                            <?php endif; ?>
                                         </div>
                                         <div class="row m-r-0 m-l-0 mt-3"> 
                                             <div class="col-12 p-0"> 
                                                 <label class="info-label m-l-4">Permissions</label> 
                                                 <div class="permissions-list">
+                                                    <?php 
+                                                    if(hasPermission($permissions, 'dashboard_view')):
+                                                    ?>
                                                     <div class="permission-group">
                                                         <div class="permission-group-header">
                                                             <input type="checkbox" name="permissions[]" value="dashboard">
@@ -249,6 +260,10 @@ if (hasPermission($permissions, 'role_view')):
                                                             </div>
                                                         </div> 
                                                     </div> 
+                                                    <?php endif; ?>
+                                                    <?php 
+                                                    if(hasPermission($permissions, 'research_view')):
+                                                    ?>
                                                     <div class="permission-group">
                                                         <div class="permission-group-header">
                                                             <input type="checkbox" name="permissions[]" value="research_paper">
@@ -281,6 +296,10 @@ if (hasPermission($permissions, 'role_view')):
                                                             </div>
                                                         </div> 
                                                     </div> 
+                                                    <?php endif; ?>
+                                                    <?php 
+                                                    if(hasPermission($permissions, 'student_list_view')):
+                                                    ?>
                                                     <div class="permission-group">
                                                         <div class="permission-group-header">
                                                             <input type="checkbox" name="permissions[]" value="student_list">
@@ -309,6 +328,10 @@ if (hasPermission($permissions, 'role_view')):
                                                             </div>
                                                         </div> 
                                                     </div> 
+                                                    <?php endif; ?>
+                                                    <?php 
+                                                    if(hasPermission($permissions, 'course_view')):
+                                                    ?>
                                                     <div class="permission-group">
                                                         <div class="permission-group-header">
                                                             <input type="checkbox" name="permissions[]" value="course">
@@ -341,6 +364,7 @@ if (hasPermission($permissions, 'role_view')):
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    <?php endif; ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -348,6 +372,9 @@ if (hasPermission($permissions, 'role_view')):
                                             <div class="col-12 p-0"> 
                                                 <label class="info-label m-l-4">Other Permissions</label> 
                                                 <div class="permissions-list">
+                                                    <?php 
+                                                    if(hasPermission($permissions, 'department_view')):
+                                                    ?>
                                                     <div class="permission-group">
                                                         <div class="permission-group-header">
                                                             <input type="checkbox" name="permissions[]" value="department">
@@ -380,6 +407,10 @@ if (hasPermission($permissions, 'role_view')):
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    <?php endif; ?>
+                                                    <?php 
+                                                    if(hasPermission($permissions, 'role_view')):
+                                                    ?>
                                                     <div class="permission-group">
                                                         <div class="permission-group-header">
                                                             <input type="checkbox" name="permissions[]" value="role">
@@ -412,6 +443,10 @@ if (hasPermission($permissions, 'role_view')):
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    <?php endif; ?>
+                                                    <?php 
+                                                    if(hasPermission($permissions, 'user_view')):
+                                                    ?>
                                                     <div class="permission-group">
                                                         <div class="permission-group-header">
                                                             <input type="checkbox" name="permissions[]" value="user">
@@ -448,6 +483,7 @@ if (hasPermission($permissions, 'role_view')):
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    <?php endif; ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -488,7 +524,11 @@ if (hasPermission($permissions, 'role_view')):
                                 // Remove the :1 or :{department_id} suffix if present
                                 return preg_replace('/:.*$/', '', $permission);
                             }
-                            $data = $db->showRoles();
+                            if($filterByDepartment){
+                                $data = $db->showRoles($_SESSION['auth_user']['role_id']);
+                            }else{
+                                $data = $db->showAllRoles();
+                            }
                             if (count($data) != 0) {
                                 
                             foreach ($data as $result) {
@@ -572,9 +612,15 @@ if (hasPermission($permissions, 'role_view')):
                                                         <div class="col-sm-12 item-detail p-0">
                                                             <label class="info-label m-l-4">Department</label>
                                                             <select class="info-input" name="department_id" required>
-                                                                <option value="0" <?= $result['department_id'] === 0 ? 'selected' : '' ?>>All</option>
-                                                                <?php 
-                                                                $departments = $db->showDepartments_WHERE_ACTIVE();
+
+                                                                
+                                                                <?php
+                                                                if($filterByDepartment){
+                                                                    $departments = $db->showDepartments_WHERE_ACTIVE_PER_DEPARTMENT($departmentId);
+                                                                }else{
+                                                                    $departments = $db->showDepartments_WHERE_ACTIVE();
+                                                                    echo '<option value="0" '.($result['department_id'] === 0 ? 'selected' : '').'>All</option>';
+                                                                }
                                                                 foreach ($departments as $dept) {
                                                                     $selected = ($dept['id'] == $result['department_id']) ? 'selected' : '';
                                                                     echo "<option value='{$dept['id']}' {$selected}>{$dept['name']}</option>";
@@ -586,6 +632,9 @@ if (hasPermission($permissions, 'role_view')):
                                                             <div class="col-12 p-0"> 
                                                                 <label class="info-label m-l-4">Permissions</label> 
                                                                 <div class="permissions-list">
+                                                                    <?php 
+                                                                    if(hasPermission($permissions, 'dashboard_view')):
+                                                                    ?>
                                                                     <div class="permission-group">
                                                                         <div class="permission-group-header">
                                                                             <input type="checkbox" name="permissions[]" value="dashboard" 
@@ -605,6 +654,10 @@ if (hasPermission($permissions, 'role_view')):
                                                                             </div>
                                                                         </div> 
                                                                     </div> 
+                                                                    <?php endif; ?>
+                                                                    <?php 
+                                                                    if(hasPermission($permissions, 'research_view')):
+                                                                    ?>
                                                                     <div class="permission-group">
                                                                         <div class="permission-group-header">
                                                                             <input type="checkbox" name="permissions[]" value="research_paper" 
@@ -644,6 +697,10 @@ if (hasPermission($permissions, 'role_view')):
                                                                             </div>
                                                                         </div> 
                                                                     </div> 
+                                                                    <?php endif; ?>
+                                                                    <?php 
+                                                                    if(hasPermission($permissions, 'student_list_view')):
+                                                                    ?>
                                                                     <div class="permission-group">
                                                                         <div class="permission-group-header">
                                                                             <input type="checkbox" name="permissions[]" value="student_list" 
@@ -678,6 +735,10 @@ if (hasPermission($permissions, 'role_view')):
                                                                             </div>
                                                                         </div> 
                                                                     </div> 
+                                                                    <?php endif; ?>
+                                                                    <?php 
+                                                                    if(hasPermission($permissions, 'course_view')):
+                                                                    ?>
                                                                     <div class="permission-group">
                                                                         <div class="permission-group-header">
                                                                             <input type="checkbox" name="permissions[]" value="course" 
@@ -717,6 +778,7 @@ if (hasPermission($permissions, 'role_view')):
                                                                             </div>
                                                                         </div>
                                                                     </div>
+                                                                    <?php endif; ?>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -724,6 +786,9 @@ if (hasPermission($permissions, 'role_view')):
                                                             <div class="col-12 p-0"> 
                                                                 <label class="info-label m-l-4">Other Permissions</label> 
                                                                 <div class="permissions-list">
+                                                                    <?php 
+                                                                    if(hasPermission($permissions, 'department_view')):
+                                                                    ?>
                                                                     <div class="permission-group">
                                                                         <div class="permission-group-header">
                                                                             <input type="checkbox" name="permissions[]" value="department" 
@@ -763,6 +828,10 @@ if (hasPermission($permissions, 'role_view')):
                                                                             </div>
                                                                         </div>
                                                                     </div>
+                                                                    <?php endif; ?>
+                                                                    <?php 
+                                                                    if(hasPermission($permissions, 'role_view')):
+                                                                    ?>
                                                                     <div class="permission-group">
                                                                         <div class="permission-group-header">
                                                                             <input type="checkbox" name="permissions[]" value="role" 
@@ -802,6 +871,10 @@ if (hasPermission($permissions, 'role_view')):
                                                                             </div>
                                                                         </div>
                                                                     </div>
+                                                                    <?php endif; ?>
+                                                                    <?php 
+                                                                    if(hasPermission($permissions, 'user_view')):
+                                                                    ?>
                                                                     <div class="permission-group">
                                                                         <div class="permission-group-header">
                                                                             <input type="checkbox" name="permissions[]" value="user" 
@@ -846,6 +919,7 @@ if (hasPermission($permissions, 'role_view')):
                                                                             </div>
                                                                         </div>
                                                                     </div>
+                                                                    <?php endif; ?>
                                                                 </div>
                                                             </div>
                                                         </div>

@@ -100,7 +100,7 @@ require_once 'templates/student_navbar.php';
                     </a>
                 </div>
                 <div class="mt-2 text-center">
-                  <a href="sign_up.php"
+                  <a href="sign_up.php?redirect_to=../student/read_full.php?archiveID=<?php echo $data['archive_id']; ?>"
                         class="inline-flex w-full items-center justify-center rounded-lg  p-2 py-3  hover:bg-[#333] bg-black text-sm font-medium text-white outline-none focus:ring-2 focus:ring-black focus:ring-offset-1 disabled:bg-gray-400">
                         Sign up
                     </a>
@@ -126,7 +126,7 @@ require_once 'templates/student_navbar.php';
           <div class="col-md-8">
             <div class="short-info">
               <p><strong style="font-size: 20px; color:#313131"><?php echo $data['project_title']; ?> </strong><br></p>
-              <p class="detail-font"><?php echo $data['project_members']; ?></p>
+              <p class="detail-font">Collab: <?php echo implode(', ', array_map('trim', explode(',', $data['project_members']))); ?></p>
               <?php if (!empty($data['date_published'])) {
                   $first_published = DateTime::createFromFormat("Y-m-d", $data['date_published'])->format("d F Y");
                   echo '<div class="flex justify-content-between" style="gap: 5px">

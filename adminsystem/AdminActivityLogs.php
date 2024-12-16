@@ -1,6 +1,6 @@
 <?php
 if($_SESSION['auth_user']['admin_id']==0){
-  echo"<script>window.location.href='login.php'</script>";
+  echo"<script>window.location.href='index.php'</script>";
   
 }
 
@@ -56,7 +56,7 @@ if(hasPermission($permissions, 'user_logs')) {
                 <div class="list-group-item bg-light">
                     <div class="d-flex align-items-center">
                         <i class="far fa-calendar-alt me-2"></i>
-                        <h6 class="ml-2 mb-0" style="font-size: 14px;"><?php echo htmlspecialchars($date_group['display_date']); ?></h6>
+                        <h6 class="mb-0" style="font-size: 14px;"><?php echo htmlspecialchars($date_group['display_date']); ?></h6>
                     </div>
                 </div>
                 

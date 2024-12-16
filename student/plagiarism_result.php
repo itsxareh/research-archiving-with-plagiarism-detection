@@ -157,6 +157,15 @@ require_once 'templates/student_navbar.php';
                       <span style="color: #a33333; font-size: 16px; margin-left: .75rem !important;">'.round($percentage, 1).'%</span>
                     </div>
                   </div>';
+                  ?>
+                  <div class="info-container" style="border: none;">
+                    <div class="text-center" style="margin-bottom: .875rem">
+                      <a target="_blank" href="../php/generate_pdf.php?generate_report_for=plagiarism_report&archiveID=<?= $archive_id ?>" class="download-plagiarism-pdf">
+                        Download Plagiarism Report
+                      </a>
+                    </div>
+                  </div>
+                  <?php
           }
         } ?> 
         
@@ -185,7 +194,7 @@ require_once 'templates/student_navbar.php';
                 if (!empty($plagiarism_result)) {
                   foreach ($plagiarism_result as $plagiarism) {
                     $highlighted_result = highlightPlagiarizedWords($plagiarism['submitted_sentence'], $plagiarism['existing_sentence']);
-                    echo '<p class="info-meta p-r-4" style="font-size: 12px; margin-bottom: 0; padding-top: 6px; font-weight: 400; color: #a33333">'.$highlighted_result['existing'].'</p>';
+                    echo '<p class="info-meta p-r-4" style="font-size: 12px; margin-bottom: 0; padding-top: 6px; font-weight: 400; color: #a33333">'.$highlighted_result['submitted'].'</p>';
                     }
                   }
                 echo '</div>

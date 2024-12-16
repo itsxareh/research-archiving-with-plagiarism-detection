@@ -28,6 +28,8 @@ ini_set('display_errors', 1);
 			if($searchResults['alert'] == 'Account Verification'){
 				$sql = $db->admin_recover_code_with_email($email, $verification_code);
 				
+				$_SESSION['email'] = $email;
+
 				$mail = new PHPMailer(true);
 
 				$mail->isSMTP();

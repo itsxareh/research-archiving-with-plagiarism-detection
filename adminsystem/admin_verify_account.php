@@ -27,27 +27,8 @@ header("location:research-papers.php");
   <script src="js/lib/sweetalert/sweetalert.init.js"></script>
 </head>
 <body>  
-  <!-- Header-->
-  <div class="header">
-    <div class="nav-header">
-      <div class="logo">
-        <a href="../index.php">
-          <img src="images/logo2.webp">
-        </a>
-      </div>
-      <div class="nav-side">
-        <div class="search-bar m-r-16">
-            <input id="searchInput" name="searchInput" type="text" class="form-control" placeholder="Search...">
-            <button class="search-btn" id="search-btn"><i class="ti-search"></i></button>
-        </div>
-        <div class="nav-signup">
-            <a href="#" class="signup-btn" onclick="logout();">Log out</a>
-        </div>
-      </div>
-    </div>
-  </div>
   <!-- Index Content -->
-  <main>
+  <main style="padding-top: 0;">
     <div class="content-wrapper h-100">
       <div class="col-xl-12 col-md-12-col sm-12">
         <div class="row">
@@ -61,12 +42,12 @@ header("location:research-papers.php");
             <div class="log-in-container">
               <form class="form-container" action="../php/admin_verifyAccountCode.php" method="POST">
                 <?php
-                    if(isset($_GET['id'])){
-                        $admin_id = $_GET['id']; 
+                    if(isset($_SESSION['email'])){
+                        $email = $_SESSION['email']; 
                     }
                 ?>
                 <input type="hidden" name="redirect_to" value="<?= isset($_GET['redirect_to']) ? $_GET['redirect_to'] : '' ?>">
-                <input type="hidden" name="admin_id" value="<?= $admin_id ?>">
+                <input type="hidden" name="email" value="<?= isset($_SESSION['email']) ? $_SESSION['email'] : '' ?>">
                 <h4>Account Verification</h4>
                 <p>Please enter the code that we sent to you in your email address.</p>
                 <div class="row">
@@ -76,7 +57,7 @@ header("location:research-papers.php");
                       <input type="number" name="verification_number" id="verification_number" required>
                       <span id="error-code" style="color: red; font-size: 11px; display: none;"></span>
                       <span id="resend-container">
-                        <a href="../php/resend_code.php" onclick="startCountdown()" id="resend-link" style="color: #666; font-size: 11px; text-align:end">Resend</a>
+                        <a href="../php/admin_verification_resend_code.php" onclick="startCountdown()" id="resend-link" style="color: #666; font-size: 11px; text-align:end">Resend</a>
                         <span id="countdown-timer" style="color: #666; font-size: 11px; display: none;"></span>
                       </span>
                     </div>

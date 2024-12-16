@@ -142,6 +142,7 @@ $('#loginForm').on('submit', function(e) {
                 }
               });
             } else {
+              loginBtn.prop('disabled', false);
               sweetAlert(data.alert, data.status, data.status_code);
             }
           } else {
@@ -155,7 +156,7 @@ $('#loginForm').on('submit', function(e) {
       }
   });
 });
-    const searchInput = document.getElementById("searchInput");
+    const searchInput = document.getElementById("searchInput"); 
     const searchButton = document.getElementById("search-btn");
 
     searchButton.addEventListener("click", () => {

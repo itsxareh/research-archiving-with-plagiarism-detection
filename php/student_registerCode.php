@@ -28,6 +28,7 @@ if (isset($_POST['snumber']) && isset($_POST['password']) && isset($_POST['email
     $pword = trim($_POST['password']);
     $verification_code = rand(100000, 999999);
 
+    $redirect_to = (isset($_POST['redirect_to']) ? $_POST['redirect_to'] : '');
     $uniqueId = uniqid() . mt_rand(1000, 9999);
     
     $snumberPattern = '/^\d{3}-\d{5}[A-Za-z]$/';
@@ -82,7 +83,12 @@ if (isset($_POST['snumber']) && isset($_POST['password']) && isset($_POST['email
 
             $sql1 = $db->student_Insert_NOTIFICATION($un, $logs, $date, $time);
 
-            echo json_encode(array('status_code' => 'success', 'status' => 'Kindly check your registered email for account verification code.', 'redirect' => '../student/student_verify_account.php?student_no='.$student_number));
+            echo json_encode(array(
+                'status_code' => 'success', 
+                'status' => 'Kindly check your registered email for account verification code.', 
+                'redirect' => '../student/student_verify_account.php?student_no=' . $student_number . 
+                    (!empty($redirect_to) ? '&redirect_to=' . $redirect_to : '')
+            ));
             exit();
             
         } else {

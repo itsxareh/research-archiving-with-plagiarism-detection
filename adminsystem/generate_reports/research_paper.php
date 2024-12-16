@@ -139,6 +139,10 @@ ob_start()
                 <div class="detail-value"><?php echo htmlspecialchars($row['character_count']); ?></div>
             </div>
             <div class="detail-row">
+                <div class="detail-label">Plagiarism percentage:</div>
+                <div class="detail-value"><?php echo htmlspecialchars($row['total_percentage'] > 100 ? 100 : round($row['total_percentage'], 2)); ?>%</div>
+            </div>
+            <div class="detail-row">
                 <div class="detail-label">Date uploaded:</div>
                 <div class="detail-value"><?php echo htmlspecialchars((new DateTime($row['dateOFSubmit']))->format('d M Y H:i:s A')); ?></div>
             </div>

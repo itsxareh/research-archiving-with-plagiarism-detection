@@ -182,8 +182,8 @@ require_once 'templates/admin_navbar.php';
               </div>';
               ?>
               <?php if (hasPermit($permissions, 'research_download')): ?>
-                <div class="info-container" style="border: none; margin-top: .875rem;">
-                  <div class="text-center">
+                <div class="info-container" style="border: none;">
+                  <div class="text-center" style="margin-top: .875rem;">
                     <a target="_blank" href="generate_reports/generate_pdf.php?generate_report_for=plagiarism_report&archiveID=<?= $archive_id ?>" class="download-plagiarism-pdf">
                       Download Plagiarism Report
                     </a>

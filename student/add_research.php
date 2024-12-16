@@ -2,6 +2,12 @@
 session_start();
 include '../connection/config.php';
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+include '../phpmailer/src/PHPMailer.php';
+include '../phpmailer/src/SMTP.php';
+
 header('Content-Type: application/json');
 
 class FileUploadHandler {
@@ -34,9 +40,16 @@ class FileUploadHandler {
             throw new Exception('No file uploaded');
         }
         
-        if ($_FILES['project_file']['type'] !== 'application/pdf') {
-            throw new Exception('Only PDF files are allowed');
+        $allowedTypes = [
+            'application/pdf',
+            'application/msword',                // .doc
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' // .docx
+        ];
+        
+        if (!in_array($_FILES['project_file']['type'], $allowedTypes)) {
+            throw new Exception('Only PDF, DOC, and DOCX files are allowed');
         }
+    
         if ($_FILES['project_file']['size'] > $this->maxFileSize) {
             $maxSizeMB = $this->maxFileSize / (1024 * 1024);
             throw new Exception("File size exceeds maximum limit of {$maxSizeMB} MB");
@@ -84,8 +97,18 @@ class FileUploadHandler {
         $randomNumber = mt_rand(1000000000, 9999999999); 
         date_default_timezone_set('Asia/Manila');
         
+        // Determine file type based on extension
+        $fileExtension = strtolower(pathinfo($pdfPath, PATHINFO_EXTENSION));
+        $mimeType = 'application/pdf'; // default
+        
+        if ($fileExtension === 'doc') {
+            $mimeType = 'application/msword';
+        } elseif ($fileExtension === 'docx') {
+            $mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        }
+        
         return [
-            'file' => new CURLFile($pdfPath, 'application/pdf', basename($pdfPath)),
+            'file' => new CURLFile($pdfPath, $mimeType, basename($pdfPath)),
             'archive_id' => $randomNumber,
             'student_id' => $_SESSION['auth_user']['student_id'],
             'project_title' => $_POST['project_title'],
@@ -109,6 +132,13 @@ class FileUploadHandler {
             
             if ($flaskResponse['status'] === 'success') {
                 $this->insertNotification($flaskResponse['archive_id']);
+
+                $memberEmails = array_map('trim', explode(',', $_POST['project_members']));
+                foreach ($memberEmails as $email) {
+                    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        $this->sendEmail($email, $_POST['project_title'], $flaskResponse['archive_id']);
+                    }
+                }
                 return $this->prepareSuccessResponse($flaskResponse);
             } else {
                 throw new Exception('Upload failed: ' . ($flaskResponse['message'] ?? 'Unknown error'));
@@ -119,6 +149,47 @@ class FileUploadHandler {
             }
             return ['status' => 'error', 'message' => $e->getMessage()];
         }
+    }
+    private function sendEmail($email, $project_title, $archive_id) {
+        $student_name = ucwords($_SESSION['auth_user']['student_name']);
+        $subject = 'Collaboration with a Research Paper';
+        $message = "
+                <html>
+                <body style='font-family: Arial, sans-serif; line-height: 1.6;'>
+                    <p>Dear $email,</p>
+                    <p>Your collaboration with $student_name has submitted a research paper.</p>
+                    <p>Log in or sign up to the system to view the paper.</p>
+                    <a href='http://localhost:3000/student/view_project_research.php?archiveID=$archive_id' style='margin-top: 20px; text-align: center;'>View Paper</a>
+                    <div style='margin: 20px 0; padding: 10px; background-color: #f5f5f5;'>
+                        <p><strong>Archive ID:</strong> $archive_id</p>
+                        <p><strong>Project Title:</strong> $project_title</p>
+                    </div>
+                </body>
+                </html>
+                ";
+
+        $mail = new PHPMailer(true);
+
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'researcharchiverplagiarism@gmail.com';
+        $mail->Password = 'wqjd ukqy plvb liyq';
+        $mail->SMTPSecure = 'ssl';
+        $mail->Port = 465;
+
+        $mail->setFrom('researcharchiverplagiarism@gmail.com');
+        $mail->addAddress($email);
+        $mail->isHTML(true);
+        $mail->Subject = $subject;
+        $mail->Body = $message;
+
+        if($mail->send()){
+            return true;
+        } else {
+            return false;
+        }
+
     }
     
     private function insertNotification($randomNumber) {

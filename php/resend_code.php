@@ -14,7 +14,7 @@ session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 		
-if(isset($_SESSION['email'])){
+if(isset($_SESSION['email']) || isset($_POST['email'])){
     $email = isset($_POST['email']) ? $_POST['email'] : $_SESSION['email'];
     $verification_code = rand(100000, 999999);
 

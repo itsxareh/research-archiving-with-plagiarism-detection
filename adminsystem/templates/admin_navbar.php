@@ -198,7 +198,7 @@ $db = new Database();
                                 ?>
                                         <li>
                                             <a href="#">
-                                                <img class="pull-left m-r-10 avatar-img" src="<?= isset($notification['admin_profile_picture']) ? $notification['admin_profile_picture'] : '../../images/default-profile.png' ?>" alt="" />
+                                                <img class="pull-left m-r-10 avatar-img" src="<?= isset($notification['admin_profile_picture']) ? $notification['admin_profile_picture'] : '../../images/default-profile.svg' ?>" alt="" />
                                                 <div class="notification-content">
                                                     <small class="notification-timestamp pull-right"><?php echo $notification['logs_time']; ?></small>
                                                     <div class="notification-heading"><?php echo $notification['logs']; ?></div>

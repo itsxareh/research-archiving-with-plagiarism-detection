@@ -79,7 +79,7 @@ public function admin_update_verify_status($verified, $adminID) {
 
   $stmt = $connection->prepare("UPDATE admin_account SET verify_status=? WHERE id=?");
   $stmt->execute([$verified, $adminID]);
-
+  return true;
 }
 
 
@@ -105,7 +105,6 @@ public function admin_update_verify_status($verified, $adminID) {
 
     if ($pword == md5($password) && $admin_status == 'Active') {
       if ($verifystatus == 'Not Verified') {
-        $_SESSION['email'] = $admin_email;
         return json_encode(array('status_code' => 'info', 'status' => 'Please verify your account first', 'alert' => 'Account Verification', 'redirect' => 'admin_verify_account.php?id='.$admin_id));    
       } else {
         // Handle successful login
@@ -190,6 +189,15 @@ public function admin_profile_by_id($admin_id) {
 
   $stmt = $connection->prepare("SELECT * FROM admin_account WHERE id = ?");
   $stmt->execute([$admin_id]);
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+public function admin_profile_by_email($admin_email) {
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT * FROM admin_account WHERE admin_email = ?");
+  $stmt->execute([trim($admin_email)]);
   $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
   return $result;
@@ -385,10 +393,38 @@ public function showAdmins($admin_id){
 
   return $result;
 }
-public function showRoles(){
+
+public function showAdminsByDepartment($admin_id, $departmentId){
+  $connection = $this->getConnection();
+  $stmt = $connection->prepare("SELECT *, admin_account.id AS adminID FROM admin_account LEFT JOIN roles ON roles.id = admin_account.role_id WHERE admin_account.id != ? AND admin_account.delete_flag = 0 AND roles.department_id = ?");
+  $stmt->execute([$admin_id, $departmentId]);
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+
+public function showAllRoles(){
   $connection = $this->getConnection();
   $stmt = $connection->prepare("SELECT *, roles.id AS roleID, roles.description AS role_description FROM roles LEFT JOIN departments ON departments.id = roles.department_id WHERE roles.id != 1 ORDER BY roles.id DESC");
   $stmt->execute();
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+
+public function showAllRolesByDepartment($departmentId){
+  $connection = $this->getConnection();
+  $stmt = $connection->prepare("SELECT *, roles.id AS roleID, roles.description AS role_description FROM roles LEFT JOIN departments ON departments.id = roles.department_id WHERE roles.id != 1 AND roles.department_id = ? ORDER BY roles.id DESC");
+  $stmt->execute([$departmentId]);
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+
+public function showRoles($user_id){
+  $connection = $this->getConnection();
+  $stmt = $connection->prepare("SELECT *, roles.id AS roleID, roles.description AS role_description FROM roles LEFT JOIN departments ON departments.id = roles.department_id WHERE roles.id != 1 AND roles.id != ? ORDER BY roles.id DESC");
+  $stmt->execute([$user_id]);
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   return $result;
@@ -623,13 +659,15 @@ public function SELECT_ALL_OWNED_ARCHIVE_RESEARCH($owner_email, $limit, $offset)
     FROM archive_research 
     LEFT JOIN departments ON departments.id = archive_research.department_id
     LEFT JOIN course ON course.id = archive_research.course_id 
-    WHERE archive_research.research_owner_email = :owner_email
-    ORDER BY view_count DESC 
+    WHERE archive_research.research_owner_email = :owner_email 
+    OR archive_research.project_members LIKE :collaborator 
+    ORDER BY archiveID DESC 
     LIMIT :limit OFFSET :offset");
-
-  $stmt->bindParam(':owner_email', $owner_email, PDO::PARAM_STR);
-  $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
-  $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+ 
+  $stmt->bindValue(':owner_email', $owner_email, PDO::PARAM_STR);
+  $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+  $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+  $stmt->bindValue(':collaborator', '%' . $owner_email . '%', PDO::PARAM_STR);
 
   $stmt->execute();
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -837,9 +875,9 @@ public function SELECT_PROJECT_TITLE_WHERE_ARCHIVE_ID($archiveID){
 public function SELECT_TOTAL_PERCENTAGE_PLAGIARISM_WHERE_ARCHIVE_ID($archiveID){
   $connection = $this->getConnection();
 
-  $stmt = $connection->prepare("SELECT SUM(plagiarism_percentage) as total_percentage  FROM plagiarism_summary WHERE archive_id = ? ");
+  $stmt = $connection->prepare("SELECT plagiarism_percentage FROM plagiarism_summary WHERE archive_id = ? ");
   $stmt->execute([$archiveID]);
-  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   return $result;
 }
@@ -1054,7 +1092,7 @@ public function SELECT_ARCHIVE_RESEARCH($archiveID){
     LEFT JOIN departments ON departments.id = archive_research.department_id
     LEFT JOIN course ON course.id = archive_research.course_id
     LEFT JOIN students_data ON students_data.id = archive_research.student_id
-	LEFT JOIN plagiarism_summary ON archive_research.id = plagiarism_summary.archive_id
+	  LEFT JOIN plagiarism_summary ON archive_research.id = plagiarism_summary.archive_id
     WHERE archive_research.archive_id = ?");
   $stmt->execute([$archiveID]);
   $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -1074,11 +1112,13 @@ public function SELECT_UPLOADED_ADMIN_ARCHIVE_RESEARCH($archiveID){
     admin_account.last_name as lname,
     departments.*,
     course.*,
+    SUM(plagiarism_summary.plagiarism_percentage) AS total_percentage,
     (SELECT COUNT(id) FROM archive_research_views WHERE archive_research_views.archive_research_id = archive_research.archive_id) AS view_count
     FROM archive_research
     LEFT JOIN departments ON departments.id = archive_research.department_id
     LEFT JOIN course ON course.id = archive_research.course_id
     LEFT JOIN admin_account ON admin_account.uniqueID = archive_research.student_id
+    LEFT JOIN plagiarism_summary ON archive_research.id = plagiarism_summary.archive_id
     WHERE archive_research.archive_id = ?");
   $stmt->execute([$archiveID]);
   $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -1087,7 +1127,7 @@ public function SELECT_UPLOADED_ADMIN_ARCHIVE_RESEARCH($archiveID){
 }
 public function SELECT_PLAGIARISM_RESULTS_RESEARCH($archiveID, $similar_archive_id){
   $connection = $this->getConnection();
-  $stmt = $connection->prepare("SELECT * FROM plagiarism_results WHERE plagiarism_results.archive_id = ? AND similar_archive_id = ? ORDER BY id DESC");
+  $stmt = $connection->prepare("SELECT * FROM plagiarism_results WHERE plagiarism_results.archive_id = ? AND similar_archive_id = ? ORDER BY id ASC");
   $stmt->execute([$archiveID, $similar_archive_id]);
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -1808,7 +1848,13 @@ public function admin_recover_code_with_email($email, $verification_code) {
   $stmt->execute([$verification_code, $email]);
 
 }
+public function admin_verification_code_with_email($email, $verification_code) {
+  $connection = $this->getConnection();
 
+  $stmt = $connection->prepare("UPDATE admin_account SET verification_code= ? WHERE admin_email=?");
+  $stmt->execute([$verification_code, $email]);
+
+}
 public function recover_code_with_email($email, $verification_code) {
   $connection = $this->getConnection();
 
@@ -1920,11 +1966,11 @@ public function student_register_INSERT_Info($department, $department_course, $s
   $sql->execute([$department, $department_course, $student_number, $first_name, $last_name, $PhoneNumber, $email, md5($pword), NULL, $verification_code]);
 
 }
-public function SELECT_ACCOUNT_INBOX($student_id) {
+public function SELECT_ACCOUNT_INBOX($student_id, $email) {
   $connection = $this->getConnection();
 
-  $stmt = $connection->prepare("SELECT * FROM archive_research WHERE student_id = ? ORDER BY id DESC");
-  $stmt->execute([$student_id]);
+  $stmt = $connection->prepare("SELECT * FROM archive_research WHERE student_id = ? AND research_owner_email = ? ORDER BY id DESC");
+  $stmt->execute([$student_id, $email]);
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   return $result;
@@ -1959,18 +2005,19 @@ public function studentLogin($email, $password, $redirect_to) {
 
   $stmt = $connection->prepare("SELECT * FROM students_data WHERE student_email=?");
   $stmt->execute([$email]);
-
-  while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
-      $student_id = $data['id'];
-      $student_name = $data['first_name'].' '.$data['last_name'];
-      $student_email = $data['student_email'];
-      $student_no = $data['student_id'];
-      $department_id = $data['department_id'];
-      $course_id = $data['course_id'];
-      $pword = $data['student_password'];
-      $verifystatus = $data['verify_status'];
-      $school_verify = $data['school_verify'];
+  $data = $stmt->fetch(PDO::FETCH_ASSOC);
+  if (!$data) {
+    return json_encode(array('status_code' => 'info', 'status' => 'Incorrect log in details', 'alert' => 'Oppss...'));
   }
+  $student_id = $data['id'];
+  $student_name = $data['first_name'].' '.$data['last_name'];
+  $student_email = $data['student_email'];
+  $student_no = $data['student_id'];
+  $department_id = $data['department_id'];
+  $course_id = $data['course_id'];
+  $pword = $data['student_password'];
+  $verifystatus = $data['verify_status'];
+  $school_verify = $data['school_verify'];
 
   if ($pword == md5($password)) {
       if ($verifystatus == 'Not Verified') {
@@ -2196,14 +2243,19 @@ public function UPDATE_student_profile($imagePath, $student_id) {
 
 public function SELECT_ALL_STUDENT_ARCHIVE_RESEARCH($owner_email, $limit, $offset) {
   $connection = $this->getConnection();
-  $stmt = $connection->prepare("SELECT *, archive_research.id AS archiveID, archive_research.archive_id AS aid FROM archive_research 
-  LEFT JOIN departments ON departments.id = archive_research.department_id
-  LEFT JOIN course ON course.id = archive_research.course_id WHERE archive_research.research_owner_email = :owner_email ORDER BY archiveID DESC LIMIT :limit OFFSET :offset");
-   
-  $stmt->bindParam(':owner_email', $owner_email, PDO::PARAM_STR);
-  $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
-  $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
-  
+  $stmt = $connection->prepare("SELECT *, archive_research.id AS archiveID, archive_research.archive_id AS aid 
+      FROM archive_research 
+      LEFT JOIN departments ON departments.id = archive_research.department_id
+      LEFT JOIN course ON course.id = archive_research.course_id 
+      WHERE archive_research.research_owner_email = :owner_email 
+      OR archive_research.project_members LIKE :collaborator 
+      ORDER BY archiveID DESC 
+      LIMIT :limit OFFSET :offset");
+ 
+  $stmt->bindValue(':owner_email', $owner_email, PDO::PARAM_STR);
+  $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+  $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+  $stmt->bindValue(':collaborator', '%' . $owner_email . '%', PDO::PARAM_STR);
   $stmt->execute();
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -2358,57 +2410,72 @@ public function COUNT_FILTERED_OWNED_ARCHIVE_RESEARCH($owner_email, $searchInput
   $query = "SELECT COUNT(*) as total FROM archive_research WHERE 1 = 1";
   
   if (!empty($searchInput)) {
-    $query .= " AND (project_title LIKE :searchInput OR project_abstract LIKE :searchInput OR archive_id LIKE :searchInput)";
+      $query .= " AND (project_title LIKE :searchInput OR project_abstract LIKE :searchInput OR archive_id LIKE :searchInput)";
   }
+  
+  // Combined condition for owner_email
   if (!empty($owner_email)) {
-    $query .= " AND research_owner_email = :ownerEmail";
+      $query .= " AND (research_owner_email = :ownerEmail OR project_members LIKE :collaborator)";
   }
+  
   if (!empty($documentStatus)) {
-    $query .= " AND document_status = :documentStatus";
+      $query .= " AND document_status = :documentStatus";
   }
+  
   if (!empty($keywords)) {
-    $keywordArray = array_map('trim', explode(',', $keywords));
-    $keywordConditions = [];
+      $keywordArray = array_map('trim', explode(',', $keywords));
+      $keywordConditions = [];
 
-    foreach ($keywordArray as $index => $keyword) {
-        $param = ":keyword" . $index;
-        $keywordConditions[] = "archive_research.keywords LIKE $param";
-    }
+      foreach ($keywordArray as $index => $keyword) {
+          $param = ":keyword" . $index;
+          $keywordConditions[] = "archive_research.keywords LIKE $param";
+      }
 
-    $query .= " AND (" . implode(" OR ", $keywordConditions) . ")";
+      $query .= " AND (" . implode(" OR ", $keywordConditions) . ")";
   }
+  
   if (!empty($fromYear)) {
       $query .= " AND YEAR(dateOFSubmit) >= :fromYear";
   }
+  
   if (!empty($toYear)) {
       $query .= " AND YEAR(dateOFSubmit) <= :toYear";
   }
+  
+  // Note: ORDER BY is typically not needed in a COUNT query
+  // but keeping it for consistency if needed
   if (!empty($research_date)) {
-    $orderDirection = $research_date === 'newest' ? 'DESC' : 'ASC';
-    $query .= " ORDER BY dateOFSubmit " . $orderDirection;
+      $orderDirection = $research_date === 'newest' ? 'DESC' : 'ASC';
+      $query .= " ORDER BY dateOFSubmit " . $orderDirection;
   }
-
   
   $stmt = $connection->prepare($query);
 
+  // Bind parameters
   if (!empty($searchInput)) {
       $stmt->bindValue(':searchInput', '%' . $searchInput . '%', PDO::PARAM_STR);
   }
+  
   if (!empty($owner_email)) {
-    $stmt->bindValue(':ownerEmail', $owner_email, PDO::PARAM_STR);
+      $stmt->bindValue(':ownerEmail', $owner_email, PDO::PARAM_STR);
+      $stmt->bindValue(':collaborator', '%' . $owner_email . '%', PDO::PARAM_STR);
   }
+  
   if (!empty($documentStatus)) {
-    $stmt->bindValue(':documentStatus', $documentStatus , PDO::PARAM_STR);
+      $stmt->bindValue(':documentStatus', $documentStatus, PDO::PARAM_STR);
   }
+  
   if (!empty($keywords)) {
-    foreach ($keywordArray as $index => $keyword) {
-        $param = ":keyword" . $index;
-        $stmt->bindValue($param, '%' . trim($keyword) . '%', PDO::PARAM_STR);
-    }
+      foreach ($keywordArray as $index => $keyword) {
+          $param = ":keyword" . $index;
+          $stmt->bindValue($param, '%' . trim($keyword) . '%', PDO::PARAM_STR);
+      }
   }
+  
   if (!empty($fromYear)) {
       $stmt->bindValue(':fromYear', $fromYear, PDO::PARAM_INT);
   }
+  
   if (!empty($toYear)) {
       $stmt->bindValue(':toYear', $toYear, PDO::PARAM_INT);
   }
@@ -2418,79 +2485,98 @@ public function COUNT_FILTERED_OWNED_ARCHIVE_RESEARCH($owner_email, $searchInput
   return $row['total'];
 }
 
-public function SELECT_OWNED_ARCHIVE_RESEARCH($owner_email, $searchInput, $keywords, $fromYear, $toYear, $documentStatus, $research_date, $limit, $offset){
+public function SELECT_OWNED_ARCHIVE_RESEARCH($owner_email, $searchInput, $keywords, $fromYear, $toYear, $documentStatus, $research_date, $limit, $offset) {
   $connection = $this->getConnection();
   $query = 'SELECT *, archive_research.id AS archiveID FROM archive_research 
   LEFT JOIN departments ON departments.id = archive_research.department_id
   LEFT JOIN course ON course.id = archive_research.course_id WHERE 1=1';
 
   if (!empty($searchInput)) {
-    $query .= " AND (project_title LIKE :searchInput OR project_abstract LIKE :searchInput OR archive_id LIKE :searchInput)";
+      $query .= " AND (project_title LIKE :searchInput OR project_abstract LIKE :searchInput OR archive_id LIKE :searchInput)";
   }
+  
+  // Combined condition for owner_email
   if (!empty($owner_email)) {
-    $query .= " AND research_owner_email = :ownerEmail";
+      $query .= " AND (research_owner_email = :ownerEmail OR project_members LIKE :collaborator)";
   }
+  
   if (!empty($documentStatus)) {
       $query .= " AND document_status = :documentStatus";
   }
-  if (!empty($fromYear) || $fromYear !== '') {
+  
+  if (!empty($fromYear)) {
       $query .= " AND YEAR(dateOFSubmit) >= :fromYear";
   }
-  if (!empty($toYear) || $toYear !== '') {
+  
+  if (!empty($toYear)) {
       $query .= " AND YEAR(dateOFSubmit) <= :toYear";
   }
+  
   if (!empty($keywords)) {
-    $keywordArray = array_map('trim', explode(',', $keywords));
-    $keywordConditions = [];
+      $keywordArray = array_map('trim', explode(',', $keywords));
+      $keywordConditions = [];
 
-    foreach ($keywordArray as $index => $keyword) {
-        $param = ":keyword" . $index;
-        $keywordConditions[] = "archive_research.keywords LIKE $param";
-    }
+      foreach ($keywordArray as $index => $keyword) {
+          $param = ":keyword" . $index;
+          $keywordConditions[] = "archive_research.keywords LIKE $param";
+      }
 
-    $query .= " AND (" . implode(" OR ", $keywordConditions) . ")";
+      $query .= " AND (" . implode(" OR ", $keywordConditions) . ")";
   }
+  
   if (!empty($research_date)) {
-    $orderDirection = $research_date === 'newest' ? 'DESC' : 'ASC';
-    $query .= " ORDER BY archive_research.id " . $orderDirection;
+      $orderDirection = $research_date === 'newest' ? 'DESC' : 'ASC';
+      $query .= " ORDER BY archive_research.id " . $orderDirection;
   }
+  
   if (!empty($limit)) {
-    $query .= " LIMIT :limit";
+      $query .= " LIMIT :limit";
   }
+  
   if (!empty($offset)) {
-    $query .= " OFFSET :offset";
+      $query .= " OFFSET :offset";
   }
+  
   $stmt = $connection->prepare($query);
 
+  // Bind parameters
   if (!empty($searchInput)) {
       $stmt->bindValue(':searchInput', '%' . $searchInput . '%', PDO::PARAM_STR);
   }
+  
   if (!empty($owner_email)) {
-    $stmt->bindValue(':ownerEmail', $owner_email, PDO::PARAM_STR);
+      $stmt->bindValue(':ownerEmail', $owner_email, PDO::PARAM_STR);
+      $stmt->bindValue(':collaborator', '%' . $owner_email . '%', PDO::PARAM_STR);
   }
+  
   if (!empty($documentStatus)) {
-      $stmt->bindValue(':documentStatus', $documentStatus , PDO::PARAM_STR);
+      $stmt->bindValue(':documentStatus', $documentStatus, PDO::PARAM_STR);
   }
+  
   if (!empty($keywords)) {
-    foreach ($keywordArray as $index => $keyword) {
-        $param = ":keyword" . $index;
-        $stmt->bindValue($param, '%' . trim($keyword) . '%', PDO::PARAM_STR);
-    }
+      foreach ($keywordArray as $index => $keyword) {
+          $param = ":keyword" . $index;
+          $stmt->bindValue($param, '%' . trim($keyword) . '%', PDO::PARAM_STR);
+      }
   }
-  if (!empty($fromYear) || $fromYear !== '') {
+  
+  if (!empty($fromYear)) {
       $stmt->bindValue(':fromYear', $fromYear, PDO::PARAM_INT);
   }
-  if (!empty($toYear) || $toYear !== '') {
+  
+  if (!empty($toYear)) {
       $stmt->bindValue(':toYear', $toYear, PDO::PARAM_INT);
   }
+  
   if (!empty($limit)) {
-    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+      $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
   }
+  
   if (!empty($offset)) {
       $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
   }
+  
   $stmt->execute();
-
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   return $result;

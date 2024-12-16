@@ -46,7 +46,7 @@ if (isset($_POST['email'])) {
 
         echo json_encode(array("status_code" => "success", "status" => "Please check your registered email for OTP code to recover your account.", "alert" => "Success", "redirect" => "../student/recover_account.php"));
     } else {
-        echo json_encode(array("status_code" => "error", "status" => "Please enter a valid email.", "alert" => "Oppss..."));
+        echo json_encode(array("status_code" => "error", "status" => "Sorry, we couldn't find your account. Please try again.", "alert" => "Oppss..."));
     }
 } else {
     echo json_encode(array("status_code" => "error", "status" => "Invalid", "alert" => "Oppss..."));

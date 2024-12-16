@@ -2,10 +2,6 @@
 
 include '../connection/config.php';
 $db = new Database();
-//display all errors
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 
 session_start();
 $userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
@@ -155,8 +151,8 @@ if(isset($_GET['studID'])){
     }
   }
   ?>
-  <div class="col-md-4 p-r-0">
-    <div class="content">
+  <div class="col-md-4 p-0">
+    <div class="content w-100">
       <div class="profile-img">
         <img id="viewImage" src="<?= isset($data['profile_picture']) ? $data['profile_picture'] : '../images/default-profile.svg' ?>" alt="Profile Image">
       </div>

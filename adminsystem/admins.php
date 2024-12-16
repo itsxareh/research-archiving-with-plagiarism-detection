@@ -10,6 +10,7 @@ ini_set('display_errors', 1);
 
 session_start();
 $userRole = $db->getRoleById($_SESSION['auth_user']['role_id']);
+$departmentId = $userRole['department_id'];
 $permissions = explode(',', $userRole['permissions']);
 
 // Helper function to check permissions
@@ -30,6 +31,7 @@ if($_SESSION['auth_user']['admin_id']==0){
     exit(); 
 } else {
     $admin_id = $_SESSION['auth_user']['admin_id'];
+    $filterByDepartment = ($departmentId != 0);
 }
 
 
@@ -215,7 +217,11 @@ require_once 'templates/admin_navbar.php';
                                                 <select class="info-input" name="role_id" required>
                                                     <option value="" selected disabled>Select role</option>
                                                     <?php
-                                                    $data = $db->showRoles();
+                                                    if ($filterByDepartment) {
+                                                        $data = $db->showAllRolesByDepartment($departmentId);
+                                                    } else {
+                                                        $data = $db->showAllRoles();
+                                                    }
                                                     foreach ($data as $role) {
                                                     ?>
                                                     <option value="<?= $role['roleID'] ?>"><?= $role['role_name'] ?></option>
@@ -265,8 +271,11 @@ require_once 'templates/admin_navbar.php';
                         </thead>
                         <tbody>
                             <?php
-                            
-                            $data = $db->showAdmins($admin_id);
+                            if ($filterByDepartment) {
+                                $data = $db->showAdminsByDepartment($admin_id, $departmentId);
+                            } else {
+                                $data = $db->showAdmins($admin_id);
+                            }
                             if (count($data) != 0) {
                             foreach ($data as $result) {
                             ?>
@@ -376,7 +385,7 @@ require_once 'templates/admin_navbar.php';
                                                                     <option value="" selected disabled>Select role</option>
                                                                     <option value="NULL">No role</option>
                                                                     <?php
-                                                                    $data = $db->showRoles();
+                                                                    $data = $db->showAllRoles();
                                                                     foreach ($data as $role) {
                                                                     ?>
                                                                     <option value="<?= $role['roleID'] ?>" <?= ($role['roleID'] === $result['role_id']) ? 'selected' : '' ?>><?= $role['role_name'] ?></option>

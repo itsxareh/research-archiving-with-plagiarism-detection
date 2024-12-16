@@ -52,7 +52,7 @@ if (isset($_POST['updateInfo'])) {
     <form id="image-upload-form" method="POST" enctype="multipart/form-data">
         <label class="change-picture" for="upload-image">
             <div class="profile">
-                <img alt="" id="myImage" title="" class="profile-picture" src="<?php echo $data['admin_profile_picture']; ?>" data-original-title="Usuario">
+                <img alt="" id="myImage" title="" class="profile-picture" src="<?= isset($data['admin_profile_picture']) ? $data['admin_profile_picture'] : '../images/default-profile.svg' ?>" data-original-title="Usuario">
             </div>
             <span class="info-label">Edit photo</span>
             <input id="upload-image" class="upload-image" type="file" name="img_student" onchange="previewAndUploadImage(event)" required accept="image/*">

@@ -151,14 +151,24 @@ ob_start();
                 }
                 
                 $total_percentage = $db->SELECT_TOTAL_PERCENTAGE_PLAGIARISM_WHERE_ARCHIVE_ID($_GET['archiveID']);
-                $percentage = round($total_percentage['total_percentage'], 2);
-                if ($percentage > 100){
-                    $percentage = 100;
-                }
-                echo "<tr>
-                        <td colspan=3 class='text-end'>Total Plagiarized Content:</td>
-                        <td class='text-center'>$percentage%</td>
+                if (count($total_percentage) > 0){
+                    $total = 0;
+                    foreach ($total_percentage as $percentage){
+                        if ($percentage['plagiarism_percentage'] > 100){
+                            $percentage['plagiarism_percentage'] = 100;
+                        }
+                        $total += $percentage['plagiarism_percentage']; 
+                    }
+                    echo "<tr>
+                            <td colspan=3 class='text-end'>Total Plagiarized Content:</td>
+                        <td class='text-center'>".round($total, 2)."%</td>
                     </tr>";
+                } else {
+                    echo "<tr>
+                            <td colspan=3 class='text-end'>Total Plagiarized Content:</td>
+                        <td class='text-center'>0%</td>
+                    </tr>";
+                }
             }
             ?>
             </tbody>

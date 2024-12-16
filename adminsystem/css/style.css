@@ -989,6 +989,12 @@ input:checked + .slider:before {
   text-wrap: balance;
   white-space: nowrap;
 }
+.list-td {
+  font-size: 0.875rem; 
+  line-height: 1.25rem;
+  text-wrap: balance;
+  white-space: nowrap;
+}
 .text-ellipsis {
   overflow: hidden;       
   text-overflow: ellipsis; 
@@ -1014,12 +1020,7 @@ input:checked + .slider:before {
   text-wrap: balance;
   white-space: nowrap;
 }
-.list-td {
-  font-size: 0.875rem; 
-  line-height: 1.25rem;
-  text-wrap: balance;
-  white-space: nowrap;
-}
+
 .header-icon {
   font-size: 18px;
   padding: 12px 15px;

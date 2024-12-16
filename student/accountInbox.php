@@ -3,7 +3,7 @@ if($_SESSION['auth_user']['student_id']==0){
   echo"<script>window.location.href='login.php'</script>";
 }
 
-$inbox = $db->SELECT_ACCOUNT_INBOX($student_id);
+$inbox = $db->SELECT_ACCOUNT_INBOX($student_id, $_SESSION['auth_user']['student_email']);
 ?>
 <strong>Inbox</strong><br>
     <div class="d-flex justify-content-end align-items-center mb-2">

@@ -156,7 +156,7 @@ if (isset($_SESSION['auth_user']['student_id'])){
                 </div>
                     <div class="left-side-nav" style="display: flex; flex-direction: row; justify-content:end; align-items: center; flex:1">
                         <div class="search-bar flex-1" style="padding: 0.675rem;">
-                            <input id="searchInput" name="searchInput" type="text" class="form-control" style="font-size: 12px; height: auto" placeholder="Search...">
+                            <input id="searchInput" name="searchInput" type="text" class="form-control" style="font-size: 12px; height: auto; padding-right: 1.5rem;" placeholder="Search...">
                             <button class="search-btn" id="search-btn" style="background-color: transparent">
                                 <img style="width: 1.275rem; height: 1.275rem; " src="../../images/search.svg" alt="">
                             </button>
