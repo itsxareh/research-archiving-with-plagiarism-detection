@@ -163,6 +163,7 @@ if(isset($_GET['archiveID'])) {
             <div class="detail-row">
                 <div class="detail-label">Plagiarism percentage:</div>
                 <div class="detail-value"><?php echo htmlspecialchars($row['total_percentage'] > 100 ? 100 : ($row['total_percentage'] == 0 ? 0 : round($row['total_percentage'], 2))); ?>%</div>
+
             </div>
             <div class="detail-row">
                 <div class="detail-label">Date uploaded:</div>
