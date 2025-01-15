@@ -1,0 +1,396 @@
+<?php
+
+include '../connection/config.php';
+$db = new Database();
+
+// Enable error reporting
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+
+session_start();
+
+if(isset($_SESSION['auth_user']['student_id']))
+header("location:all_project_list.php");
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EARIST Repository</title>
+  <link rel="shortcut icon" href="images/logo2.webp">
+  <link rel="stylesheet" href="../css/login-sign-up.css">
+  <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link href="css/lib/themify-icons.css" rel="stylesheet">
+  <link href="css/lib/sweetalert/sweetalert.css" rel="stylesheet">
+
+  <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+  <script src="js/lib/sweetalert/sweetalert.min.js"></script>
+  <script src="js/lib/sweetalert/sweetalert.init.js"></script>
+
+  <style>
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 800px;
+      max-height: 70vh;
+      overflow-y: auto;
+      border-radius: 5px;
+    }
+
+    .close {
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    @media screen and (max-width: 768px) {
+      .modal-content {
+        margin: 50% auto;
+      }
+      .terms-content {
+        padding-inline: .5rem !important;
+      }
+    }
+  </style>
+</head>
+<body>  
+  <!-- Header-->
+  <div class="header">
+    <div class="nav-header">
+      <div class="logo">
+        <a href="../index.php"><img src="../images/logo2.webp"></a>
+      </div>
+      <div class="nav-side">
+        <div class="search-bar m-r-16">
+            <input id="searchInput" name="searchInput" type="text" class="form-control" placeholder="Search...">
+            <button class="search-btn" id="search-btn" style="background-color: transparent">
+                <img style="width: 1.275rem; height: 1.275rem; " src="../../images/search.svg" alt="">
+            </button>
+        </div>
+        <div class="nav-login">
+            <a href="login.php" class="login-btn">Log in</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Index Content -->
+  <main>
+    <div class="content-wrapper">
+      <div class="col-xl-12 col-md-12-col sm-12">
+        <div class="row sign-up-content" style="padding-inline: 1.5rem">
+          <div class="col-sm-12 col-md-6 col-xl-6">
+              <div class="intro">
+                <h2>Archive with Ease</h2>
+                <p>Access a full of research resources and manage your work efficiently.</p>
+              </div>
+          </div>
+          <div class="col-sm-12 col-md-6 col-xl-6">
+            <div class="sign-up-container">
+              <form class="form-container" id="signUpForm" action="../php/student_registerCode.php" method="POST">
+              <input type="hidden" name="redirect_to" value="<?= isset($_GET['redirect_to']) ? $_GET['redirect_to'] : '' ?>">
+                <h4>Sign up now</h4>
+                <div class="row">
+                  <div class="col-sm-12 col-md-4 col-xl-4">
+                    <div class="form-input">
+                      <label for="snumber">Student No.</label>
+                      <input type="text" name="snumber" id="snumber" minlength="10" maxlength="10" required>
+                      <span id="snumber-error" class="error-message" style="color: #a33333;"></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-6 col-md-6 col-xl-6">
+                    <div class="form-input">
+                      <label for="firstname">First name</label>
+                      <input type="name" name="firstname" id="firstname" required>
+                      <span id="firstname-error" class="error-message" style="color: #a33333;"></span>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 col-md-6 col-xl-6">
+                    <div class="form-input">
+                      <label for="lastname">Last name</label>
+                      <input type="name" name="lastname" id="lastname" required>
+                      <span id="lastname-error" class="error-message" style="color: #a33333;"></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-12 col-md-6 col-xl-6">
+                    <div class="form-input">
+                      <label for="email">Email</label>
+                      <input type="email" name="email" id="email" required>
+                      <span id="email-error" class="error-message" style="color: #a33333;"></span>
+                    </div>
+                  </div>
+                  <div class="col-sm-12 col-md-6 col-xl-6">
+                    <div class="form-input">
+                      <label for="pnumber">Phone Number</label>
+                      <input type="text" name="pnumber" id="pnumber" oninput="this.value = this.value.replace(/[^0-9]/g, '')" pattern="[0-9]*" maxlength="11"required>
+                      <span id="pnumber-error" class="error-message" style="color: #a33333;"></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-12 col-md-6 col-xl-6">
+                    <div class="form-input">
+                      <label for="department">Department</label>
+                      <select name="department" id="department" required>
+                        <option value=""></option>
+                      <?php 
+                        $res = $db->showDepartments_WHERE_ACTIVE();
+
+                        foreach ($res as $item) {
+                        echo '<option value="'.$item['id'].'">'.$item['name'].'</option>';
+                        }
+                      ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-sm-12 col-md-6 col-xl-6">
+                    <div class="form-input">
+                      <label for="course">Course</label>
+                      <select name="course" id="course" required>
+                        <option value=""></option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-12 col-md-6 col-xl-6">
+                    <div class="form-input">
+                      <label for="password">Password</label>
+                      <input type="password" name="password" id="password" minlength="8" required>
+                      <span  id="password-error" class="error-message m-t-2">Use 8 or more characters with a mix of letters, numbers, & symbols</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="row mt-4">
+                  <div class="col-xl-12 col-md-12 col-sm-12">
+                    <div class="form-input"><div id="termsModal" class="modal">
+                      <div class="modal-content">
+                        <div id="termsContent">
+                          <!-- Terms content will be loaded here -->
+                        </div>
+                        <span class="close"><img src="../images/checked.png" alt=""></span>
+                      </div>
+                    </div>
+
+                    <!-- Modify the terms link in the form -->
+                    <p>By signing up, you agree to our <a href="#" id="termsLink">Terms and Conditions.</a></p>
+
+                      <div class="flex align-items-center">
+                        <button type="submit" name="sign-up" class="sign-up-btn" id="signUpBtn" style="text-wrap: nowrap ;">Sign up</button>
+                        <p style="font-size: 12px; margin-left: 1.5rem" class="mb-0 no-account">Already have an account? <a class="login-link" href="login.php">Log in</a></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <?php include 'templates/footer.php'; ?>
+  </main>
+
+<script>
+const modal = document.getElementById("termsModal");
+const termsLink = document.getElementById("termsLink");
+const span = document.getElementsByClassName("close")[0];
+const termsContent = document.getElementById("termsContent");
+
+termsLink.onclick = function(e) {
+  e.preventDefault();
+  // Load terms content via AJAX
+  fetch('../terms_and_conditions.php')
+    .then(response => response.text())
+    .then(data => {
+      termsContent.innerHTML = data;
+      modal.style.display = "block";
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+
+$('#signUpForm').on('submit', function(e) {
+      e.preventDefault();
+
+      const signUpBtn = $('#signUpBtn');
+      signUpBtn.prop('disabled', true);  
+      
+      $.ajax({
+          url: '../php/student_registerCode.php',
+          type: 'POST',
+          data: $(this).serialize(),
+          success: function(response) {
+              const data = JSON.parse(response);
+              console.log(data);
+              if (data.status_code === 'success') {
+                console.log(data.redirect);
+                setTimeout(() => {
+                    window.location.href = data.redirect;
+                }, 1500);
+              } else {
+                signUpBtn.prop('disabled', false);
+                sweetAlert(data.alert, data.status, data.status_code);
+              }
+          },
+          error: function() {
+              sweetAlert('Error', 'Something went wrong. Please try again.', 'error');
+              signUpBtn.prop('disabled', false);
+          }
+      });
+  });
+
+document.getElementById("snumber").addEventListener("input", validateStudentNo);
+
+function validateStudentNo() {
+  const studentNo = document.getElementById("snumber").value;
+  const errorMessage = document.getElementById("snumber-error");
+
+  errorMessage.textContent = "";
+
+  fetch("../php/checkStudentNo.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `snumber=${encodeURIComponent(studentNo)}`
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.exists === true) {
+      $('#snumber').css('background-image', 'url("../images/close.png")');
+      if (data.message !== null) {
+        errorMessage.textContent = data.message;
+      }
+    } else {
+      $('#snumber').css('background-image', 'url("../images/checked.png")');
+      errorMessage.textContent = "";
+    }
+  })
+  .catch(error => console.error("Error:", error));
+}
+document.getElementById("email").addEventListener("input", validateEmailAddress);
+
+function validateEmailAddress() {
+  const emailNo = document.getElementById("email").value;
+  const errorMessage = document.getElementById("email-error");
+
+  errorMessage.textContent = "";
+
+  fetch("../php/checkEmailAddress.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `email=${encodeURIComponent(emailNo)}`
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.exists === true) {
+      $('#email').css('background-image', 'url("../images/close.png")');
+      if (data.message !== null) {
+        errorMessage.textContent = "Email address already in use.";
+      }
+    } else {
+      $('#email').css('background-image', 'url("../images/checked.png")');
+      errorMessage.textContent = "";
+    }
+  })
+  .catch(error => console.error("Error:", error));
+}
+document.getElementById("password").addEventListener("input", validatePassword);
+
+function validatePassword() {
+  const password = document.getElementById("password").value;
+  const errorMessage = document.getElementById("password-error");
+
+  errorMessage.textContent = "";
+
+  const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  
+  if (!passwordPattern.test(password)) {
+    errorMessage.textContent = "Password must be at least 8 characters with uppercase, lowercase, number & symbol.";
+    $(`#password`).css('background-image', 'url("../images/close.png")');
+  } else {
+    errorMessage.textContent = "";
+    $(`#password`).css('background-image', 'url("../images/checked.png")');
+  }
+}
+
+
+
+const searchInput = document.getElementById("searchInput");
+const searchButton = document.getElementById("search-btn");
+
+searchInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+      event.preventDefault(); 
+      searchButton.click(); 
+  }
+});
+
+searchButton.addEventListener("click", () => {
+    if (searchInput.value.length > 0) {
+        window.location.href = `all_project_list.php?searchInput=${encodeURIComponent(searchInput.value)}`;
+    }
+});
+
+  $("#department").change(function(){
+    var department = $(this).val();
+
+    if(department != " "){
+    $.ajax({
+      url:"show_course.php",
+      method:"POST",
+      data:{"send_department_set":1, "send_department":department},
+
+      success:function(data){
+        $("#course").html(data);
+        $("#course").css("display","block");
+      }
+    });
+  }else{
+    $("#course").css("display","none");
+  }
+});
+
+</script>
+<?php 
+  if (isset($_SESSION['status']) && $_SESSION['status'] != '') {
+?>
+<script>
+  sweetAlert("<?php echo $_SESSION['alert']; ?>", "<?php echo $_SESSION['status']; ?>", "<?php echo $_SESSION['status-code']; ?>");
+</script>
+<?php
+  unset($_SESSION['status']);
+}
+?>
+</script>
+</body>
+</html>
