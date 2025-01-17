@@ -127,7 +127,6 @@ $('#loginForm').on('submit', function(e) {
       data: $(this).serialize(),
       success: function(response) {
           const data = JSON.parse(response);
-          console.log(data);
           if (data.status_code === 'success') {
             window.location.href = data.redirect;
           } else if (data.status_code === 'info') {

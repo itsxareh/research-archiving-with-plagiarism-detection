@@ -557,7 +557,6 @@ $('.toggle-status').change(function() {
             },
             success: function(response) {
                 response = JSON.parse(response);
-                console.log(response);
             },
             error: function() {
                 alert('Error updating admin status.');

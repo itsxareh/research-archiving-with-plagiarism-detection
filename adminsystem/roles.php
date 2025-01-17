@@ -1178,7 +1178,6 @@ $('.toggle-status').change(function() {
             success: function(response) {
                 // response = JSON.parse(response);
 
-                // console.log(response);
                 // sweetAlert(response.alert, response.status, response.statusCode);
             },
             error: function() {

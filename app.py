@@ -174,7 +174,7 @@ def preprocess_image(image: Image.Image) -> Image.Image:
 
         # Step 2: Convert to grayscale and adjust contrast
         gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
-        contrast_adjusted = cv2.convertScaleAbs(gray_image, alpha=1.5, beta=0)
+        contrast_adjusted = cv2.convertScaleAbs(gray_image, alpha=1.4, beta=0)
         cv2.imwrite('preprocessing_steps/2_contrast_adjusted.png', contrast_adjusted)
 
         # Step 3: Fill gaps in text using morphological operations
@@ -263,7 +263,9 @@ def extract_text_from_image(image, default_languages=['eng', 'fil']):
         text = re.sub(r'\s*([,.])\s*', r'\1 ', text)
         text = re.sub(r'\s+', ' ', text)
         text = re.sub(r'(?<=\. )([a-z])', lambda m: m.group(1).upper(), text)
-
+        
+        if text and not text.endswith('.') and text[-1].isalpha():
+            text += '.'
         confidence = min(1.0, len(text) / 100) if text else 0.0
         return text, confidence
 
@@ -402,7 +404,7 @@ def split_into_sentences(text):
         word_count = len([w for w in sentence.split() if re.match(r'[a-zA-Z]{2,}', w)])
         
         # Filter sentences based on word count and other criteria
-        if (7 <= word_count <= 70 and  # Word count between 7 and 50
+        if (7 <= word_count <= 60 and  # Word count between 7 and 50
             len(sentence) >= 40 and     # Minimum character length
             not re.match(r'^[^a-zA-Z]*$', sentence) and  # Contains letters
             not re.match(r'^(table|figure|fig)', sentence.lower())):  # Not a table/figure reference
@@ -598,6 +600,8 @@ def plagiarism_check(new_archive_id, student_id, owner_email, content, current_t
                     if len(doc_matches[similar_id]) > plagiarism_results[similar_id]['matched_sentences']:
                         plagiarism_results[similar_id]['matched_sentences'] = len(doc_matches[similar_id])
                     plagiarism_results[similar_id]['total_similarity'] += match['similarity_percentage']
+
+                print(plagiarism_results)
 
                 for similar_id, results in plagiarism_results.items():
                     avg_similarity = results['total_similarity'] / results['matched_sentences']

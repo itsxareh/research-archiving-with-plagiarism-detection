@@ -301,7 +301,7 @@ require_once 'templates/student_navbar.php';
                                     </div>
                                 </div>
                             </div>
-                            <?php if ($result['research_owner_email'] == $_SESSION['auth_user']['student_email']): ?>
+                            <?php if (trim($result['research_owner_email']) == $_SESSION['auth_user']['student_email']): ?>
                             <div class="project-action">
                                 <button  onclick="confirmDelete(<?= $result['archiveID'] ?>)" class="btn"><img style="width: 20px; height: 20px" src="images/svg/delete.svg" title="Delete Research"></img></a>            
                             </div>
@@ -578,7 +578,6 @@ form.addEventListener('submit', async function(e) {
                     // Short delay before showing result
                     setTimeout(() => {
                         const result = JSON.parse(xhr.responseText);
-                        console.log(result);
                         loadingOverlay.style.display = 'none';
                         if (result.status === 'success') {
                             updateResearchList(result);
@@ -798,7 +797,6 @@ function updateResearchList(result) {
                 limit: limit
             },
             success: function(response){
-                console.log(response);
                 $('#search-result').html(response.html);
                 $('#resultNumber').text(response.totalFilteredCount); 
                 if(response.count > 0) {

@@ -33,73 +33,180 @@ if(isset($_GET['archiveID'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f8f9fa;
+            background-color: #f5f7fb;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #2d3748;
         }
+
         .receipt-container {
-            max-width: 800px;
-            margin: 40px auto;
+            max-width: 900px;
+            margin: 10px auto;
             background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
-        .receipt-logo {
-            max-width: 200px;
-            margin-bottom: 20px;
-        }
+
         .receipt-header {
+            background-color: #f8fafc;
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .header-content {
             display: flex;
             justify-content: space-between;
-            align-items: start;
+            align-items: center;
             margin-bottom: 20px;
         }
+
+        .receipt-logo {
+            max-width: 100px;
+            height: auto;
+        }
+
+        .receipt-title {
+            text-align: center;
+            margin: 16px 0;
+        }
+
+        .receipt-title h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a365d;
+            margin-bottom: 10px;
+        }
+
+        .receipt-title p {
+            color: #64748b;
+            font-size: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .receipt-body {
+            padding: 20px;
+        }
+
+        .detail-section {
+            background-color: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .detail-label {
+            font-size: 0.875rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-size: 1rem;
+            color: #1a365d;
+            font-weight: 500;
+        }
+
         .action-buttons {
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
-        .receipt-details {
-            border-top: 1px solid #dee2e6;
-            margin-top: 20px;
-            padding-top: 20px;
-        }
-        .detail-row {
-            display: grid;
+
+        .btn {
+            padding: 4px 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
             gap: 4px;
-            grid-template-columns: 1fr 1fr;
-            margin-bottom: 8px;
+            transition: all 0.2s ease;
         }
-        .detail-label {
-            color: #6c757d;
+
+        .btn i {
+            font-size: 1rem;
         }
-        .detail-value {
+
+        .btn-outline-primary {
+            border-color: #3182ce;
+            color: #3182ce;
         }
+
+        .btn-outline-primary:hover {
+            background-color: #3182ce;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-success {
+            border-color: #38a169;
+            color: #38a169;
+        }
+
+        .btn-outline-success:hover {
+            background-color: #38a169;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .receipt-container {
+                margin: 20px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                width: 100%;
+                flex-direction: column;
+            }
+        }
+
         @media print {
             body {
                 background-color: white;
             }
+            
             .receipt-container {
-                box-shadow: none;
                 margin: 0;
-                padding: 15px;
+                box-shadow: none;
             }
-            .no-print {
-                display: none !important;
-            }
-            .receipt-details {
-                break-inside: avoid;
-            }
-        }
-        .download-button {
-            color: #28a745;
-            text-decoration: none;
-            margin-left: 10px;
-        }
 
-        .download-button:hover {
-            color: #218838;
-        }
+            .receipt-header {
+                background-color: white;
+            }
 
-        @media print {
+            .detail-section {
+                background-color: white;
+                padding: 0;
+            }
             .no-print {
                 display: none !important;
             }
@@ -107,77 +214,78 @@ if(isset($_GET['archiveID'])) {
     </style>
 </head>
 <body>
-    <div class="receipt-container">
-        <div class="receipt-header">
+<div class="receipt-container">
+    <div class="receipt-header">
+        <div class="header-content">
             <img src="images/logo2.webp" alt="Logo" class="receipt-logo">
             <div class="action-buttons no-print">
-                <button onclick="printReceipt()" class="print-btn btn btn-outline-primary">
-                    <i class="fas fa-print me-2"></i>Print
+                <button onclick="printReceipt()" class="btn btn-outline-primary print-btn">
+                    <i class="fas fa-print"></i>Print Receipt
                 </button>
-                <button onclick="downloadPDF()" class="download-btn btn btn-outline-success">
-                    <i class="fas fa-download me-2"></i>Download PDF
+                <button onclick="downloadPDF()" class="btn btn-outline-success download-btn">
+                    <i class="fas fa-download"></i>Download PDF
                 </button>   
             </div>
         </div>
+        <div class="receipt-title">
+            <h1>Research Submission Receipt</h1>
+            <p>This document serves as official confirmation of your research paper submission. Please retain this receipt for your records as proof of submission.</p>
+        </div>
+    </div>
 
-        <h1 class="h3 mb-4">Digital Receipt</h1>
-        
-        <p class="text-muted">
-            This receipt acknowledges that we received your paper. Below you will find the receipt
-            information regarding your submission.
-        </p>
-
-        <div class="receipt-details">
-            <div class="detail-row">
-                <div class="detail-label">Archive ID:</div>
-                <div class="detail-value"><?php echo htmlspecialchars($row['archiveID']); ?></div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Uploader name:</div>
-                <div class="detail-value"><?php echo htmlspecialchars($row['fname']. ' ' .$row['mname']. ' ' .$row['lname']); ?></div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Project title:</div>
-                <div class="detail-value"><?php echo htmlspecialchars($row['project_title']); ?></div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">File name:</div>
-                <div class="detail-value"><?php echo htmlspecialchars($document_name); ?></div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">File size:</div>
-                <div class="detail-value"><?php echo htmlspecialchars(formatSize($row['file_size'])); ?></div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Page count:</div>
-                <div class="detail-value"><?php echo htmlspecialchars($row['page_count']); ?></div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Word count:</div>
-                <div class="detail-value"><?php echo htmlspecialchars($row['word_count']); ?></div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Character count:</div>
-                <div class="detail-value"><?php echo htmlspecialchars($row['character_count']); ?></div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Plagiarism percentage:</div>
-                <div class="detail-value"><?php echo htmlspecialchars($row['total_percentage'] > 100 ? 100 : ($row['total_percentage'] == 0 ? 0 : round($row['total_percentage'], 2))); ?>%</div>
-
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Date uploaded:</div>
-                <div class="detail-value"><?php echo htmlspecialchars((new DateTime($row['dateOFSubmit']))->format('d M Y H:i:s A')); ?></div>
+    <div class="receipt-body">
+        <div class="detail-section">
+            <h2 class="section-title">Submission Details</h2>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Archive ID</span>
+                    <span class="detail-value"><?php echo htmlspecialchars($row['archiveID']); ?></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Date & Time of Submission</span>
+                    <span class="detail-value"><?php echo htmlspecialchars((new DateTime($row['dateOFSubmit']))->format('d M Y H:i:s A')); ?></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Author</span>
+                    <span class="detail-value"><?php echo htmlspecialchars($row['fname']. ' ' .$row['mname']. ' ' .$row['lname']); ?></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Research Title</span>
+                    <span class="detail-value"><?php echo htmlspecialchars($row['project_title']); ?></span>
+                </div>
             </div>
         </div>
 
-        <!-- QR Code for verification -->
-        <!-- <div class="text-center mt-8">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=<?php echo urlencode('submission_verification.php?archiveID=' . $row['archiveID']); ?>" 
-                 alt="Verification QR Code" 
-                 class="qr-code">
-            <p class="small text-muted mt-2">Scan to verify submission</p>
-        </div> -->
+        <div class="detail-section">
+            <h2 class="section-title">Document Information</h2>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="detail-label">File Name</span>
+                    <span class="detail-value"><?php echo htmlspecialchars($document_name); ?></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">File Size</span>
+                    <span class="detail-value"><?php echo htmlspecialchars(formatSize($row['file_size'])); ?></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Page Count</span>
+                    <span class="detail-value"><?php echo htmlspecialchars($row['page_count']); ?></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Word Count</span>
+                    <span class="detail-value"><?php echo htmlspecialchars($row['word_count']); ?></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Character Count</span>
+                    <span class="detail-value"><?php echo htmlspecialchars($row['character_count']); ?></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Similarity Index</span>
+                    <span class="detail-value"><?php echo htmlspecialchars($row['total_percentage'] > 100 ? 100 : ($row['total_percentage'] == 0 ? 0 : round($row['total_percentage'], 2))); ?>%</span>
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
 
     <!-- Include html2pdf library -->
@@ -190,11 +298,18 @@ if(isset($_GET['archiveID'])) {
         }
 
         function downloadPDF() {
+            const headerContent = document.querySelector('.header-content');
             const noPrint = document.querySelector('.print-btn');
             const noDownload = document.querySelector('.download-btn');
             const element = document.querySelector('.receipt-container');
 
-
+            const originalStyle = headerContent.style.cssText;
+            headerContent.style.cssText = `
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-bottom: 20px;
+            `;
             noPrint.style.display = 'none';
             noDownload.style.display = 'none';
 
@@ -210,6 +325,12 @@ if(isset($_GET['archiveID'])) {
             html2pdf().set(opt).from(element).save().then(() => {
                 noPrint.style.display = 'inline-block';
                 noDownload.style.display = 'inline-block';
+                headerContent.style.cssText = `
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 20px;
+            `;
             });
         }
 

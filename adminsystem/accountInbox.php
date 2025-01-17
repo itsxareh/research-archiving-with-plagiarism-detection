@@ -73,7 +73,6 @@ $inbox = $db->SELECT_ADMIN_INBOX();
 <script src="js/lib/sweetalert/sweetalert.init.js"></script>
 <script>
     $('#searchInbox').on('keyup', function() {
-        console.log($('#searchInbox').val());
         if ($(this).val().length > 0) { 
             filteredData();
         } else {
@@ -91,7 +90,6 @@ $inbox = $db->SELECT_ADMIN_INBOX();
                 searchInbox: searchInbox,
             },
             success: function(response) {
-                console.log(response);
                 $('#search-result').html(response);
             },
             error: function(xhr, status, error) {
@@ -108,7 +106,6 @@ $inbox = $db->SELECT_ADMIN_INBOX();
                 archiveID: archiveID,
             },
             success: function(response) {
-                console.log(response);
                 if (response.success) {
                     $(`#markRead_${archiveID}`).remove();
                 }

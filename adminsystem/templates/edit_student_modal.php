@@ -185,11 +185,9 @@ function validateEmailAddress(inputId, errorId, studID) {
                 method: "POST",
                 data: {"send_department_set": 1, "send_department": departmentId},
                 success: function(data) {
-                    console.log(data);
                     $("#<?= $uniquePrefix ?>course").html(data).css("display", "block");
                 },
                 error: function(xhr, status, error) {
-                    console.log(departmentId);
                     console.log("AJAX error:", error);
                 }
             });

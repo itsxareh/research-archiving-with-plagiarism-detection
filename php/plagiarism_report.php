@@ -13,6 +13,9 @@ $current_date_time = date('Y-m-d H:i:s A');
 if(isset($_GET['archiveID'])){
     $archiveID = $_GET['archiveID'];
     $student_list = $db->SELECT_PLAGIARIZED_RESEARCH_CONTENT_OF($archiveID);
+} else {
+    header("Location: ../bad-request.php");
+    exit();
 }
 
 ob_start();

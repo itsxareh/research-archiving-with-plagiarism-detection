@@ -152,8 +152,7 @@ infoForm.addEventListener('submit', async function(e) {
             body: formData
         });
         
-        const result = await response.json(); // Parse JSON response
-        console.log(result);
+        const result = await response.json();
 
         if (result.status === 'success') {
             swal({

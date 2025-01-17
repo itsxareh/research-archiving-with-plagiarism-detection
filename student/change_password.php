@@ -186,7 +186,6 @@ form.addEventListener('submit', (e) => {
       success: function(response) {
         try {
           const result = JSON.parse(response);
-          console.log(result);
           if (result.status_code === 'success') {
             sweetAlert(result.alert, result.status, result.status_code);
             setTimeout(() => {

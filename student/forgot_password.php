@@ -104,10 +104,8 @@ header("location:all_project_list.php");
             data: $(this).serialize(),
             success: function(response) {
                 const data = JSON.parse(response);
-                console.log(data);
                 emailError.text('');
                 if (data.status_code === 'success') {
-                  console.log(data.redirect);
                   setTimeout(() => {
                       window.location.href = data.redirect;
                   }, 1500);

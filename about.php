@@ -130,11 +130,11 @@ session_start();
       <div class="col-sm-12 col-md-12 col-xl-12" style="color: #000">
       <div class="row" style="max-width: 800px; background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
             <div class="col-12">
-                <h3 class="text-center mb-4">About Us</h3>
+                <h4 class="text-center mb-4">About Us</h4>
                 
                 <div class="card shadow-sm mb-5" style="background-color: transparent; border: none">
                     <div class="card-body" >
-                        <h4 class="card-title text-center">EARIST Repository</h4>
+                        <h5 class="card-title text-center">EARIST Repository</h5>
                         <p class="card-text text-center">
                             The EARIST Repository is a comprehensive digital repository designed to preserve, 
                             manage, and share research papers and academic works from the EARIST community. Our platform 
@@ -145,7 +145,7 @@ session_start();
 
                 <div class="card shadow-sm mb-5" style="background-color: transparent; border: none">
                     <div class="card-body" >
-                        <h4 class="card-title text-center">Our Mission</h4>
+                        <h5 class="card-title text-center">Our Mission</h5>
                         <p class="card-text text-center">
                             To facilitate the preservation and dissemination of academic research while promoting scholarly 
                             communication and collaboration within the EARIST community and beyond.
@@ -155,7 +155,7 @@ session_start();
 
                 <div class="card shadow-sm mb-5" style="background-color: transparent; border: none">
                     <div class="card-body" >
-                        <h4 class="card-title text-center">Key Features</h4>
+                        <h5 class="card-title text-center">Key Features</h5>
                         <ul class="card-text text-center">
                             <li>Digital preservation of research papers and academic works</li>
                             <li>Easy access to scholarly resources</li>
@@ -168,7 +168,7 @@ session_start();
 
                 <div class="card shadow-sm" style="background-color: transparent; border: none">
                     <div class="card-body" >
-                        <h4 class="card-title text-center">Contact Information</h4>
+                        <h5 class="card-title text-center">Contact Information</h5>
                         <p class="card-text text-center">
                             For inquiries and support, please contact:<br>
                             Email: research@earist.edu.ph<br>

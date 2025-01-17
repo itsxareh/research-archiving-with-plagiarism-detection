@@ -424,7 +424,6 @@ function validateDepartment(type) {
         success: function(response) {
             try {
                 const data = JSON.parse(response);
-                console.log(data);
                 if (data.exists) {
                     $("#department_" + type + "_error").text("Department " + type + " already exists").show();
                     $("#department_" + type).css('background-image', 'url("../images/close.png")');

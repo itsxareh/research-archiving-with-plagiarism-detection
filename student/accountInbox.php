@@ -91,7 +91,6 @@ $inbox = $db->SELECT_ACCOUNT_INBOX($student_id, $_SESSION['auth_user']['student_
                 searchInbox: searchInbox,
             },
             success: function(response) {
-                console.log(response);
                 $('#search-result').html(response);
             },
             error: function(xhr, status, error) {
@@ -108,7 +107,6 @@ $inbox = $db->SELECT_ACCOUNT_INBOX($student_id, $_SESSION['auth_user']['student_
                 archiveID: archiveID,
             },
             success: function(response) {
-                console.log(response);
                 if (response.success) {
                     $(`#markRead_${archiveID}`).remove();
                 }

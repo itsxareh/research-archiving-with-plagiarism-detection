@@ -403,7 +403,6 @@ function publishResearch(archiveID){
     fetch(`publish_research.php?archiveID=${archiveID}`)
     .then(response => response.json())
     .then(data => {
-        console.log(data);
         const button = document.getElementById(`action-button_${archiveID}`);
         button.disabled = false;
         button.style.opacity = '1';
@@ -449,7 +448,6 @@ function unpublishResearch(archiveID){
     fetch(`unpublish_research.php?archiveID=${archiveID}`)
     .then(response => response.json())
     .then(data => {
-        console.log(data);
         const button = document.getElementById(`action-button_${archiveID}`);
         button.disabled = false;
         button.style.opacity = '1';
@@ -730,7 +728,6 @@ $("#department").change(function(){
       data:{"send_department_set":1, "send_department":department},
 
       success:function(data){
-        console.log(data);
         $("#course").html(data);
         $("#course").css("display","block");
       }

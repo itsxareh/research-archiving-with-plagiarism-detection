@@ -252,9 +252,7 @@ $('#signUpForm').on('submit', function(e) {
           data: $(this).serialize(),
           success: function(response) {
               const data = JSON.parse(response);
-              console.log(data);
               if (data.status_code === 'success') {
-                console.log(data.redirect);
                 setTimeout(() => {
                     window.location.href = data.redirect;
                 }, 1500);

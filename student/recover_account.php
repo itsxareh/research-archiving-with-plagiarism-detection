@@ -117,7 +117,6 @@ function handleRecovery(e) {
         success: function(response) {
             try {
                 const result = JSON.parse(response);
-                console.log(result);
                 if (result.status_code === 'success') {
                     // Redirect if needed
                     setTimeout(() => {
