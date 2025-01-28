@@ -147,24 +147,16 @@ def detect_language(text):
 def preprocess_image(image: Image.Image) -> Image.Image:
     """
     Preprocesses an image to enhance text readability for OCR.
-
-    Args:
-        image (Image.Image): Input image in PIL format.
-
-    Returns:
-        Image.Image: Preprocessed image as a PIL Image.
     """
     try:
-        # Create directory for saving preprocessing steps
         os.makedirs('preprocessing_steps', exist_ok=True)
 
-        # Convert PIL Image to OpenCV format
         if isinstance(image, Image.Image):
             image_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
         else:
             image_cv = image
 
-        # Step 1: Resize image while maintaining aspect ratio
+        # Resize image
         target_height = 2000
         height, width = image_cv.shape[:2]
         scale_factor = target_height / height
@@ -172,44 +164,44 @@ def preprocess_image(image: Image.Image) -> Image.Image:
         resized_image = cv2.resize(image_cv, (new_width, target_height), interpolation=cv2.INTER_CUBIC)
         cv2.imwrite('preprocessing_steps/1_resized.png', resized_image)
 
-        # Step 2: Convert to grayscale and adjust contrast
+        # Convert to grayscale and adjust contrast
         gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
-        contrast_adjusted = cv2.convertScaleAbs(gray_image, alpha=1.4, beta=0)
+        blurred_image = cv2.GaussianBlur(gray_image, (5, 5), 0)
+        contrast_adjusted = cv2.convertScaleAbs(blurred_image, alpha=1.3, beta=0)
         cv2.imwrite('preprocessing_steps/2_contrast_adjusted.png', contrast_adjusted)
 
-        # Step 3: Fill gaps in text using morphological operations
-        _, binary = cv2.threshold(contrast_adjusted, 200, 255, cv2.THRESH_BINARY_INV)  # Lower threshold for better detail
-        kernel_dilate = np.ones((2, 2), np.uint8)  # Smaller kernel to avoid excessive dilation
-        filled_image = cv2.dilate(binary, kernel_dilate, iterations=1)  # Reduced iterations for subtle effect
+        # Adaptive thresholding
+        adaptive_thresh = cv2.adaptiveThreshold(contrast_adjusted, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
+        cv2.imwrite('preprocessing_steps/3_adaptive_thresh.png', adaptive_thresh)
 
-        kernel_clean = np.ones((3, 3), np.uint8)  # Adjust closing kernel size
-        filled_image = cv2.morphologyEx(filled_image, cv2.MORPH_CLOSE, kernel_clean)  # Close gaps without over-smoothing
+        # Morphological operations
+        kernel_dilate = np.ones((2, 2), np.uint8)
+        filled_image = cv2.dilate(adaptive_thresh, kernel_dilate, iterations=1)
+        kernel_clean = np.ones((3, 3), np.uint8)
+        filled_image = cv2.morphologyEx(filled_image, cv2.MORPH_CLOSE, kernel_clean)
+        cv2.imwrite('preprocessing_steps/4_filled.png', filled_image)
 
-        cv2.imwrite('preprocessing_steps/3_filled.png', filled_image)
-
-        # Step 4: Apply denoising to remove background noise
+        # Denoising
         denoised_image = cv2.fastNlMeansDenoising(filled_image, None, h=15, templateWindowSize=7, searchWindowSize=21)
-        cv2.imwrite('preprocessing_steps/4_denoised.png', denoised_image)
+        cv2.imwrite('preprocessing_steps/5_denoised.png', denoised_image)
 
-        # Step 5: Enhance text edges using sharpening
-        sharpening_kernel = np.array([[-1, -1, -1],
-                                       [-1, 9, -1],
-                                       [-1, -1, -1]])
+        # Sharpening
+        sharpening_kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
         sharpened_image = cv2.filter2D(denoised_image, -1, sharpening_kernel)
-        cv2.imwrite('preprocessing_steps/5_sharpened.png', sharpened_image)
+        cv2.imwrite('preprocessing_steps/6_sharpened.png', sharpened_image)
 
-        # Step 6: Final binarization and noise removal
+        # Final binarization and noise removal
         _, binary_final = cv2.threshold(sharpened_image, 127, 255, cv2.THRESH_BINARY)
         contours, _ = cv2.findContours(binary_final, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         for contour in contours:
             if cv2.contourArea(contour) < 30:
                 cv2.drawContours(binary_final, [contour], -1, 0, -1)
 
-        # Step 7: Add padding and invert colors for OCR
+        # Add padding and invert colors for OCR
         padding = 50
         padded_image = cv2.copyMakeBorder(binary_final, padding, padding, padding, padding, cv2.BORDER_CONSTANT, value=0)
         final_image = cv2.bitwise_not(padded_image)
-        cv2.imwrite('preprocessing_steps/6_final.png', final_image)
+        cv2.imwrite('preprocessing_steps/7_final.png', final_image)
 
         return Image.fromarray(final_image)
 
@@ -218,26 +210,52 @@ def preprocess_image(image: Image.Image) -> Image.Image:
         traceback.print_exc()
         return image
 
+def correct_punctuation(text):
+    """
+    Corrects punctuation and spacing in the extracted text.
+    """
+    # Ensure spaces after punctuation
+    text = re.sub(r'(?<=[.,])(?=[^\s])', r' ', text)
+    
+    # Ensure spaces before opening parentheses and after closing parentheses
+    text = re.sub(r'(\()', r' \1', text)
+    text = re.sub(r'(\))', r'\1 ', text)
+    
+    # Ensure spaces after commas
+    text = re.sub(r'(?<=[^ ]),(?=[^ ])', r', ', text)
+    
+    # Ensure spaces after periods
+    text = re.sub(r'(?<=[^ ])\.(?=[^ ])', r'. ', text)
+    
+    # Capitalize the first letter after a period
+    text = re.sub(r'(?<=\. )([a-z])', lambda m: m.group(1).upper(), text)
+    
+    # Remove extra spaces
+    text = re.sub(r'\s+', ' ', text)
+    
+    # Ensure proper spacing around hyphens
+    text = re.sub(r'(?<=[^ ])-(?=[^ ])', r' - ', text)
+    
+    # Ensure proper spacing around slashes
+    text = re.sub(r'(?<=[^ ])/(?=[^ ])', r' / ', text)
+    
+    # Remove spaces before punctuation
+    text = re.sub(r'\s+([.,])', r'\1', text)
+    
+    # Infer missing periods before "Section"
+    text = re.sub(r'(?<=[a-z])\s+(Section \d)', r'. \1', text)
+    
+    return text.strip()
+
 def extract_text_from_image(image, default_languages=['eng', 'fil']):
     """
     Enhanced text extraction with better handling of mixed languages and styled text.
     """
     try:
-        # Preprocess the image
         processed_image = preprocess_image(image)
         
-        # Configure Tesseract for better accuracy with styled text
-        custom_config = r'''--oem 3 
-            --psm 6 
-            --dpi 300
-            #-c tessedit_char_blacklist=|[]{}()<> 
-            -c textord_heavy_nr=1
-            -c textord_min_linesize=2.5
-            -c textord_min_xheight=5
-            -c tessedit_enable_dict_correction=1
-            -c tessedit_enable_bigram_correction=1'''
+        custom_config = r'''--oem 3 --psm 6 --dpi 300 -c tessedit_char_blacklist=|[]{}()<> -c textord_heavy_nr=1 -c textord_min_linesize=2.5 -c textord_min_xheight=5 -c tessedit_enable_dict_correction=1 -c tessedit_enable_bigram_correction=1'''
 
-        # Perform OCR with multiple language detection
         text_data = pytesseract.image_to_data(
             processed_image,
             lang='+'.join(default_languages),
@@ -245,7 +263,6 @@ def extract_text_from_image(image, default_languages=['eng', 'fil']):
             output_type=pytesseract.Output.DICT
         )
 
-        # Process the results with confidence filtering
         words = []
         confidences = []
         
@@ -253,16 +270,14 @@ def extract_text_from_image(image, default_languages=['eng', 'fil']):
             word = text_data['text'][i].strip()
             conf = int(text_data['conf'][i])
             
-            if word and conf > 30:
+            if word and conf > 60:
                 words.append(word)
                 confidences.append(conf)
 
         text = ' '.join(words)
         
-        text = re.sub(r'\.(?=[A-Z])', '. ', text)
-        text = re.sub(r'\s*([,.])\s*', r'\1 ', text)
-        text = re.sub(r'\s+', ' ', text)
-        text = re.sub(r'(?<=\. )([a-z])', lambda m: m.group(1).upper(), text)
+        # Correct punctuation and spacing
+        text = correct_punctuation(text)
         
         if text and not text.endswith('.') and text[-1].isalpha():
             text += '.'
