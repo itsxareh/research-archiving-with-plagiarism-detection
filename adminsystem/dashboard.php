@@ -140,22 +140,31 @@ require_once 'templates/admin_navbar.php';
                                         </div>
                                         <p class="card-title mb-3">Research Papers</p>
                                         <div class="card-text">
-                                        <?php
-                                        if($filterByDepartment){
-                                            $rows = $db->SELECT_COUNT_ALL_ARCHIVE_RESEARCH_BY_DEPARTMENT($departmentId);
-                                        }else{
-                                            $rows = $db->SELECT_COUNT_ALL_ARCHIVE_RESEARCH();
-                                        }
-                                            
-                                        if ($rows['count'] > 0){
-                                            echo "<h3>{$rows['count']}</h3>";
-                                        }else{
-                                            echo "<h3>0</h3>";
-                                        }
-                                        ?>
+                                            <?php
+                                            if($filterByDepartment){
+                                                $rows = $db->SELECT_COUNT_ALL_ARCHIVE_RESEARCH_BY_DEPARTMENT($departmentId);
+                                            }else{
+                                                $rows = $db->SELECT_COUNT_ALL_ARCHIVE_RESEARCH();
+                                            }
+                                                
+                                            if ($rows['count'] > 0){
+                                                echo "<h3>{$rows['count']}</h3>";
+                                            }else{
+                                                echo "<h3>0</h3>";
+                                            }
+                                            ?>
+                                            <p class="mb-0" style="font-size: 14px">Total</p>
                                         </div>
-                                        <p class="mb-0" style="font-size: 14px">Total</p>
-                                        
+                                        <div class="card-text mt-4">
+                                            <?php 
+                                            if ($_SESSION['auth_user']['role_id'] == 1){
+                                                $requests = $db->SELECT_COUNT_ALL_PENDING_REQUEST_ACCESS();
+                                                $r_count = $requests['count'] ?? 0;
+                                                echo '<a class="mb-0" style="font-size: 14px; color: #a33333" href="access_requests.php">Access Requests <span class="bg bg-danger pr-1 pl-1" style="border-radius: 10px">'.$r_count.'</span></a>';
+                                            }
+                                            
+                                            ?>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -241,6 +250,9 @@ require_once 'templates/admin_navbar.php';
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="b-row">
+
                 </div>
                 <div class="b-row">
                     <div class="col-md-12 col-xl-6">

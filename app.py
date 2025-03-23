@@ -144,6 +144,7 @@ def detect_language(text):
         # If uncertain, return default languages
         return ['eng', 'fil']
 
+
 def preprocess_image(image: Image.Image) -> Image.Image:
     """
     Preprocesses an image to enhance text readability for OCR.
@@ -164,44 +165,41 @@ def preprocess_image(image: Image.Image) -> Image.Image:
         resized_image = cv2.resize(image_cv, (new_width, target_height), interpolation=cv2.INTER_CUBIC)
         cv2.imwrite('preprocessing_steps/1_resized.png', resized_image)
 
-        # Convert to grayscale and adjust contrast
+        # Convert to grayscale
         gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
-        blurred_image = cv2.GaussianBlur(gray_image, (5, 5), 0)
-        contrast_adjusted = cv2.convertScaleAbs(blurred_image, alpha=1.3, beta=0)
-        cv2.imwrite('preprocessing_steps/2_contrast_adjusted.png', contrast_adjusted)
 
-        # Adaptive thresholding
-        adaptive_thresh = cv2.adaptiveThreshold(contrast_adjusted, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
-        cv2.imwrite('preprocessing_steps/3_adaptive_thresh.png', adaptive_thresh)
+        # Noise reduction
+        denoised_image = cv2.fastNlMeansDenoising(gray_image, None, 30, 7, 21)
+        cv2.imwrite('preprocessing_steps/2_denoised.png', denoised_image)
 
-        # Morphological operations
-        kernel_dilate = np.ones((2, 2), np.uint8)
-        filled_image = cv2.dilate(adaptive_thresh, kernel_dilate, iterations=1)
-        kernel_clean = np.ones((3, 3), np.uint8)
-        filled_image = cv2.morphologyEx(filled_image, cv2.MORPH_CLOSE, kernel_clean)
-        cv2.imwrite('preprocessing_steps/4_filled.png', filled_image)
+        # Apply CLAHE (Contrast Limited Adaptive Histogram Equalization)
+        clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8,8))
+        enhanced_image = clahe.apply(denoised_image)
+        cv2.imwrite('preprocessing_steps/3_clahe.png', enhanced_image)
 
-        # Denoising
-        denoised_image = cv2.fastNlMeansDenoising(filled_image, None, h=15, templateWindowSize=7, searchWindowSize=21)
-        cv2.imwrite('preprocessing_steps/5_denoised.png', denoised_image)
+        # Adaptive thresholding (Tuned)
+        adaptive_thresh = cv2.adaptiveThreshold(
+            enhanced_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 15, 4
+        )
+        cv2.imwrite('preprocessing_steps/4_adaptive_thresh.png', adaptive_thresh)
 
-        # Sharpening
+        # Otsu’s Thresholding for better binarization
+        _, otsu_thresh = cv2.threshold(enhanced_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        cv2.imwrite('preprocessing_steps/5_otsu.png', otsu_thresh)
+
+        # Morphological operations (Closing small gaps)
+        kernel = np.ones((2, 2), np.uint8)
+        morphed_image = cv2.morphologyEx(otsu_thresh, cv2.MORPH_CLOSE, kernel, iterations=2)
+        cv2.imwrite('preprocessing_steps/6_morphology.png', morphed_image)
+
+        # Sharpening filter for better edges
         sharpening_kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
-        sharpened_image = cv2.filter2D(denoised_image, -1, sharpening_kernel)
-        cv2.imwrite('preprocessing_steps/6_sharpened.png', sharpened_image)
+        sharpened_image = cv2.filter2D(morphed_image, -1, sharpening_kernel)
+        cv2.imwrite('preprocessing_steps/7_sharpened.png', sharpened_image)
 
-        # Final binarization and noise removal
-        _, binary_final = cv2.threshold(sharpened_image, 127, 255, cv2.THRESH_BINARY)
-        contours, _ = cv2.findContours(binary_final, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        for contour in contours:
-            if cv2.contourArea(contour) < 30:
-                cv2.drawContours(binary_final, [contour], -1, 0, -1)
-
-        # Add padding and invert colors for OCR
-        padding = 50
-        padded_image = cv2.copyMakeBorder(binary_final, padding, padding, padding, padding, cv2.BORDER_CONSTANT, value=0)
-        final_image = cv2.bitwise_not(padded_image)
-        cv2.imwrite('preprocessing_steps/7_final.png', final_image)
+        # Invert colors for OCR
+        final_image = cv2.bitwise_not(sharpened_image)
+        cv2.imwrite('preprocessing_steps/8_final.png', final_image)
 
         return Image.fromarray(final_image)
 
@@ -209,7 +207,6 @@ def preprocess_image(image: Image.Image) -> Image.Image:
         print(f"Image preprocessing error: {e}")
         traceback.print_exc()
         return image
-
 def correct_punctuation(text):
     """
     Corrects punctuation and spacing in the extracted text.
@@ -242,8 +239,8 @@ def correct_punctuation(text):
     # Remove spaces before punctuation
     text = re.sub(r'\s+([.,])', r'\1', text)
     
-    # Infer missing periods before "Section"
-    text = re.sub(r'(?<=[a-z])\s+(Section \d)', r'. \1', text)
+    if text and not text.endswith('.'):
+        text += '.'
     
     return text.strip()
 

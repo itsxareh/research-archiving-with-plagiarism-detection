@@ -882,8 +882,8 @@ a.dt-button.active:not(.disabled) {
   background-color: transparent;
 }
 .highlight {
-  background-color: #a33333;
-  color: #fff;
+  background-color: #de5353;
+  color: #eeeeee;
   padding-inline: 4px;
 }
 .close-right{

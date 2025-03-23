@@ -39,11 +39,11 @@ class Database {
 
     return $result;
 }
-   public function admin_register_select_email($email, $admin_id) {
+   public function admin_register_select_email($email) {
     $connection = $this->getConnection();
 
     $stmt = $connection->prepare("SELECT * FROM admin_account WHERE admin_email = ? AND id != ?");
-    $stmt->execute([$email, $admin_id]);
+    $stmt->execute([$email]);
     $result = $stmt->fetch(); # get user data
 
     return $result;
@@ -771,6 +771,37 @@ public function SELECT_COUNT_ALL_ARCHIVE_RESEARCH_WHERE_PUBLISH_BY_DEPARTMENT($d
 
   return $result;
 }
+
+public function SELECT_COUNT_ALL_PENDING_REQUEST_ACCESS(){
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT COUNT(*) as count FROM access_requests WHERE request_status = 'pending'");
+  $stmt->execute();
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+}
+
+public function SELECT_ALL_ACCESS_REQUEST(){
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare("SELECT ar.*, 
+          COALESCE(s.first_name, a.first_name) AS first_name,
+          COALESCE(s.last_name, a.last_name) AS last_name,
+          CASE 
+              WHEN s.student_id IS NOT NULL THEN 'Student'
+              WHEN a.uniqueID IS NOT NULL THEN 'Admin'
+              ELSE 'Unknown'
+          END AS user_type
+          FROM access_requests ar 
+          LEFT JOIN students_data s ON ar.user_id = s.student_id
+          LEFT JOIN admin_account a ON ar.user_id = a.uniqueID
+          ORDER BY ar.request_date DESC");
+  $stmt->execute();
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $result;
+}
 public function SELECT_RECENT_RESEARCH_PAPER(){
   $connection = $this->getConnection();
 
@@ -779,6 +810,16 @@ public function SELECT_RECENT_RESEARCH_PAPER(){
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   return $result;
+}
+
+public function UPDATE_ACCESS_REQUEST($query, $params){
+  $connection = $this->getConnection();
+
+  $stmt = $connection->prepare($query);
+  $stmt->execute($params);
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return true;
 }
 public function SELECT_RECENT_RESEARCH_PAPER_WHERE_DEPARTMENT($departmentId){
   $connection = $this->getConnection();
@@ -2159,6 +2200,61 @@ public function admin_Insert_NOTIFICATION($admin_id, $logs, $date, $time) {
   $sql = $connection->prepare("INSERT INTO admin_systemnotification(admin_id, logs, logs_date, logs_time) VALUES (?, ?, ?, ?)");
   $success = $sql->execute([$admin_id, $logs, $date, $time]);
   return $success;
+}
+
+public function INSERT_ACCESS_REQUEST($archive_id, $user_id, $request_reason) {
+  $sql = "INSERT INTO access_requests (archive_id, user_id, request_reason) 
+          VALUES (:archive_id, :user_id, :request_reason)";
+  $stmt = $this->conn->prepare($sql);
+  $stmt->bindParam(':archive_id', $archive_id);
+  $stmt->bindParam(':user_id', $user_id);
+  $stmt->bindParam(':request_reason', $request_reason);
+  return $stmt->execute();
+}
+
+public function CHECK_ACCESS_REQUEST($archive_id, $user_id) {
+  $sql = "SELECT * FROM access_requests 
+          WHERE archive_id = :archive_id AND student_id = :student_id
+          ORDER BY request_date DESC LIMIT 1";
+  $stmt = $this->conn->prepare($sql);
+  $stmt->bindParam(':archive_id', $archive_id);
+  $stmt->bindParam(':student_id', $user_id, PDO::PARAM_INT);
+  $stmt->execute();
+  return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+public function GET_ACCESS_STATUS($archive_id, $user_id) {
+  $sql = "SELECT request_status FROM access_requests 
+          WHERE archive_id = :archive_id AND user_id = :user_id
+          ORDER BY request_date DESC LIMIT 1";
+  $stmt = $this->conn->prepare($sql);
+  $stmt->bindParam(':archive_id', $archive_id);
+  $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+  $stmt->execute();
+  $row = $stmt->fetch(PDO::FETCH_ASSOC);
+  return $row ? $row['request_status'] : null;
+}
+
+public function SELECT_EMAIL_AND_PROJECT_TITLE_IN_ACCESS_REQUEST($request_id){
+  $connection = $this->getConnection();
+
+  $sql = $connection->prepare("SELECT ar.*, rp.project_title,
+          COALESCE(s.student_email, a.admin_email) AS email,
+          CASE 
+              WHEN s.student_id IS NOT NULL THEN 'Student'
+              WHEN a.uniqueID IS NOT NULL THEN 'Admin'
+              ELSE 'Unknown'
+          END AS user_type
+          FROM access_requests ar 
+          LEFT JOIN students_data s ON ar.user_id = s.student_id
+          LEFT JOIN admin_account a ON ar.user_id = a.uniqueID
+          LEFT JOIN archive_research rp ON ar.archive_id = rp.archive_id
+          WHERE ar.request_id = ?
+          ORDER BY ar.request_date DESC");
+  $sql->execute([$request_id]);
+  $result = $sql->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
 }
 
 //NOTIFICATION COUNT

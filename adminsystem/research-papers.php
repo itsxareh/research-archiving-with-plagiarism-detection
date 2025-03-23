@@ -174,7 +174,7 @@ require_once 'templates/admin_navbar.php';
                                     </div>
                                     <div class="col-sm-2 item-detail p-0">
                                         <label for="" class="info-label m-l-4">Project year</label>
-                                        <select class="info-input" style="" name="year" id="year" required>
+                                        <select class="info-input" name="year" id="year" required>
                                             <?php 
                                                 $defaultYear = date('Y');
                                                 for ($year = date('Y'); $year >= 1999; $year--) {
@@ -260,6 +260,9 @@ require_once 'templates/admin_navbar.php';
                     </button>
                 <?php endif; ?>
             </div>
+            <div class="">
+                
+            </div>
                 <div class="list-container">
                     <table id="datatablesss" class="table list-table" style="width:100%">
                         <colgroup>
@@ -339,9 +342,23 @@ require_once 'templates/admin_navbar.php';
                                                 <?php if (hasPermission($permissions, 'research_view')): ?>
                                                     <a href="view_archive_research.php?archiveID=<?= $result['aid'] ?>" class="dropdown-action-item">View paper</a>
                                                 <?php endif; ?>
-                                                <?php if (hasPermission($permissions, 'research_download')): ?>
-                                                    <a href="download_file.php?archiveID=<?= $result['aid'] ?>" class="dropdown-action-item" download>Download PDF</a>
-                                                <?php endif; ?>
+                                                <?php 
+                                                    $is_super_admin = isset($_SESSION['auth_user']['admin_id']) && $_SESSION['auth_user']['role_id'] == 1;
+                                                    if (hasPermission($permissions, 'research_download')) {
+                                                        if ($is_super_admin) { ?>
+                                                            <a href="download_file.php?archiveID=<?= $result['aid'] ?>" class="dropdown-action-item" download>Download PDF</a>
+                                                        <?php
+                                                        } else {
+                                                            $user_id = isset($_SESSION['auth_user']['admin_uniqueID']);
+                                                            $access_status = $db->GET_ACCESS_STATUS($result['archiveID'], $user_id);
+                                                            
+                                                            if ($access_status == 'approved') { ?>
+                                                                <a href="download_file.php?archiveID=<?= $result['aid'] ?>" class="dropdown-action-item" download>Download PDF</a>
+                                                            <?php
+                                                            }
+                                                        }
+                                                    }
+                                                ?>
                                                 <?php if (hasPermission($permissions, 'research_publish')): ?>
                                                     <?php if ($result['document_status'] === 'Accepted'): ?>
                                                         <a href="#" onclick="confirmUnpublish(<?= $result['archiveID'] ?>)" class="dropdown-action-item">Unpublish</a>

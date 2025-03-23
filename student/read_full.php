@@ -32,7 +32,23 @@ if(isset($_GET['archiveID'])){
       }
         
     }
+if (!isset($_SESSION['auth_user']) || !isset($_SESSION['auth_user']['student_id'])) {
+    header("Location: login.php?redirect_to=../student/read_full.php?archiveID=" . $_GET['archiveID']);
+    exit();
+}
 
+// Check access permission
+$archive_id = $_GET['archiveID'];
+$student_id = $_SESSION['auth_user']['student_no'];
+$access_status = $db->GET_ACCESS_STATUS($archive_id, $student_id);
+
+if ($access_status != 'approved') {
+  $_SESSION['status'] = "You don't have permission to access this document. Please request access first.";
+  $_SESSION['alert'] = "Access required";
+  $_SESSION['status-code'] = "info";
+    header("Location: view_project_research.php?archiveID=" . $archive_id);
+    exit();
+}
 ?>
 
 

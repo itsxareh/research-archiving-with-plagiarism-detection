@@ -58,6 +58,7 @@ if($_SESSION['auth_user']['admin_id']==0){
     <link rel="apple-touch-icon" sizes="57x57" href="http://placehold.it/57.png/000/fff">   
 
     <!-- Common -->
+    <link href="../css/styles.css" rel="stylesheet">
     <link href="css/lib/font-awesome.min.css" rel="stylesheet">
     <link href="css/lib/menubar/sidebar.css" rel="stylesheet">
     <link href="css/lib/themify-icons.css" rel="stylesheet">
@@ -81,7 +82,6 @@ if($_SESSION['auth_user']['admin_id']==0){
 require_once 'templates/admin_navbar.php';
 ?>
 <!---------NAVIGATION BAR ENDS-------->
-
 <div class="content-wrap">
   <div class="container">
       <div class="col-md-12">
@@ -122,8 +122,36 @@ require_once 'templates/admin_navbar.php';
                <p style="font-size: 22px; color: #313131; margin-bottom: .275rem">Abstract</p>
                <p style="height: auto; background:none; border: none; margin: 0" class="detail-font" id="projectAbstract" readonly><?php echo $data['project_abstract']; ?></p>
               </div>
-              <br>
-              <a style="color: #BB0505;" href="read_full.php?archiveID=<?php echo $data['archive_id'] ; ?>">Read full text</a>
+              <br> 
+              <?php if (isset($_SESSION['auth_user'])):
+                  $user_id = $_SESSION['auth_user']['admin_uniqueID'];
+                  $archive_id = $data['archive_id'];
+                  $is_super_admin = isset($_SESSION['auth_user']['admin_id']) && $_SESSION['auth_user']['role_id'] == 1;
+                  
+                  if ($is_super_admin): // If admin with role_id 0, grant automatic access
+              ?>
+                  <a style="color: #BB0505;" href="read_full.php?archiveID=<?php echo $data['archive_id']; ?>">Read full text</a>
+              <?php else: // For students and other admin roles, check access status
+                  $access_status = $db->GET_ACCESS_STATUS($archive_id, $user_id);
+                  if ($access_status == 'approved'): 
+              ?>
+                  <a style="color: #BB0505;" href="read_full.php?archiveID=<?php echo $data['archive_id']; ?>">Read full text</a>
+              <?php elseif ($access_status == 'pending'): ?>
+                  <div class="alert alert-info mt-2">
+                      <p class="m-0">Your access request for this document is pending approval.</p>
+                  </div>
+              <?php elseif ($access_status == 'denied'): ?>
+                  <div class="alert alert-danger mt-2">
+                      <p class="m-0">Your access request for this document was denied.</p>
+                      <a href="javascript:void(0);" class="request-access-btn">Request Access Again</a>
+                  </div>
+              <?php else: ?>
+                  <a href="javascript:void(0);" class="request-access-btn" style="color: #BB0505;"><?= $access_status ?>Request access to read full text</a>
+              <?php endif; ?>
+              <?php endif; ?>
+              <?php else: // Not logged in ?>
+                  <a style="color: #BB0505;" href="javascript:void(0);" data-require-login="true">Read full text</a>
+              <?php endif; ?>
             </div>
           </div>
           <div class="col-md-4">
@@ -218,16 +246,95 @@ require_once 'templates/admin_navbar.php';
     </div>
   </div>                                        
 </div>
+<div id="request-access-popup" tabindex="-1"
+    class="bg-black/50 hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 h-full items-center justify-center flex">
+    <div class="relative p-4 w-full max-w-md h-full h-auto">
+        <div class="relative bg-white rounded-lg shadow">
+            <button type="button"
+                class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center popup-close">
+                <svg aria-hidden="true" class="w-5 h-5" style="width: 1.25rem !important;" fill="#000" viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      cliprule="evenodd">
+                    </path>
+                </svg>
+                <span class="sr-only">Close popup</span>
+            </button>
+
+            <div class="p-15">
+                <div class="text-center">
+                    <p class="mb-3 text-2xl font-semibold leading-5 text-slate-900">
+                        Request Access
+                    </p>
+                </div>
+                
+                <form id="access-request-form" method="post" action="">
+                    <input type="hidden" name="archive_id" value="<?php echo $data['archiveID']; ?>">
+                    
+                    <div class="mt-4">
+                        <label for="request_reason" class="block text-sm font-medium text-slate-700 mb-1">Reason for access request</label>
+                        <textarea 
+                            name="request_reason" 
+                            id="request_reason" 
+                            rows="4" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a33333]" 
+                            required
+                        ></textarea>
+                    </div>
+                    
+                    <div class="mt-6 text-center">
+                        <button type="submit"
+                            class="inline-flex w-full items-center justify-center rounded-lg hover:bg-[#c54b4b] bg-[#a33333] p-2 py-3 text-sm font-medium text-white outline-none focus:ring-2 focus:ring-black focus:ring-offset-1">
+                            Submit Request
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <!----------------UPLOAD OR UPDATE AN IMAGE AND DISPLAYS THE SELECTED IMAGE FIRST BEFORE UPDATING OR UPLOADING--------------->
 <script>
-    function previewImage(event) {
-  var reader = new FileReader();
-  reader.onload = function () {
-    var output = document.getElementById('myImage');
-    output.src = reader.result;
-  }
-  reader.readAsDataURL(event.target.files[0]);
-}
+document.addEventListener('DOMContentLoaded', function() {
+    // Request access button handlers
+    document.querySelectorAll('.request-access-btn').forEach(function(element) {
+        element.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('request-access-popup').classList.remove('hidden');
+        });
+    });
+    
+    // Close popup handlers
+    document.querySelectorAll('.popup-close').forEach(function(element) {
+        element.addEventListener('click', function() {
+            document.getElementById('request-access-popup').classList.add('hidden');
+        });
+    });
+});
+
+const requestForm = document.getElementById('access-request-form');
+requestForm.addEventListener('submit', async function(e){
+  e.preventDefault();
+
+  const formData = new FormData(requestForm);
+  $.ajax({
+    url: '../php/process_request_access.php',
+    type: 'POST',
+    dataType: 'json',
+    data: {
+      archive_id: formData.get('archive_id'),
+      request_reason: formData.get('request_reason')
+    },
+    success: function(response){
+      document.getElementById('request-access-popup').classList.add('hidden');
+
+      if(response){
+        sweetAlert()
+      }
+    }
+  })
+})
 </script>
 
 
