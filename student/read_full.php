@@ -129,27 +129,34 @@ require_once 'templates/student_navbar.php';
               </div>
             <div class="form-group" style="padding-top: 1rem;">
             <?php
-              $fileExtension = strtolower(pathinfo($data['documents'], PATHINFO_EXTENSION));
-              
+              $filePath = $data['documents'];
+              $fileExtension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+
               if ($fileExtension === 'pdf') {
-                  // Display PDF directly in iframe
-                  ?>
-                  <iframe src="<?php echo $data['documents']; ?>" width="100%" height="900px" allowfullscreen></iframe>
-                  <?php
-              } else if ($fileExtension === 'doc' || $fileExtension === 'docx') {
-                  // Use Google Docs Viewer for DOC/DOCX files
-                  $encodedUrl = urlencode('https://' . $_SERVER['HTTP_HOST'] . '/' . $data['documents']);
-                  ?>
-                  <iframe src="https://docs.google.com/gview?url=<?php echo urlencode($data['documents']); ?>&embedded=true" 
-                    style="width:100%; height:600px;" frameborder="0"></iframe>
-                  <?php
-              }
               ?>
-              <div class="text-center">
-                <a href="download_file.php?archiveID=<?= $archiveID ?>" class="download-pdf-button" download>Download PDF</a>
-              </div>
+              <iframe src="../web/viewer.html?file=<?php echo $filePath; ?>" width="100%" height="900px" style="border:none"></iframe>
+              <?php
+              } else if ($fileExtension === 'doc' || $fileExtension === 'docx') {
+                $uploadDir = dirname(__FILE__) . '/../' . dirname($filePath); 
+                $docFilename = basename($filePath);
+                $pdfFilename = preg_replace('/\.(docx|doc)$/i', '.pdf', $docFilename);
+                $pdfPath = $uploadDir . '/' . $pdfFilename;
+
+                if (!file_exists($pdfPath)) {
+                    $cmd = "libreoffice --headless --convert-to pdf \"$uploadDir/$docFilename\" --outdir \"$uploadDir\"";
+                    exec($cmd, $output, $resultCode);
+
+                    if ($resultCode !== 0) {
+                        echo "Failed to convert DOC/DOCX to PDF.";
+                        exit;
+                    }
+                } 
+                ?>
+                <iframe src="../web/viewer.html?file=<?php echo dirname($filePath) . '/' . $pdfFilename; ?>" width="100%" height="900px" style="border:none"></iframe>
+                <?php
+              }
+            ?>
             </div>
-            
           </div>
           <div class="col-md-4">
             <div class="">
