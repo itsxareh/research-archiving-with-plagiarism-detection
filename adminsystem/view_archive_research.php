@@ -131,7 +131,7 @@ require_once 'templates/admin_navbar.php';
                   if ($is_super_admin): // If admin with role_id 0, grant automatic access
               ?>
                   <a style="color: #BB0505;" href="read_full.php?archiveID=<?php echo $data['archive_id']; ?>">Read full text</a>
-              <?php else: // For students and other admin roles, check access status
+              <?php else:
                   $access_status = $db->GET_ACCESS_STATUS($archive_id, $user_id);
                   if ($access_status == 'approved'): 
               ?>
@@ -270,7 +270,7 @@ require_once 'templates/admin_navbar.php';
                 </div>
                 
                 <form id="access-request-form" method="post" action="">
-                    <input type="hidden" name="archive_id" value="<?php echo $data['archiveID']; ?>">
+                    <input type="hidden" name="archive_id" value="<?php echo $data['archive_id']; ?>">
                     
                     <div class="mt-4">
                         <label for="request_reason" class="block text-sm font-medium text-slate-700 mb-1">Reason for access request</label>
@@ -330,8 +330,9 @@ requestForm.addEventListener('submit', async function(e){
       document.getElementById('request-access-popup').classList.add('hidden');
 
       if(response){
-        sweetAlert()
       }
+    }, error: function(response){
+      console.log(response);
     }
   })
 })

@@ -75,7 +75,7 @@ if(isset($_SESSION['auth_user']['admin_id'])) {
               <div class="intro">
                 <h2>Admin Portal</h2>
                 <p>Access a full of research resources and manage your work efficiently.</p>
-              </div>
+              </div>  
           </div>
           <div class="col-sm-12 col-md-6 col-xl-6">
             <div class="log-in-container">

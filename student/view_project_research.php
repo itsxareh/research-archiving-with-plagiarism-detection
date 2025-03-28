@@ -149,7 +149,7 @@ require_once 'templates/student_navbar.php';
                     <div class="mt-6 text-center">
                         <button type="submit"
                             class="inline-flex w-full items-center justify-center rounded-lg hover:bg-[#c54b4b] bg-[#a33333] p-2 py-3 text-sm font-medium text-white outline-none focus:ring-2 focus:ring-black focus:ring-offset-1">
-                            Submit Request
+                            Submit
                         </button>
                     </div>
                 </form>

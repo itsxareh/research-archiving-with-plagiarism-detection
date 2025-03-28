@@ -215,12 +215,12 @@ require_once 'templates/admin_navbar.php';
                                     <?php
                                     $request_status = $result['request_status'];
                                     if ($request_status === 'pending') {
-                                        echo '<a href="access_requests.php?request_id='.$result['request_id'].'&action=approve" class="dropdown-action-item" onclick="disableOnClick(this)">Approve</a>';
-                                        echo '<a href="access_requests.php?request_id='.$result['request_id'].'&action=deny" class="dropdown-action-item" onclick="disableOnClick(this)">Deny</a>';
+                                        echo '<a href="access_requests.php?request_id='.$result['request_id'].'&action=approve" class="dropdown-action-item" onclick="disableOnClick()">Approve</a>';
+                                        echo '<a href="access_requests.php?request_id='.$result['request_id'].'&action=deny" class="dropdown-action-item" onclick="disableOnClick()">Deny</a>';
                                     } elseif ($request_status === 'approved') {
-                                        echo '<a href="access_requests.php?request_id='.$result['request_id'].'&action=deny" class="dropdown-action-item" onclick="disableOnClick(this)">Deny</a>';
+                                        echo '<a href="access_requests.php?request_id='.$result['request_id'].'&action=deny" class="dropdown-action-item" onclick="disableOnClick()">Deny</a>';
                                     } elseif ($request_status === 'denied') {
-                                        echo '<a href="access_requests.php?request_id='.$result['request_id'].'&action=approve" class="dropdown-action-item" onclick="disableOnClick(this)">Approve</a>';
+                                        echo '<a href="access_requests.php?request_id='.$result['request_id'].'&action=approve" class="dropdown-action-item" onclick="disableOnClick()">Approve</a>';
                                     }
                                     ?>
                                 </div>
@@ -241,9 +241,12 @@ require_once 'templates/admin_navbar.php';
 </div>
 <?php endif; ?>
 <script>
-    function disableOnClick(element) {
-        element.style.pointerEvents = 'none';  // Prevent further clicks
-        element.style.opacity = '0.5';  // Optional: Visually indicate it's disabled
+    function disableOnClick() {
+        const requestBtn = document.querySelectorAll('.dropdown-action-item');
+        requestBtn.forEach(element => {
+            element.style.opacity = '0.5';
+            element.style.pointerEvents = 'none';
+        });
     }
 </script>
 <script>

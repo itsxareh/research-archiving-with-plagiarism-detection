@@ -13,7 +13,7 @@ if (!isset($_SESSION['auth_user'])) {
 
 // Get user ID (either student_no or admin_id)
 $user_id = $_SESSION['auth_user']['student_no'] ?? $_SESSION['auth_user']['admin_uniqueID'];
-$user_type = isset($_SESSION['auth_user']['student_no']) ? 'student' : 'admin';
+$user_type = isset($_SESSION['auth_user']['student_no']) ? 'student' : ($_SESSION['auth_user']['role_id'] == 1 ? 'superadmin' : 'admin');
 
 // Check if form was submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['archive_id']) && isset($_POST['request_reason'])) {
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['archive_id']) && isse
     $request_reason = htmlspecialchars($_POST['request_reason']);
     
     // If it's an admin, automatically grant access
-    if ($user_type === 'admin') {
+    if ($user_type === 'superadmin') {
         // You might want to log this access or handle it differently
         echo json_encode([
             'status' => 'success',
